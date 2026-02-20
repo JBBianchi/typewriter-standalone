@@ -22,13 +22,14 @@ Select the runtime baseline for a cross-platform CLI replacing a VSIX/.NET Frame
   - `.ai/prototypes/PR-0001-msbuild-loading-spike.md`
 
 ## Conclusion
-Use `net8.0` as the primary target framework for `typewriter-cli`.
+Use `net10.0` as the primary target framework for `typewriter-cli`.
 
 ## Impact
-- `net8.0` is LTS and broadly available in CI environments.
-- Enables modern cross-platform runtime APIs and current MSBuild/Roslyn packages.
-- Keeps migration scope controlled; optional secondary TFM can be added later only if a validated compatibility need emerges.
+- Aligns the implementation baseline with the explicit project requirement to prefer .NET 10.
+- Enables modern cross-platform runtime APIs and current MSBuild/Roslyn packages in a single TFM baseline.
+- Requires CI agents and developer machines to install .NET 10 SDK/runtime; compatibility fallback can be evaluated later as an explicit parity/business decision.
 
 ## Next steps
-- Implement CLI projects as SDK-style `net8.0` projects.
+- Implement CLI projects as SDK-style `net10.0` projects.
+- Pin repository SDK selection to `10.0.x` via `global.json` during implementation.
 - Validate package/runtime behavior on Linux/macOS/Windows in CI.

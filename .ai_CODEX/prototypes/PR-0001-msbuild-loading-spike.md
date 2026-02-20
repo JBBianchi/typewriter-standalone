@@ -31,7 +31,7 @@ We must choose a project-loading strategy for a cross-platform CLI that supports
     - `.sln`
     - `.slnx`
   - with explicit MSBuild environment globals (`MSBuildSDKsPath`, `MSBuildExtensionsPath`, `MSBUILD_EXE_PATH`) in `GraphProbe/Program.cs`.
-  - multi-target `TargetFrameworks=net8.0;net10.0` produced multiple graph nodes by default and a single node when `TargetFramework` global property was specified (`net8.0` or `net10.0`).
+  - multi-target `TargetFrameworks=<tfm1>;<tfm2>` produced multiple graph nodes by default and a single node when `TargetFramework` global property was specified.
 - Environment caveat observed:
   - On this machine, multi-target `dotnet build` occasionally fails with MSBuild SDK resolver issue `MSB4276` related to workload locator SDKs; graph loading still worked.
 

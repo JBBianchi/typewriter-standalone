@@ -21,7 +21,7 @@
 - [F-0015](findings/F-0015-buildalyzer-and-msbuild-usage-gap.md) Buildalyzer/MSBuild runtime usage gap in upstream.
 
 ## Decisions
-- [D-0001](decisions/D-0001-target-framework.md) Adopt `net8.0` as CLI target framework baseline.
+- [D-0001](decisions/D-0001-target-framework.md) Adopt `net10.0` as CLI target framework baseline.
 - [D-0002](decisions/D-0002-packaging-strategy.md) Package as `dotnet tool` primary distribution.
 - [D-0003](decisions/D-0003-project-loading-strategy.md) Use hybrid loading: `ProjectGraph` + Roslyn semantic loading.
 

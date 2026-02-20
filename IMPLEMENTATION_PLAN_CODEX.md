@@ -1,7 +1,8 @@
 # 1. Overview
-This plan defines a production-grade migration of upstream Typewriter from a Visual Studio extension host to a cross-platform CLI (`typewriter-cli`) on modern .NET, with no Visual Studio runtime dependency.
+This plan defines a production-grade migration of upstream Typewriter from a Visual Studio extension host to a cross-platform CLI (`typewriter-cli`) on modern .NET (`net10.0` baseline), with no Visual Studio runtime dependency.
 
 Summary of approach:
+- Standardize implementation/runtime baseline on `net10.0` and SDK `10.0.x`.
 - Keep generation semantics and template language behavior parity with upstream.
 - Replace host/runtime coupling (VSIX, DTE, IVs services, MEF editor features) with explicit CLI orchestration.
 - Use a hybrid loading design: MSBuild project graph for deterministic traversal and Roslyn semantic loading for metadata fidelity.
@@ -14,6 +15,7 @@ Expected deliverables after implementation:
 
 # 2. Goals and Non-goals
 Goals:
+- Use `net10.0` as the primary target framework for all CLI solution projects.
 - Cross-platform CLI generation workflow with deterministic output and exit codes.
 - No dependency on `Microsoft.VisualStudio.*`, `EnvDTE`, COM, registry, or VSIX runtime.
 - Robust input loading for `.csproj`, `.sln`, `.slnx` including `global.json`, `Directory.Build.props/targets`, and multi-targeting.
@@ -178,7 +180,7 @@ Data flow:
 # 9. Implementation Phases (milestones + acceptance criteria)
 Phase 0 - Repo bootstrap and contracts:
 - Scope: create solution skeleton, module boundaries, diagnostic/error contracts, test project scaffolding.
-- Tasks: define shared abstractions and DTOs; wire command surface and no-op pipeline.
+- Tasks: define shared abstractions and DTOs; wire command surface and no-op pipeline; enforce `net10.0` TFM baseline in all new projects.
 - Acceptance tests: CLI returns exit code `2` on invalid input, `0` on dry valid no-op fixture.
 - Done when: baseline build/test passes on one OS.
 
@@ -250,11 +252,11 @@ Golden tests:
 
 Cross-platform matrix:
 - Windows latest, Ubuntu latest, macOS latest.
-- Pinned SDK via `global.json` in test fixtures for deterministic behavior.
+- Pinned SDK `10.0.x` via `global.json` in test fixtures for deterministic behavior.
 
 # 11. CI/CD Plan (restore/build/generate verification)
 Workflow stages:
-1. Checkout + SDK setup honoring repo `global.json`.
+1. Checkout + .NET 10 SDK setup honoring repo `global.json`.
 2. Restore solution and test projects.
 3. Build all projects in Release.
 4. Run unit tests.

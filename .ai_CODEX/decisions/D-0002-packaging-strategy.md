@@ -9,7 +9,7 @@ Choose distribution approach for developer machines and CI pipelines with minima
 
 ## Evidence
 - Product requirement calls out global tool install target and CI usage.
-- CLI is planned as modern cross-platform .NET (`D-0001` = `net8.0`).
+- CLI is planned as modern cross-platform .NET (`D-0001` = `net10.0`).
 - Upstream packaging is VSIX-specific and not reusable for CLI:
   - `origin/src/Typewriter/source.extension.vsixmanifest:44`
   - `origin/src/Typewriter/Typewriter.csproj:21`
@@ -23,6 +23,7 @@ Primary packaging target is a `dotnet tool` package (`typewriter-cli`) for both 
   - `dotnet tool install -g typewriter-cli`
   - `dotnet tool install --local typewriter-cli`
 - Works uniformly across Linux/macOS/Windows CI agents that have .NET SDK/runtime.
+- Establishes .NET 10 as the minimum runtime/tooling requirement for tool execution.
 - Optional secondary packaging (self-contained archives) is deferred and non-blocking.
 
 ## Next steps

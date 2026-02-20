@@ -37,7 +37,7 @@ foreach (var relative in paths)
     DumpGraph(relative, baseProperties);
 }
 
-DumpGraph("MultiLib/MultiLib.csproj [TargetFramework=net8.0]", Merge(baseProperties, "TargetFramework", "net8.0"));
+DumpGraph("MultiLib/MultiLib.csproj [TargetFramework=net9.0]", Merge(baseProperties, "TargetFramework", "net9.0"));
 DumpGraph("MultiLib/MultiLib.csproj [TargetFramework=net10.0]", Merge(baseProperties, "TargetFramework", "net10.0"));
 
 void DumpGraph(string label, IDictionary<string, string> properties)
