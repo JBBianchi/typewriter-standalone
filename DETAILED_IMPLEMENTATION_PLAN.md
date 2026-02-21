@@ -86,8 +86,8 @@
 | Semantic fidelity depends on Roslyn model parity | Both findings + risk docs | 5 | Strong independent agreement and upstream evidence | Preserve Roslyn metadata behavior with parity tests |
 | Template assembly loading is a real cross-platform risk | Claude R-0003 + risk comparisons | 4 | Identified as a concrete migration trap; no contradiction | Implement `AssemblyLoadContext` with resolver tests |
 | Source-generator visibility is uncertain and must be tested | Claude Q-0001 + question comparisons | 4 | Explicitly called out as unresolved; no direct contradictory evidence | Add generator fixture in semantic parity milestone |
-| `IncludeProject(name)` ambiguity is real | Codex Q-0001 + question comparisons | 4 | Upstream name-based DTE behavior can be ambiguous in monorepos | Define deterministic resolution and ambiguity errors |
-| `requestRender` combined-partial behavior must be mapped | Codex Q-0004 + question comparisons | 4 | Upstream callback behavior is evidence-backed and parity-critical | Add batch-equivalent render queue and regression tests |
+| `IncludeProject(name)` ambiguity is real | Codex Q-0001 + question comparisons | 4 | Upstream name-based DTE behavior can be ambiguous in monorepos | Resolved with deterministic ambiguity error policy (`TW12xx`) and path-qualified selector requirement |
+| `requestRender` combined-partial behavior must be mapped | Codex Q-0004 + question comparisons | 4 | Upstream callback behavior is evidence-backed and parity-critical | Implement deterministic render-session queue with scope boundary, bounded convergence, and enqueue observability |
 | Performance risk on large solutions is real | Codex R-0004 + risk comparisons | 4 | Upstream warning + graph expansion evidence | Add caching and perf thresholds before release |
 | MSBuild-compatible diagnostics improve CI usability | Claude implementation comparison | 5 | Explicit comparative advantage with no downside | Standardize parseable error format and codes |
 | CI must enforce parity gates | Both plans, stronger in Codex quality gates | 5 | Strong alignment and direct fit for CI-first goal | Block release on golden/diagnostic drift |
@@ -424,7 +424,7 @@ typewriter: error TW2003: Restore assets missing for project ./src/App/App.cspro
 | Single-file mode | identical | integration + golden | single artifact name/content matches baseline |
 | IncludeCurrent/Referenced/All | identical | integration | selected file set equals expected fixture manifest |
 | IncludeProject(name) | transformed with explicit policy | integration + ambiguity tests | duplicate names produce deterministic `TW12xx` behavior |
-| Partial combined `requestRender` behavior | transformed with deterministic batching | integration + regression | cross-file partial updates produce complete output set |
+| Partial combined `requestRender` behavior | transformed with deterministic batching | integration + regression | cross-file partial updates produce complete output set, no duplicate renders, and bounded queue convergence |
 | Roslyn type semantics (nullable/task/tuple/etc.) | identical | unit metadata suite | all upstream-equivalent assertions pass |
 | WebApi/type extensions | identical | unit + golden | helper method outputs match expected baseline |
 | Output path and collisions | identical | unit | collision sequence, invalid-char normalization, directory resolution all match |
@@ -546,7 +546,10 @@ typewriter: error TW2003: Restore assets missing for project ./src/App/App.cspro
   - rewrite `RoslynMetadataProvider` to use workspace service output.
   - remove `ThreadHelper` usage from `RoslynFileMetadata`.
   - implement source-generator visibility test harness.
-  - resolve partial combined render callback behavior in batch model.
+  - resolve partial combined render callback behavior in batch model using a deterministic render queue.
+  - enforce a bounded render-session safety cap to prevent infinite queue loops.
+  - enforce scope boundary so callback-enqueued files stay within current load/render scope.
+  - add `detailed` verbosity logging when `requestRender` enqueues a new file.
 - Files/projects touched:
   - `src/Typewriter.Metadata.Roslyn/RoslynMetadataProvider.cs`
   - `src/Typewriter.Metadata.Roslyn/RoslynFileMetadata.cs`
@@ -554,6 +557,9 @@ typewriter: error TW2003: Restore assets missing for project ./src/App/App.cspro
 - Acceptance tests (exact):
   - `MetadataParityTests.NullableTaskTupleGenericParity`
   - `MetadataParityTests.PartialCombinedMode_RequestRenderEquivalent`
+  - `MetadataParityTests.PartialCombinedMode_RequestRender_RespectsScopeBoundary`
+  - `MetadataParityTests.PartialCombinedMode_RequestRender_ConvergesWithinSafetyCap`
+  - `MetadataParityTests.PartialCombinedMode_RequestRender_DetailedLogsNewEnqueue`
   - `MetadataParityTests.SourceGeneratorTypes_AreVisible`
 - Definition of Done:
   - parity metadata suites pass on all OSes.
@@ -767,7 +773,7 @@ typewriter: error TW2003: Restore assets missing for project ./src/App/App.cspro
 | Template assembly load failure on Linux/macOS | Medium | High | dedicated `AssemblyLoadContext` + resolver tests | `#reference` templates fail only on non-Windows |
 | Source generator outputs missing | Medium | Medium | generator fixture and validation in M5 | generated symbols absent in metadata logs |
 | IncludeProject ambiguity in monorepos | Medium | High | explicit ambiguity policy with deterministic errors | project selection differs by environment |
-| Partial combined render callback mismatch | Medium | High | implement deterministic request queue equivalent + regression tests | partial-type outputs incomplete after changes |
+| Partial combined render callback mismatch | Medium | High | deterministic request queue + bounded session cap + scope boundary + regression tests/log validation | partial-type outputs incomplete after changes or enqueue growth without convergence |
 | Large-solution performance degradation | Medium | Medium | caching + perf tests + thresholds | runtime trend increases across commits |
 | Drift from rewritten components | Medium | High | reuse-first policy + path ownership + parity gates | repeated golden diffs in same features |
 | Security/trust risks from `#reference` loading | Low | High | allowlist/safe-path policy option, clear docs for untrusted templates | loading arbitrary binaries in CI contexts |
@@ -775,10 +781,13 @@ typewriter: error TW2003: Restore assets missing for project ./src/App/App.cspro
 | User adoption friction from no project mutation | Medium | Medium | document mitigation, optional post-v1 feature flag | repeated feature requests/issues for csproj updates |
 # 13. Open Questions and Resolution Plan
 
+## Resolved Decision (Q1)
+- Q1 `IncludeProject(name)` ambiguity is resolved as of 2026-02-21: if more than one project matches by name, fail with `TW12xx` and require a path-qualified selector (or a unique match). Rationale and source references: `_archive/Q1-include-project-name-ambiguity-decision.md`.
+
+## Open Questions (Remaining)
 | ID | Question | Resolution Method | Target Milestone | Decision Rule |
 |---|---|---|---|---|
-| Q1 | Should `IncludeProject(name)` allow ambiguous names? | add ambiguity fixtures with duplicate names | M5 | if >1 match, fail with explicit `TW12xx` unless path-qualified selector is provided |
-| Q2 | How is upstream `requestRender` callback mirrored in batch mode? | partial combined regression fixture with cross-file declarations | M5 | outputs must match baseline without duplicate renders |
+| Q2 | How is upstream `requestRender` callback mirrored in batch mode? | deterministic render-session queue with dedupe/order + partial combined regression fixture with cross-file declarations + scope/cap/log validation (design notes: `_archive/Q2-request-render-batch-mode-resolution-notes.md`) | M5 | outputs must match baseline without duplicate renders; callback enqueues must stay in scope and converge within configured safety cap |
 | Q3 | Should v1 mutate project files? | usage analysis + spike in SDK-style csproj edit safety | M8 | default no; only enable with explicit opt-in in post-v1 unless a blocker is found |
 | Q4 | Are source-generated symbols visible in workspace pipeline? | generator fixture + compile inspection | M5 | if missing, add generator execution fallback or document unsupported scenario |
 | Q5 | Is `.slnx` fallback needed in practice? | force-failure simulation in loader tests | M4 | keep fallback only if it demonstrates real recovery value |
@@ -826,8 +835,8 @@ typewriter: error TW2003: Restore assets missing for project ./src/App/App.cspro
 | Diagnostics format | human-readable focus | MSBuild parseable with `TW` codes | parseable diagnostics are stronger for CI/tooling | adopt MSBuild format + codes | 5 | M2 snapshot tests |
 | Template assembly loading | less explicit risk | explicit ALC risk/mitigation | ALC risk is real on .NET 10 | dedicated `TemplateAssemblyLoadContext` | 4 | M6 cross-platform assembly tests |
 | Source generator handling | implicit | explicit open question | unresolved and potentially user-visible | treat as open question with fixture | 4 | M5 generator fixture |
-| IncludeProject ambiguity | explicit risk | largely omitted | ambiguity can silently misrender outputs | explicit policy + error on ambiguity | 4 | M5 ambiguity tests |
-| Partial `requestRender` mapping | explicit risk | omitted | parity-critical in combined partial scenarios | deterministic batch equivalent | 4 | M5 partial regression tests |
+| IncludeProject ambiguity | explicit risk -> resolved policy | largely omitted | ambiguity can silently misrender outputs | explicit `TW12xx` policy + path-qualified selector requirement (resolved 2026-02-21) | 4 | M5 ambiguity tests |
+| Partial `requestRender` mapping | explicit risk -> constrained resolution | omitted | parity-critical in combined partial scenarios | deterministic batch equivalent with dedupe, scope boundary, safety cap, and detailed enqueue logs | 4 | M5 partial regression tests |
 | Module granularity | 7 modules (clean separation) | fewer modules (simpler) | both valid; avoid thin-project overengineering while preserving boundaries | balanced 7 core + clear ownership | 3 | M0/M1 review after first vertical slice |
 | CLI input UX | richer infra flags | better template glob UX | combine both strengths | positional templates + rich infra flags | 5 | M2 CLI contract tests |
 | Multi-target default | broader graph handling | first-TFM default | first-TFM default is safer for deterministic output; explicit override remains | default first TFM + `--framework` | 4 | M3 multi-target fixtures |
