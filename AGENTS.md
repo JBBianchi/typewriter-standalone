@@ -146,3 +146,72 @@ CI must gate on:
 4. CLI contract and exit-code behavior are preserved.
 5. `origin/` remains unchanged.
 6. Docs were updated when behavior/contracts changed.
+
+## 14) Progress Tracking
+
+Agents MUST maintain `.ai/progress.md` as the living record of project state. Any agent starting work MUST read this file first.
+
+### Update Protocol
+
+1. `.ai/progress.md` is the central hub. Keep it concise and current.
+2. Before starting any task: read `progress.md`, update "Current State" and "Active Tasks".
+3. After completing any task: update milestone status, mark task done, update "Current State" with the next step.
+4. When hitting a blocker: update "Current State" blocker field and append a row to "Roadblocks Log".
+5. When making a non-trivial technical decision: add a row to the "Decisions" table with rationale or a link to the relevant task file.
+6. When discovering a reusable pattern or convention: add it to "Patterns & Conventions".
+7. When a question arises or is resolved: update the "Open Questions" table.
+
+### Per-Task Detail Files
+
+Create `.ai/tasks/T{NNN}-{slug}.md` for work that meets at least one of these criteria:
+- Spans multiple files or projects
+- Involves a non-obvious technical decision or tradeoff
+- Hits a roadblock that requires investigation
+- Takes more than one agent session to complete
+
+Task files MUST capture the journey thoroughly — each significant attempt, file paths involved, code-level observations, what failed and why — not just the outcome. Use the following structure:
+
+```
+# T{NNN}: {Title}
+- Milestone: M{X}
+- Status: In progress | Done | Blocked
+- Agent: [who worked on this]
+- Started: YYYY-MM-DD
+- Completed: YYYY-MM-DD (or blank)
+
+## Objective
+[1-2 sentences]
+
+## Approach
+[How you plan to / did implement it. Include key file paths.]
+
+## Journey
+### [Date or attempt]
+- [What was tried, what happened, what was learned]
+- [File paths, code snippets, error messages where useful]
+
+## Outcome
+[Final state. Files changed, tests passing.]
+
+## Follow-ups
+- [Anything spawned by this work]
+```
+
+Link task files from the "Active Tasks" table in `progress.md`. Trivial single-file changes do not need a detail file.
+
+### ID Continuity
+
+Continue numbering from `_archive/` records:
+- Decisions: next is D-0004
+- Questions: next is Q-0007 (Q1-Q6 used across archive and plan)
+- Tasks: start at T001 (implementation-phase artifact)
+
+### What NOT to Track in `.ai/`
+
+- Do not duplicate milestone scope, acceptance criteria, or architecture from `DETAILED_IMPLEMENTATION_PLAN.md`. Reference by milestone ID (e.g., "See M3").
+- Do not duplicate decisions already recorded in `_archive/`. Reference by ID (e.g., "See D-0001 in `_archive/`").
+- Do not create task detail files preemptively. Create them when work actually starts.
+
+### Commit Protocol
+
+Include `.ai/` file updates in the same commit as the code they describe. Do not create separate "progress update" commits. Exception: investigation-only sessions with findings but no code changes may commit `.ai/` updates standalone.
