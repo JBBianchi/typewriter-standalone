@@ -28,7 +28,7 @@
 
 | Task | Milestone | Agent | Status | Detail |
 |------|-----------|-------|--------|--------|
-| | | | | |
+| #8 Create Directory.Build.props | M0 | Executor | Done | Shared TFM, nullable, implicit usings, warnings-as-errors |
 
 ## Decisions
 
