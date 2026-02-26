@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore Typewriter.Cli.slnx
+
+      - name: Build
+        run: dotnet build Typewriter.Cli.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Typewriter.Cli.slnx -c Release --no-build
+
+      - name: Pack
+        run: dotnet pack src/Typewriter.Cli/Typewriter.Cli.csproj -c Release -o ./artifacts/nupkg --no-build

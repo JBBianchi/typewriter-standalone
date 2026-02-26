@@ -33,6 +33,7 @@
 | #19 Create source project .csproj files with dependency graph | M0 | Executor | Done | 7 projects, placeholder classes, full dependency graph |
 | #20 Create test project .csproj files with xUnit | M0 | Executor | Done | 4 test projects, xUnit packages, placeholder tests |
 | #21 Create Typewriter.Cli.slnx solution file | M0 | Executor | Done | .slnx with all 11 projects in src/tests folders |
+| #22 Create .github/workflows/ci.yml CI workflow | M0 | Executor | Done | Cross-platform CI: restore, build, test, pack |
 
 ## Decisions
 
