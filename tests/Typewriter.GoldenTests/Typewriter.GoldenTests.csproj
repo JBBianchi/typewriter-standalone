@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Typewriter.Cli\Typewriter.Cli.csproj" />
+    <ProjectReference Include="..\..\src\Typewriter.Application\Typewriter.Application.csproj" />
+    <ProjectReference Include="..\..\src\Typewriter.Loading.MSBuild\Typewriter.Loading.MSBuild.csproj" />
+    <ProjectReference Include="..\..\src\Typewriter.CodeModel\Typewriter.CodeModel.csproj" />
+    <ProjectReference Include="..\..\src\Typewriter.Metadata\Typewriter.Metadata.csproj" />
+    <ProjectReference Include="..\..\src\Typewriter.Metadata.Roslyn\Typewriter.Metadata.Roslyn.csproj" />
+    <ProjectReference Include="..\..\src\Typewriter.Generation\Typewriter.Generation.csproj" />
+  </ItemGroup>
+
+</Project>

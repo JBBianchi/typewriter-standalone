@@ -7,13 +7,13 @@
 - **Active milestone**: M0 - Repo bootstrap and packaging skeleton
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Create solution file (.sln) to tie all projects together; add test projects
+- **Next step**: Create solution file (.sln) to tie all projects together
 
 ## Milestone Map
 
 | Milestone | Name | Status | Notes |
 |-----------|------|--------|-------|
-| M0 | Repo bootstrap and packaging skeleton | In progress | Directory.Build.props, global.json, project graph done |
+| M0 | Repo bootstrap and packaging skeleton | In progress | Directory.Build.props, global.json, project graph, test projects done |
 | M1 | Core reuse extraction (CodeModel/Metadata) | Not started | |
 | M2 | CLI contract, diagnostics, and configuration precedence | Not started | |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Not started | |
@@ -31,6 +31,7 @@
 | #8 Create Directory.Build.props | M0 | Executor | Done | Shared TFM, nullable, implicit usings, warnings-as-errors |
 | #18 Create global.json with .NET 10 SDK pin | M0 | Executor | Done | SDK 10.0.100, rollForward: latestFeature |
 | #19 Create source project .csproj files with dependency graph | M0 | Executor | Done | 7 projects, placeholder classes, full dependency graph |
+| #20 Create test project .csproj files with xUnit | M0 | Executor | Done | 4 test projects, xUnit packages, placeholder tests |
 
 ## Decisions
 
