@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Typewriter.Cli/Typewriter.Cli.csproj" />
+    <Project Path="src/Typewriter.Application/Typewriter.Application.csproj" />
+    <Project Path="src/Typewriter.Loading.MSBuild/Typewriter.Loading.MSBuild.csproj" />
+    <Project Path="src/Typewriter.CodeModel/Typewriter.CodeModel.csproj" />
+    <Project Path="src/Typewriter.Metadata/Typewriter.Metadata.csproj" />
+    <Project Path="src/Typewriter.Metadata.Roslyn/Typewriter.Metadata.Roslyn.csproj" />
+    <Project Path="src/Typewriter.Generation/Typewriter.Generation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Typewriter.UnitTests/Typewriter.UnitTests.csproj" />
+    <Project Path="tests/Typewriter.IntegrationTests/Typewriter.IntegrationTests.csproj" />
+    <Project Path="tests/Typewriter.GoldenTests/Typewriter.GoldenTests.csproj" />
+    <Project Path="tests/Typewriter.PerformanceTests/Typewriter.PerformanceTests.csproj" />
+  </Folder>
+</Solution>
