@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Suppress external-package locale warnings (NETSDK1188) and preview SDK notice (NETSDK1057) -->
+    <NoWarn>$(NoWarn);NETSDK1188;NETSDK1057</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Assembly Metadata">
