@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-02-26 by Claude
+> Last touched: 2026-02-27 by Claude
 
 ## Current State
 
 - **Active milestone**: M0 - Repo bootstrap and packaging skeleton
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Begin M1 - Core reuse extraction (CodeModel/Metadata)
+- **Next step**: Complete remaining M0 tasks, then begin M1 - Core reuse extraction (CodeModel/Metadata)
 
 ## Milestone Map
 
@@ -33,6 +33,7 @@
 | #19 Create source project .csproj files with dependency graph | M0 | Executor | Done | 7 projects, placeholder classes, full dependency graph |
 | #20 Create test project .csproj files with xUnit | M0 | Executor | Done | 4 test projects, xUnit packages, placeholder tests |
 | #21 Create Typewriter.Cli.slnx solution file | M0 | Executor | Done | .slnx with all 11 projects in src/tests folders |
+| #22 Create .github/workflows/ci.yml | M0 | Executor | Done | Cross-platform CI: restore, build, test, pack on 3 OS matrix |
 
 ## Decisions
 

@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace Typewriter.GoldenTests;
 
 public class PlaceholderTests

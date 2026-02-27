@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace Typewriter.IntegrationTests;
 
 public class PlaceholderTests
