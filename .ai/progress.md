@@ -5,15 +5,15 @@
 ## Current State
 
 - **Active milestone**: M0 - Repo bootstrap and packaging skeleton
-- **Status**: In progress
+- **Status**: Complete (verified)
 - **Blocker**: None
-- **Next step**: Complete remaining M0 tasks, then begin M1 - Core reuse extraction (CodeModel/Metadata)
+- **Next step**: Begin M1 - Core reuse extraction (CodeModel/Metadata)
 
 ## Milestone Map
 
 | Milestone | Name | Status | Notes |
 |-----------|------|--------|-------|
-| M0 | Repo bootstrap and packaging skeleton | In progress | Directory.Build.props, global.json, project graph, test projects done |
+| M0 | Repo bootstrap and packaging skeleton | Done | All acceptance criteria verified: build, test, pack, tool install |
 | M1 | Core reuse extraction (CodeModel/Metadata) | Not started | |
 | M2 | CLI contract, diagnostics, and configuration precedence | Not started | |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Not started | |
@@ -34,6 +34,7 @@
 | #20 Create test project .csproj files with xUnit | M0 | Executor | Done | 4 test projects, xUnit packages, placeholder tests |
 | #21 Create Typewriter.Cli.slnx solution file | M0 | Executor | Done | .slnx with all 11 projects in src/tests folders |
 | #22 Create .github/workflows/ci.yml | M0 | Executor | Done | Cross-platform CI: restore, build, test, pack on 3 OS matrix |
+| #23 Verify M0 acceptance criteria | M0 | Executor | Done | Build/test/pack/tool-install verified; .gitignore added; SDK warnings suppressed |
 
 ## Decisions
 
