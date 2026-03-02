@@ -25,7 +25,7 @@ public class CollectionTests
     public void ItemCollection_Empty_CountIsZero()
     {
         var collection = new StubCollection(Array.Empty<StubItem>());
-        Assert.Equal(0, collection.Count);
+        Assert.Empty(collection);
     }
 
     [Fact]
