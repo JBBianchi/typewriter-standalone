@@ -7,7 +7,7 @@
 - **Active milestone**: M3 - MSBuild project loading pipeline
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Continue M3 — implement project loader and remaining M3 tasks
+- **Next step**: Continue M3 — implement remaining M3 tasks (T027 SolutionGraphService, etc.)
 
 ## Milestone Map
 
@@ -61,6 +61,7 @@
 | T023 Implement IInputResolver and ResolvedInput in Loading.MSBuild (#80) | M3 | Executor | Done | `ResolvedInput.cs`, `IInputResolver.cs`, `InputResolver.cs` in `src/Typewriter.Loading.MSBuild/`; inverted dep (Loading.MSBuild → Application); build 0 errors/warnings |
 | T025 Implement MsBuildLocatorService in Loading.MSBuild (#81) | M3 | Executor | Done | `IMsBuildLocatorService.cs` + `MsBuildLocatorService.cs` in `src/Typewriter.Loading.MSBuild/`; Interlocked one-shot guard, TW2001 on failure; build 0 errors/warnings |
 | T024 Implement IRestoreService and RestoreService in Loading.MSBuild (#82) | M3 | Executor | Done | `IRestoreService.cs` + `RestoreService.cs` in `src/Typewriter.Loading.MSBuild/`; CheckAssetsAsync checks obj/project.assets.json, RestoreAsync runs dotnet restore and emits TW2001 on failure; build 0 errors/warnings |
+| T026 Implement IProjectGraphService and ProjectGraphService in Loading.MSBuild (#83) | M3 | Executor | Done | `IProjectGraphService.cs` + `ProjectGraphService.cs` in `src/Typewriter.Loading.MSBuild/`; Kahn's topological sort with path tie-breaker, multi-target selection (TW2401), TFM filtering (TW2002), assets check (TW2003); build 0 errors/warnings |
 
 ## Decisions
 
