@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T016)
+> Last touched: 2026-03-02 by Claude (Executor, T017)
 
 ## Current State
 
 - **Active milestone**: M2 - CLI contract, diagnostics, and configuration precedence
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Begin M3 — MSBuild project loading pipeline (T017+)
+- **Next step**: Begin M3 — MSBuild project loading pipeline (T018+)
 
 ## Milestone Map
 
@@ -52,6 +52,7 @@
 | T014 IDiagnosticReporter + TW code catalog (#61) | M2 | Executor | Done | [T014-implement-idiagnosticreporter-and-tw-code-catalog.md](.ai/tasks/T014-implement-idiagnosticreporter-and-tw-code-catalog.md) — `Diagnostics/` folder: severity enum, code constants, message record, interface, `MsBuildDiagnosticReporter`; 8 new tests; build 0 errors/warnings |
 | T015 typewriter.json loader + precedence merge (#62) | M2 | Executor | Done | [T015-implement-typewriterjson-loader.md](.ai/tasks/T015-implement-typewriterjson-loader.md) — `Configuration/TypewriterConfig.cs`, `TypewriterConfigLoader.cs`; `GenerateCommandOptions` → record + `Merge()`; 8 new tests; build 0 errors/warnings |
 | T016 Wire --fail-on-warnings and exit-code mapping (#63) | M2 | Executor | Done | `ApplicationRunner.cs` validation stub: empty-templates check, TW1002 for missing solution/project, FailOnWarnings→exit 1; `Placeholder.cs` deleted; 2 new `CliContractTests`; build 0 errors/warnings, 129 tests pass |
+| T017 Add M2 acceptance tests (#64) | M2 | Executor | Done | Verified 4 acceptance tests already in place from T013-T016: `CliContractTests` (2), `DiagnosticFormatTests.MsBuildStyleMessage_IsParseable` (1), `ConfigurationPrecedenceTests.CliOverridesConfigAndTemplate` (1); build 0 errors/warnings, 129 tests pass |
 
 ## Decisions
 
