@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T006)
+> Last touched: 2026-03-02 by Claude (Executor, T007)
 
 ## Current State
 
 - **Active milestone**: M1 - Core reuse extraction (CodeModel/Metadata)
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: T007–T008 — port Roslyn metadata wrappers (18 clean), rewrite 4 VS-coupled files, reconcile full Settings when deps allow
+- **Next step**: T008 — port Roslyn metadata wrappers (18 clean files from `origin/src/Roslyn/`)
 
 ## Milestone Map
 
@@ -42,6 +42,7 @@
 | T004 Port CodeModel collection impls (#37) | M1 | Executor | Done | [T004-port-codemodel-collection-implem.md](.ai/tasks/T004-port-codemodel-collection-implem.md) — 42 abstract types + 19 CollectionImpl files in `src/Typewriter.CodeModel/` |
 | T005 Port CodeModel impl files (#38) | M1 | Executor | Done | [T005-port-codemodel-implementation-files.md](.ai/tasks/T005-port-codemodel-implementation-files.md) — Helpers.cs + 19 Implementation files in `src/Typewriter.CodeModel/`; Settings stub extended |
 | T006 Port Helpers.cs type-mapping (#39) | M1 | Executor | Done | [T006-port-helpers-type-mapping.md](.ai/tasks/T006-port-helpers-type-mapping.md) — `src/Typewriter.CodeModel/Helpers.cs` already in place from T005; verified all acceptance criteria |
+| T007 Stub/rewrite VS-coupled config (#40) | M1 | Executor | Done | [T007-stubrewrite-vs-coupled-config.md](.ai/tasks/T007-stubrewrite-vs-coupled-config.md) — `SettingsImpl.cs` + `ProjectHelpers.cs` created; `Settings.cs` expanded; zero VS refs |
 
 ## Decisions
 
