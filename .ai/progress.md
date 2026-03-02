@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T027)
+> Last touched: 2026-03-02 by Claude (Executor, T030)
 
 ## Current State
 
@@ -64,6 +64,7 @@
 | T026 Implement IProjectGraphService and ProjectGraphService in Loading.MSBuild (#83) | M3 | Executor | Done | `IProjectGraphService.cs` + `ProjectGraphService.cs` in `src/Typewriter.Loading.MSBuild/`; Kahn's topological sort with path tie-breaker, multi-target selection (TW2401), TFM filtering (TW2002), assets check (TW2003); build 0 errors/warnings |
 | T027 Wire ApplicationRunner to MSBuild loading services (#84) | M3 | Executor | Done | [T027-wire-applicationrunner-to-msbuild.md](.ai/tasks/T027-wire-applicationrunner-to-msbuild.md) — Moved service interfaces to `Typewriter.Application.Loading`; `ApplicationRunner` full pipeline: resolve→restore→graph; `Program.cs` composes concrete services; build 0 errors/warnings, 129/129 tests pass |
 | T029 Add M3 unit tests for ProjectLoader (#85) | M3 | Executor | Done | `tests/Typewriter.UnitTests/Loading/ProjectLoaderTests.cs` — 3 NSubstitute tests: assets-exist (no restore), missing-assets without restore (TW2003), restore path; NSubstitute 5.x added to test project; all 3 tests pass |
+| T030 Add integration test CsprojIntegrationTests (#86) | M3 | Executor | Done | `tests/Typewriter.IntegrationTests/Loading/CsprojIntegrationTests.cs` — real-services pipeline test: InputResolver→RestoreService→ProjectGraphService; loads SimpleLib fixture; validates plan.Targets[0].TargetFramework=="net10.0"; MSBuildLocator registered before BuildPlanAsync call; 132/132 tests pass |
 
 ## Decisions
 
