@@ -1,20 +1,20 @@
 # Progress Tracker
 
-> Last touched: 2026-02-27 by Claude
+> Last touched: 2026-03-02 by Claude (Executor)
 
 ## Current State
 
-- **Active milestone**: M0 - Repo bootstrap and packaging skeleton
-- **Status**: Complete (verified)
+- **Active milestone**: M1 - Core reuse extraction (CodeModel/Metadata)
+- **Status**: In progress
 - **Blocker**: None
-- **Next step**: Begin M1 - Core reuse extraction (CodeModel/Metadata)
+- **Next step**: T002–T008 — port clean files into new project structure; rewrite 4 VS-coupled files
 
 ## Milestone Map
 
 | Milestone | Name | Status | Notes |
 |-----------|------|--------|-------|
 | M0 | Repo bootstrap and packaging skeleton | Done | All acceptance criteria verified: build, test, pack, tool install |
-| M1 | Core reuse extraction (CodeModel/Metadata) | Not started | |
+| M1 | Core reuse extraction (CodeModel/Metadata) | In progress | Audit T001 done; 77/81 in-scope files clean; 4 VS-coupled blockers identified |
 | M2 | CLI contract, diagnostics, and configuration precedence | Not started | |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Not started | |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Not started | |
@@ -36,6 +36,7 @@
 | #22 Create .github/workflows/ci.yml | M0 | Executor | Done | Cross-platform CI: restore, build, test, pack on 3 OS matrix |
 | #23 Verify M0 acceptance criteria | M0 | Executor | Done | Build/test/pack/tool-install verified; .gitignore added; SDK warnings suppressed |
 | #24 Update .ai/progress.md for M0 | M0 | Executor | Done | Progress tracker created with all §14 sections; M0 status documented |
+| T001 M1 compat checklist audit | M1 | Executor | Done | [T001-m1-compat-checklist.md](.ai/tasks/T001-m1-compat-checklist.md) — 77/81 files clean, 4 VS-coupled confirmed |
 
 ## Decisions
 
