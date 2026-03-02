@@ -11,6 +11,15 @@ public static class DiagnosticCode
     /// <summary>Restore failed.</summary>
     public const string TW2001 = "TW2001";
 
+    /// <summary>Project file not found at the specified path.</summary>
+    public const string TW2002 = "TW2002";
+
+    /// <summary>Restore assets missing (obj/project.assets.json not present); run with --restore.</summary>
+    public const string TW2003 = "TW2003";
+
+    /// <summary>Multi-target default selection: TFM was chosen implicitly because --framework was not specified.</summary>
+    public const string TW2401 = "TW2401";
+
     /// <summary>Template compile error.</summary>
     public const string TW3001 = "TW3001";
 
