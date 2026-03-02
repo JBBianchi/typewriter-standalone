@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T003)
+> Last touched: 2026-03-02 by Claude (Executor, T004)
 
 ## Current State
 
 - **Active milestone**: M1 - Core reuse extraction (CodeModel/Metadata)
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: T004–T008 — port remaining clean files (collections, implementations, helpers, Roslyn); rewrite 4 VS-coupled files; replace Settings stub when Settings is properly ported
+- **Next step**: T005–T008 — port Implementation files (19, all clean), Helpers.cs, Roslyn metadata wrappers; rewrite 4 VS-coupled files; reconcile full Settings when deps allow
 
 ## Milestone Map
 
@@ -39,6 +39,7 @@
 | T001 M1 compat checklist audit | M1 | Executor | Done | [T001-m1-compat-checklist.md](.ai/tasks/T001-m1-compat-checklist.md) — 77/81 files clean, 4 VS-coupled confirmed |
 | T002 Port metadata interfaces (#35) | M1 | Executor | Done | [T002-port-metadata-interfaces.md](.ai/tasks/T002-port-metadata-interfaces.md) — 19 I*.cs files in `src/Typewriter.Metadata/Interfaces/` |
 | T003 Port IMetadataProvider (#36) | M1 | Executor | Done | [T003-port-imetadataprovider-interface.md](.ai/tasks/T003-port-imetadataprovider-interface.md) — `IMetadataProvider.cs` + minimal `Settings` stub in `src/Typewriter.Metadata/` |
+| T004 Port CodeModel collection impls (#37) | M1 | Executor | Done | [T004-port-codemodel-collection-implem.md](.ai/tasks/T004-port-codemodel-collection-implem.md) — 42 abstract types + 19 CollectionImpl files in `src/Typewriter.CodeModel/` |
 
 ## Decisions
 
