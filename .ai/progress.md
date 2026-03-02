@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T019)
+> Last touched: 2026-03-02 by Claude (Executor, T020)
 
 ## Current State
 
 - **Active milestone**: M3 - MSBuild project loading pipeline
-- **Status**: Not started
+- **Status**: In progress
 - **Blocker**: None
-- **Next step**: Begin M3 — MSBuild project loading: `.csproj` and restore pipeline
+- **Next step**: Continue M3 — implement project loader, restore checks, and TW2xxx diagnostics
 
 ## Milestone Map
 
@@ -16,7 +16,7 @@
 | M0 | Repo bootstrap and packaging skeleton | Done | All acceptance criteria verified: build, test, pack, tool install |
 | M1 | Core reuse extraction (CodeModel/Metadata) | Done | All acceptance criteria verified: build 0 errors, CodeModel 102/102, TypeMapping 71/71, zero VS refs |
 | M2 | CLI contract, diagnostics, and configuration precedence | Done | T013–T018 done: CLI parser, diagnostics infrastructure, config loader, ApplicationRunner validation stub with exit-code mapping; all M2 acceptance tests verified (129/129 pass) |
-| M3 | MSBuild loading: `.csproj` and restore pipeline | Not started | |
+| M3 | MSBuild loading: `.csproj` and restore pipeline | In progress | T020 done: NuGet packages added to Loading.MSBuild; restore/build/test verified |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Not started | |
 | M5 | Semantic model extraction parity | Not started | |
 | M6 | Template execution and output management | Not started | |
@@ -54,6 +54,7 @@
 | T016 Wire --fail-on-warnings and exit-code mapping (#63) | M2 | Executor | Done | [T016-application-runner-stub.md](.ai/tasks/T016-application-runner-stub.md) — `ApplicationRunner.cs` validation stub: empty-templates check, TW1002 for missing solution/project, FailOnWarnings→exit 1; `Placeholder.cs` deleted; 2 new `CliContractTests`; build 0 errors/warnings, 129 tests pass |
 | T017 Add M2 acceptance tests (#64) | M2 | Executor | Done | [T017-m2-acceptance-tests.md](.ai/tasks/T017-m2-acceptance-tests.md) — Verified 4 acceptance tests already in place from T013-T016: `CliContractTests` (2), `DiagnosticFormatTests.MsBuildStyleMessage_IsParseable` (1), `ConfigurationPrecedenceTests.CliOverridesConfigAndTemplate` (1); build 0 errors/warnings, 129 tests pass |
 | T018 Run M2 acceptance criteria (#65) | M2 | Executor | Done | [T018-run-m2-acceptance-criteria.md](.ai/tasks/T018-run-m2-acceptance-criteria.md) — restore/build/test all pass; 129/129 tests pass; origin/ unchanged; zero VS coupling in M2 .cs source files |
+| T020 Add NuGet package refs to Loading.MSBuild (#76) | M3 | Executor | Done | `Microsoft.Build` 17.14.28 + `Microsoft.Build.Locator` 1.11.2 with `ExcludeAssets="runtime"` on Microsoft.Build; restore/build 0 errors, 129/129 tests pass |
 
 ## Decisions
 

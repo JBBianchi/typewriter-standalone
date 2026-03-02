@@ -1,3 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <!--
+      ExcludeAssets="runtime" prevents MSBuild assemblies from being copied to the
+      output directory. At runtime, Microsoft.Build.Locator dynamically loads them
+      from the SDK-installed location, so shipping our own copies would conflict.
+    -->
+    <PackageReference Include="Microsoft.Build" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Locator" Version="1.*" />
+  </ItemGroup>
+
 </Project>
