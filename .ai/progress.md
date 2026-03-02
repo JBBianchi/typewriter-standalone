@@ -58,6 +58,7 @@
 | T021 Create bridge DTOs ProjectLoadPlan.cs and LoadTarget.cs (#77) | M3 | Executor | Done | `src/Typewriter.Application/Orchestration/ProjectLoadPlan.cs` + `LoadTarget.cs`; build 0 errors/warnings |
 | T022 Expand DiagnosticCode.cs with TW2002, TW2003, TW2401 (#78) | M3 | Executor | Done | Added TW2002/TW2003 (Error) + TW2401 (Warning/Info) to `DiagnosticCode.cs`; build 0 errors/warnings |
 | T028 Create test fixture tests/fixtures/SimpleLib/SimpleLib.csproj (#79) | M3 | Executor | Done | `tests/fixtures/SimpleLib/SimpleLib.csproj` + `Class1.cs`; targets net10.0, no Typewriter refs |
+| T023 Implement IInputResolver and ResolvedInput in Loading.MSBuild (#80) | M3 | Executor | Done | `ResolvedInput.cs`, `IInputResolver.cs`, `InputResolver.cs` in `src/Typewriter.Loading.MSBuild/`; inverted dep (Loading.MSBuild → Application); build 0 errors/warnings |
 
 ## Decisions
 

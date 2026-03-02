@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Typewriter.Loading.MSBuild\Typewriter.Loading.MSBuild.csproj" />
     <ProjectReference Include="..\Typewriter.Generation\Typewriter.Generation.csproj" />
     <ProjectReference Include="..\Typewriter.CodeModel\Typewriter.CodeModel.csproj" />
     <ProjectReference Include="..\Typewriter.Metadata\Typewriter.Metadata.csproj" />
