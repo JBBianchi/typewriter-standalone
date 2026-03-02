@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\Typewriter.Application\Typewriter.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!--
       ExcludeAssets="runtime" prevents MSBuild assemblies from being copied to the
       output directory. At runtime, Microsoft.Build.Locator dynamically loads them
