@@ -39,19 +39,18 @@ generateCommand.AddOption(failOnWarningsOpt);
 generateCommand.SetHandler(async (InvocationContext ctx) =>
 {
     var pr = ctx.ParseResult;
-    var options = new GenerateCommandOptions
-    {
-        Templates      = pr.GetValueForArgument(templatesArg),
-        Solution       = pr.GetValueForOption(solutionOpt),
-        Project        = pr.GetValueForOption(projectOpt),
-        Framework      = pr.GetValueForOption(frameworkOpt),
-        Configuration  = pr.GetValueForOption(configurationOpt),
-        Runtime        = pr.GetValueForOption(runtimeOpt),
-        Restore        = pr.GetValueForOption(restoreOpt),
-        Output         = pr.GetValueForOption(outputOpt),
-        Verbosity      = pr.GetValueForOption(verbosityOpt),
-        FailOnWarnings = pr.GetValueForOption(failOnWarningsOpt),
-    };
+    var options = GenerateCommandOptions.Merge(
+        config:        null, // typewriter.json loaded by ApplicationRunner (T016)
+        templates:     pr.GetValueForArgument(templatesArg),
+        solution:      pr.GetValueForOption(solutionOpt),
+        project:       pr.GetValueForOption(projectOpt),
+        framework:     pr.GetValueForOption(frameworkOpt),
+        configuration: pr.GetValueForOption(configurationOpt),
+        runtime:       pr.GetValueForOption(runtimeOpt),
+        restore:       pr.GetValueForOption(restoreOpt),
+        output:        pr.GetValueForOption(outputOpt),
+        verbosity:     pr.GetValueForOption(verbosityOpt),
+        failOnWarnings: pr.GetValueForOption(failOnWarningsOpt));
 
     var reporter = new MsBuildDiagnosticReporter();
     var runner = new ApplicationRunner();

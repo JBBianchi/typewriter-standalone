@@ -1,16 +1,52 @@
+using Typewriter.Application.Configuration;
+
 namespace Typewriter.Application;
 
-/// <summary>Options parsed from the <c>generate</c> CLI subcommand.</summary>
-public sealed class GenerateCommandOptions
+/// <summary>Fully-resolved, immutable options for a single <c>generate</c> command invocation.</summary>
+/// <remarks>
+/// Construct via <see cref="Merge"/> so that CLI args, config file, and defaults are applied
+/// in the correct precedence order: CLI args &gt; config file &gt; defaults.
+/// </remarks>
+public record GenerateCommandOptions(
+    IReadOnlyList<string> Templates,
+    string? Solution,
+    string? Project,
+    string? Framework,
+    string? Configuration,
+    string? Runtime,
+    bool Restore,
+    string? Output,
+    string Verbosity,
+    bool FailOnWarnings)
 {
-    public required IReadOnlyList<string> Templates { get; init; }
-    public string? Solution { get; init; }
-    public string? Project { get; init; }
-    public string? Framework { get; init; }
-    public string? Configuration { get; init; }
-    public string? Runtime { get; init; }
-    public bool Restore { get; init; }
-    public string? Output { get; init; }
-    public string? Verbosity { get; init; }
-    public bool FailOnWarnings { get; init; }
+    /// <summary>
+    /// Merges CLI arguments, an optional config file, and defaults into a
+    /// <see cref="GenerateCommandOptions"/> instance.
+    /// </summary>
+    /// <remarks>Precedence: CLI args &gt; config file &gt; defaults.</remarks>
+    public static GenerateCommandOptions Merge(
+        TypewriterConfig? config,
+        IReadOnlyList<string> templates,
+        string? solution,
+        string? project,
+        string? framework,
+        string? configuration,
+        string? runtime,
+        bool restore,
+        string? output,
+        string? verbosity,
+        bool failOnWarnings)
+    {
+        return new GenerateCommandOptions(
+            Templates:      templates,
+            Solution:       solution       ?? config?.Solution,
+            Project:        project        ?? config?.Project,
+            Framework:      framework      ?? config?.Framework,
+            Configuration:  configuration  ?? config?.Configuration,
+            Runtime:        runtime        ?? config?.Runtime,
+            Restore:        restore,
+            Output:         output         ?? config?.Output,
+            Verbosity:      verbosity      ?? config?.Verbosity ?? "normal",
+            FailOnWarnings: failOnWarnings || (config?.FailOnWarnings ?? false));
+    }
 }

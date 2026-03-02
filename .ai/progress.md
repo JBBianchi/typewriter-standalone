@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T014)
+> Last touched: 2026-03-02 by Claude (Executor, T015)
 
 ## Current State
 
 - **Active milestone**: M2 - CLI contract, diagnostics, and configuration precedence
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Implement `typewriter.json` loader and precedence merge; implement `--fail-on-warnings` behavior; full `ApplicationRunner` pipeline (T016)
+- **Next step**: Implement `--fail-on-warnings` behavior and full `ApplicationRunner` pipeline (T016)
 
 ## Milestone Map
 
@@ -15,7 +15,7 @@
 |-----------|------|--------|-------|
 | M0 | Repo bootstrap and packaging skeleton | Done | All acceptance criteria verified: build, test, pack, tool install |
 | M1 | Core reuse extraction (CodeModel/Metadata) | Done | All acceptance criteria verified: build 0 errors, CodeModel 102/102, TypeMapping 71/71, zero VS refs |
-| M2 | CLI contract, diagnostics, and configuration precedence | In progress | T013 done: `generate` parser, stubs; T014 done: `Diagnostics/` infrastructure, `MsBuildDiagnosticReporter`, TW code catalog |
+| M2 | CLI contract, diagnostics, and configuration precedence | In progress | T013 done: `generate` parser, stubs; T014 done: `Diagnostics/` infrastructure, `MsBuildDiagnosticReporter`, TW code catalog; T015 done: `typewriter.json` loader, `GenerateCommandOptions` record with `Merge()` |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Not started | |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Not started | |
 | M5 | Semantic model extraction parity | Not started | |
@@ -50,6 +50,7 @@
 | T012 Update .ai/progress.md for M1 (#45) | M1 | Executor | Done | progress.md updated: M1→Done, active milestone→M2, D-0004/D-0005 added, 3 new patterns added |
 | T013 Implement generate command parser (#60) | M2 | Executor | Done | [T013-implement-generate-command-parse.md](.ai/tasks/T013-implement-generate-command-parse.md) — `Program.cs` rewrite with `System.CommandLine` 2.0.0-beta4; `GenerateCommandOptions`, `IDiagnosticReporter`, `ApplicationRunner` stubs; `ConsoleDiagnosticReporter`; build 0 errors/warnings |
 | T014 IDiagnosticReporter + TW code catalog (#61) | M2 | Executor | Done | [T014-implement-idiagnosticreporter-and-tw-code-catalog.md](.ai/tasks/T014-implement-idiagnosticreporter-and-tw-code-catalog.md) — `Diagnostics/` folder: severity enum, code constants, message record, interface, `MsBuildDiagnosticReporter`; 8 new tests; build 0 errors/warnings |
+| T015 typewriter.json loader + precedence merge (#62) | M2 | Executor | Done | [T015-implement-typewriterjson-loader.md](.ai/tasks/T015-implement-typewriterjson-loader.md) — `Configuration/TypewriterConfig.cs`, `TypewriterConfigLoader.cs`; `GenerateCommandOptions` → record + `Merge()`; 8 new tests; build 0 errors/warnings |
 
 ## Decisions
 
