@@ -59,7 +59,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator string(Field instance)
         {
-            return instance.ToString();
+            return instance.ToString()!;
         }
     }
 }

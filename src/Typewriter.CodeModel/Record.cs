@@ -138,7 +138,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator string(Record instance)
         {
-            return instance.ToString();
+            return instance.ToString()!;
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator Type(Record instance)
         {
-            return instance?.Type;
+            return instance?.Type!;
         }
     }
 }

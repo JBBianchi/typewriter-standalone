@@ -59,7 +59,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator string(EnumValue instance)
         {
-            return instance.ToString();
+            return instance.ToString()!;
         }
     }
 }

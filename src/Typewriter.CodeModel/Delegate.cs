@@ -75,7 +75,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator string(Delegate instance)
         {
-            return instance.ToString();
+            return instance.ToString()!;
         }
     }
 }

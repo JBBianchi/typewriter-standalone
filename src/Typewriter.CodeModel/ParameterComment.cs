@@ -28,7 +28,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator string(ParameterComment instance)
         {
-            return instance.ToString();
+            return instance.ToString()!;
         }
     }
 }

@@ -64,7 +64,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator string(Constant instance)
         {
-            return instance.ToString();
+            return instance.ToString()!;
         }
     }
 }

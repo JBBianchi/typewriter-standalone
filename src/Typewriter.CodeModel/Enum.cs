@@ -79,7 +79,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator string(Enum instance)
         {
-            return instance.ToString();
+            return instance.ToString()!;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Typewriter.CodeModel
         /// </summary>
         public static implicit operator Type(Enum instance)
         {
-            return instance?.Type;
+            return instance?.Type!;
         }
     }
 }
