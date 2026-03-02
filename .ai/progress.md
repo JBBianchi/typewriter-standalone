@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T018)
+> Last touched: 2026-03-02 by Claude (Executor, T019)
 
 ## Current State
 
@@ -51,8 +51,8 @@
 | T013 Implement generate command parser (#60) | M2 | Executor | Done | [T013-implement-generate-command-parse.md](.ai/tasks/T013-implement-generate-command-parse.md) — `Program.cs` rewrite with `System.CommandLine` 2.0.0-beta4; `GenerateCommandOptions`, `IDiagnosticReporter`, `ApplicationRunner` stubs; `ConsoleDiagnosticReporter`; build 0 errors/warnings |
 | T014 IDiagnosticReporter + TW code catalog (#61) | M2 | Executor | Done | [T014-implement-idiagnosticreporter-and-tw-code-catalog.md](.ai/tasks/T014-implement-idiagnosticreporter-and-tw-code-catalog.md) — `Diagnostics/` folder: severity enum, code constants, message record, interface, `MsBuildDiagnosticReporter`; 8 new tests; build 0 errors/warnings |
 | T015 typewriter.json loader + precedence merge (#62) | M2 | Executor | Done | [T015-implement-typewriterjson-loader.md](.ai/tasks/T015-implement-typewriterjson-loader.md) — `Configuration/TypewriterConfig.cs`, `TypewriterConfigLoader.cs`; `GenerateCommandOptions` → record + `Merge()`; 8 new tests; build 0 errors/warnings |
-| T016 Wire --fail-on-warnings and exit-code mapping (#63) | M2 | Executor | Done | `ApplicationRunner.cs` validation stub: empty-templates check, TW1002 for missing solution/project, FailOnWarnings→exit 1; `Placeholder.cs` deleted; 2 new `CliContractTests`; build 0 errors/warnings, 129 tests pass |
-| T017 Add M2 acceptance tests (#64) | M2 | Executor | Done | Verified 4 acceptance tests already in place from T013-T016: `CliContractTests` (2), `DiagnosticFormatTests.MsBuildStyleMessage_IsParseable` (1), `ConfigurationPrecedenceTests.CliOverridesConfigAndTemplate` (1); build 0 errors/warnings, 129 tests pass |
+| T016 Wire --fail-on-warnings and exit-code mapping (#63) | M2 | Executor | Done | [T016-application-runner-stub.md](.ai/tasks/T016-application-runner-stub.md) — `ApplicationRunner.cs` validation stub: empty-templates check, TW1002 for missing solution/project, FailOnWarnings→exit 1; `Placeholder.cs` deleted; 2 new `CliContractTests`; build 0 errors/warnings, 129 tests pass |
+| T017 Add M2 acceptance tests (#64) | M2 | Executor | Done | [T017-m2-acceptance-tests.md](.ai/tasks/T017-m2-acceptance-tests.md) — Verified 4 acceptance tests already in place from T013-T016: `CliContractTests` (2), `DiagnosticFormatTests.MsBuildStyleMessage_IsParseable` (1), `ConfigurationPrecedenceTests.CliOverridesConfigAndTemplate` (1); build 0 errors/warnings, 129 tests pass |
 | T018 Run M2 acceptance criteria (#65) | M2 | Executor | Done | [T018-run-m2-acceptance-criteria.md](.ai/tasks/T018-run-m2-acceptance-criteria.md) — restore/build/test all pass; 129/129 tests pass; origin/ unchanged; zero VS coupling in M2 .cs source files |
 
 ## Decisions
@@ -64,6 +64,8 @@
 | D-0003 | Loading architecture: `ProjectGraph` + Roslyn workspace hybrid | 2026-02-19 | See `_archive/.ai_CLAUDE/decisions/D-0003-project-loading-strategy.md` |
 | D-0004 | `PartialRenderingMode.cs` moved from `Typewriter.CodeModel` to `Typewriter.Metadata` | 2026-03-02 | Breaks circular dependency; `namespace Typewriter.Configuration` kept for API compat. See T008. |
 | D-0005 | `ILog`/`Log` omitted from `Settings` abstract class for M1 | 2026-03-02 | Not consumed by CodeModel in M1; will be reconsidered for M2 CLI diagnostics wiring. See T007. |
+| D-0006 | `System.CommandLine` pinned to `2.0.0-beta4.22272.1` | 2026-03-02 | Prerelease 2.x targets `netstandard2.0`, provides stable API shape for the `CommandLineBuilder`+`UseDefaults()` pattern; avoids 1.x→2.x breaking API changes. See T013. |
+| D-0007 | `typewriter.json` discovery stops at `.git` boundary | 2026-03-02 | Upward-walk terminates at the first directory containing `.git/` (repo root) to prevent config files from unrelated parent repos from silently applying. See T015. |
 
 ## Open Questions
 
@@ -93,3 +95,5 @@ Note: Q1 (`IncludeProject(name)` ambiguity) was resolved — see `_archive/Q1-in
 - **Type alias disambiguation**: When `ImplicitUsings` is enabled, use `using Alias = Full.Namespace.Type;` file-scope aliases to resolve conflicts between `System.*` types (e.g., `System.Attribute`, `System.Enum`, `System.Type`) and `Typewriter.CodeModel.*` types of the same name. See T010 (CollectionTests.cs).
 - **Cross-project type moves**: When moving a type to a lower-dependency project to break a circular reference, keep the original `namespace` declaration unchanged to preserve API compatibility for consumers. See T008 (`PartialRenderingMode.cs`).
 - **Agent CI environment**: Install .NET SDK to `/tmp/dotnet` via `dotnet-install.sh` and set `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` on Linux agents without ICU libraries. See T011.
+- **ApplicationRunner stub pattern**: Implement the pipeline orchestrator as a validation-only stub in the milestone that establishes the CLI contract; defer the full load→metadata→render→write pipeline to the milestone that delivers the required dependencies. Allows acceptance tests to pass immediately. See T016.
+- **IDiagnosticReporter injection**: Pass `IDiagnosticReporter` into `RunAsync()` rather than the constructor so each invocation gets a fresh reporter; use a `FakeDiagnosticReporter` with pre-seeded counts in unit tests to verify `--fail-on-warnings` without real console output. See T016.
