@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T017)
+> Last touched: 2026-03-02 by Claude (Executor, T018)
 
 ## Current State
 
-- **Active milestone**: M2 - CLI contract, diagnostics, and configuration precedence
-- **Status**: In progress
+- **Active milestone**: M3 - MSBuild project loading pipeline
+- **Status**: Not started
 - **Blocker**: None
-- **Next step**: Begin M3 — MSBuild project loading pipeline (T018+)
+- **Next step**: Begin M3 — MSBuild project loading: `.csproj` and restore pipeline
 
 ## Milestone Map
 
@@ -15,7 +15,7 @@
 |-----------|------|--------|-------|
 | M0 | Repo bootstrap and packaging skeleton | Done | All acceptance criteria verified: build, test, pack, tool install |
 | M1 | Core reuse extraction (CodeModel/Metadata) | Done | All acceptance criteria verified: build 0 errors, CodeModel 102/102, TypeMapping 71/71, zero VS refs |
-| M2 | CLI contract, diagnostics, and configuration precedence | Done | T013–T016 done: CLI parser, diagnostics infrastructure, config loader, ApplicationRunner validation stub with exit-code mapping |
+| M2 | CLI contract, diagnostics, and configuration precedence | Done | T013–T018 done: CLI parser, diagnostics infrastructure, config loader, ApplicationRunner validation stub with exit-code mapping; all M2 acceptance tests verified (129/129 pass) |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Not started | |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Not started | |
 | M5 | Semantic model extraction parity | Not started | |
@@ -53,6 +53,7 @@
 | T015 typewriter.json loader + precedence merge (#62) | M2 | Executor | Done | [T015-implement-typewriterjson-loader.md](.ai/tasks/T015-implement-typewriterjson-loader.md) — `Configuration/TypewriterConfig.cs`, `TypewriterConfigLoader.cs`; `GenerateCommandOptions` → record + `Merge()`; 8 new tests; build 0 errors/warnings |
 | T016 Wire --fail-on-warnings and exit-code mapping (#63) | M2 | Executor | Done | `ApplicationRunner.cs` validation stub: empty-templates check, TW1002 for missing solution/project, FailOnWarnings→exit 1; `Placeholder.cs` deleted; 2 new `CliContractTests`; build 0 errors/warnings, 129 tests pass |
 | T017 Add M2 acceptance tests (#64) | M2 | Executor | Done | Verified 4 acceptance tests already in place from T013-T016: `CliContractTests` (2), `DiagnosticFormatTests.MsBuildStyleMessage_IsParseable` (1), `ConfigurationPrecedenceTests.CliOverridesConfigAndTemplate` (1); build 0 errors/warnings, 129 tests pass |
+| T018 Run M2 acceptance criteria (#65) | M2 | Executor | Done | [T018-run-m2-acceptance-criteria.md](.ai/tasks/T018-run-m2-acceptance-criteria.md) — restore/build/test all pass; 129/129 tests pass; origin/ unchanged; zero VS coupling in M2 .cs source files |
 
 ## Decisions
 
