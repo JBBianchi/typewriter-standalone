@@ -57,6 +57,7 @@
 | T020 Add NuGet package refs to Loading.MSBuild (#76) | M3 | Executor | Done | `Microsoft.Build` 17.14.28 + `Microsoft.Build.Locator` 1.11.2 with `ExcludeAssets="runtime"` on Microsoft.Build; restore/build 0 errors, 129/129 tests pass |
 | T021 Create bridge DTOs ProjectLoadPlan.cs and LoadTarget.cs (#77) | M3 | Executor | Done | `src/Typewriter.Application/Orchestration/ProjectLoadPlan.cs` + `LoadTarget.cs`; build 0 errors/warnings |
 | T022 Expand DiagnosticCode.cs with TW2002, TW2003, TW2401 (#78) | M3 | Executor | Done | Added TW2002/TW2003 (Error) + TW2401 (Warning/Info) to `DiagnosticCode.cs`; build 0 errors/warnings |
+| T028 Create test fixture tests/fixtures/SimpleLib/SimpleLib.csproj (#79) | M3 | Executor | Done | `tests/fixtures/SimpleLib/SimpleLib.csproj` + `Class1.cs`; targets net10.0, no Typewriter refs |
 
 ## Decisions
 
