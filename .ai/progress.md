@@ -1,20 +1,20 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T010)
+> Last touched: 2026-03-02 by Claude (Executor, T011)
 
 ## Current State
 
 - **Active milestone**: M1 - Core reuse extraction (CodeModel/Metadata)
-- **Status**: In progress
+- **Status**: Done
 - **Blocker**: None
-- **Next step**: M1 complete pending T010 CI verification
+- **Next step**: Begin M2 (CLI contract, diagnostics, configuration precedence)
 
 ## Milestone Map
 
 | Milestone | Name | Status | Notes |
 |-----------|------|--------|-------|
 | M0 | Repo bootstrap and packaging skeleton | Done | All acceptance criteria verified: build, test, pack, tool install |
-| M1 | Core reuse extraction (CodeModel/Metadata) | In progress | Audit T001 done; 77/81 in-scope files clean; 4 VS-coupled blockers identified |
+| M1 | Core reuse extraction (CodeModel/Metadata) | Done | All acceptance criteria verified: build 0 errors, CodeModel 102/102, TypeMapping 71/71, zero VS refs |
 | M2 | CLI contract, diagnostics, and configuration precedence | Not started | |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Not started | |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Not started | |
@@ -46,6 +46,7 @@
 | T008 Port Roslyn metadata wrappers (#41) | M1 | Executor | Done | [T008-port-roslyn-metadata-wrappers.md](.ai/tasks/T008-port-roslyn-metadata-wrappers.md) — 19 files in `src/Typewriter.Metadata.Roslyn/`; `PartialRenderingMode` moved to `Typewriter.Metadata`; minimal `RoslynFileMetadata` stub |
 | T009 Add NuGet refs to Typewriter.Metadata.Roslyn (#42) | M1 | Executor | Done | [T009-add-nuget-references-to-typewriter-metadata-roslyn.md](.ai/tasks/T009-add-nuget-references-to-typewriter-metadata-roslyn.md) — refs already present from T008; no file changes needed |
 | T010 Add/update unit tests for M1 ported code (#43) | M1 | Executor | Done | [T010-addupdate-unit-tests-for-m1.md](.ai/tasks/T010-addupdate-unit-tests-for-m1.md) — TypeMappingTests (CamelCase, GetTypeScriptName, GetOriginalName, IsPrimitive), CollectionTests (ItemCollectionImpl, ClassCollectionImpl, EnumCollectionImpl, FieldCollectionImpl), RoslynExtensionsTests (GetName, GetFullName, GetNamespace, GetFullTypeName); added Microsoft.CodeAnalysis.CSharp package ref to test project |
+| T011 Run M1 acceptance criteria (#44) | M1 | Executor | Done | [T011-run-m1-acceptance-criteria.md](.ai/tasks/T011-run-m1-acceptance-criteria.md) — build 0 errors; CodeModel 102/102; TypeMapping 71/71; zero VS refs confirmed; origin/ unchanged |
 
 ## Decisions
 
