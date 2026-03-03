@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-02 by Claude (Executor, T032)
+> Last touched: 2026-03-03 by Claude (Executor, #115)
 
 ## Current State
 
 - **Active milestone**: M4 - MSBuild loading: `.sln` and `.slnx`
-- **Status**: Not started
+- **Status**: In progress
 - **Blocker**: None
-- **Next step**: MSBuild loading for `.sln` and `.slnx`
+- **Next step**: Implement SolutionFallbackService and ProjectGraph sln/slnx loading
 
 ## Milestone Map
 
@@ -17,7 +17,7 @@
 | M1 | Core reuse extraction (CodeModel/Metadata) | Done | All acceptance criteria verified: build 0 errors, CodeModel 102/102, TypeMapping 71/71, zero VS refs |
 | M2 | CLI contract, diagnostics, and configuration precedence | Done | T013–T018 done: CLI parser, diagnostics infrastructure, config loader, ApplicationRunner validation stub with exit-code mapping; all M2 acceptance tests verified (129/129 pass) |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Done | All acceptance criteria verified: restore/build 0 errors, 133/133 tests pass, origin/ unchanged, zero VS coupling |
-| M4 | MSBuild loading: `.sln` and `.slnx` | Not started | |
+| M4 | MSBuild loading: `.sln` and `.slnx` | In progress | TW2110/TW2310 diagnostic codes added (#115) |
 | M5 | Semantic model extraction parity | Not started | |
 | M6 | Template execution and output management | Not started | |
 | M7 | Golden parity and fixture repos | Not started | |
@@ -66,6 +66,7 @@
 | T029 Add M3 unit tests for ProjectLoader (#85) | M3 | Executor | Done | `tests/Typewriter.UnitTests/Loading/ProjectLoaderTests.cs` — 3 NSubstitute tests: assets-exist (no restore), missing-assets without restore (TW2003), restore path; NSubstitute 5.x added to test project; all 3 tests pass |
 | T030 Add integration test CsprojIntegrationTests (#86) | M3 | Executor | Done | `tests/Typewriter.IntegrationTests/Loading/CsprojIntegrationTests.cs` — real-services pipeline test: InputResolver→RestoreService→ProjectGraphService; loads SimpleLib fixture; validates plan.Targets[0].TargetFramework=="net10.0"; MSBuildLocator registered before BuildPlanAsync call; 132/132 tests pass |
 | T031 Run M3 acceptance criteria (#87) | M3 | Executor | Done | [T031-run-m3-acceptance-criteria.md](.ai/tasks/T031-run-m3-acceptance-criteria.md) — restore/build/test all pass; 133/133 tests; 3 M3 unit tests + integration test verified; origin/ unchanged; zero VS coupling |
+| #115 Add TW2110 and TW2310 to DiagnosticCode.cs | M4 | Executor | Done | Added TW2110 (Error, ProjectGraph sln/slnx load failure) and TW2310 (Warning, SolutionFallbackService slnx list failure); build 0 errors/warnings |
 
 ## Decisions
 

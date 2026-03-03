@@ -17,6 +17,12 @@ public static class DiagnosticCode
     /// <summary>Restore assets missing (obj/project.assets.json not present); run with --restore.</summary>
     public const string TW2003 = "TW2003";
 
+    /// <summary>(Error) MSBuild ProjectGraph constructor failed to load a .sln or .slnx solution file.</summary>
+    public const string TW2110 = "TW2110";
+
+    /// <summary>(Warning) SolutionFallbackService could not list projects from a .slnx file via dotnet sln list.</summary>
+    public const string TW2310 = "TW2310";
+
     /// <summary>Multi-target default selection: TFM was chosen implicitly because --framework was not specified.</summary>
     public const string TW2401 = "TW2401";
 
