@@ -1,3 +1,5 @@
+using RoslynCompilation = Microsoft.CodeAnalysis.Compilation;
+using RoslynProject = Microsoft.CodeAnalysis.Project;
 using NSubstitute;
 using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
