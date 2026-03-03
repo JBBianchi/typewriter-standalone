@@ -68,6 +68,7 @@
 | T031 Run M3 acceptance criteria (#87) | M3 | Executor | Done | [T031-run-m3-acceptance-criteria.md](.ai/tasks/T031-run-m3-acceptance-criteria.md) — restore/build/test all pass; 133/133 tests; 3 M3 unit tests + integration test verified; origin/ unchanged; zero VS coupling |
 | #115 Add TW2110 and TW2310 to DiagnosticCode.cs | M4 | Executor | Done | Added TW2110 (Error, ProjectGraph sln/slnx load failure) and TW2310 (Warning, SolutionFallbackService slnx list failure); build 0 errors/warnings |
 | #116 Create ISolutionFallbackService interface | M4 | Executor | Done | `src/Typewriter.Application/Loading/ISolutionFallbackService.cs`; ListProjectPathsAsync signature matches spec; build 0 errors/warnings |
+| #117 Update InputResolver to accept .sln and .slnx | M4 | Executor | Done | Added explicit extension validation (.csproj/.sln/.slnx accepted, others TW2002); `InputResolverTests.cs` 7 new tests; 140 tests pass |
 
 ## Decisions
 

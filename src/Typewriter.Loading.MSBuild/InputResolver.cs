@@ -5,6 +5,10 @@ namespace Typewriter.Loading.MSBuild;
 
 public sealed class InputResolver : IInputResolver
 {
+    // Accepted input file extensions: .csproj, .sln, .slnx
+    private static readonly HashSet<string> AcceptedExtensions =
+        new(StringComparer.OrdinalIgnoreCase) { ".csproj", ".sln", ".slnx" };
+
     public Task<ResolvedInput?> ResolveAsync(
         string projectPath,
         IDiagnosticReporter reporter,
@@ -21,12 +25,23 @@ public sealed class InputResolver : IInputResolver
         expanded = Environment.ExpandEnvironmentVariables(expanded);
         string resolvedPath = Path.GetFullPath(expanded);
 
+        string ext = Path.GetExtension(resolvedPath);
+        if (!AcceptedExtensions.Contains(ext))
+        {
+            reporter.Report(new DiagnosticMessage(
+                DiagnosticSeverity.Error,
+                DiagnosticCode.TW2002,
+                $"Unsupported file extension '{ext}'. Accepted: .csproj, .sln, .slnx",
+                File: resolvedPath));
+            return Task.FromResult<ResolvedInput?>(null);
+        }
+
         if (!File.Exists(resolvedPath))
         {
             reporter.Report(new DiagnosticMessage(
                 DiagnosticSeverity.Error,
                 DiagnosticCode.TW2002,
-                $"Project file not found: '{resolvedPath}'",
+                $"Input file not found: '{resolvedPath}'",
                 File: resolvedPath));
             return Task.FromResult<ResolvedInput?>(null);
         }
