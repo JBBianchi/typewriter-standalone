@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-03 by Claude (Executor, #123)
+> Last touched: 2026-03-03 by Claude (Executor, #124)
 
 ## Current State
 
-- **Active milestone**: M4 - MSBuild loading: `.sln` and `.slnx`
+- **Active milestone**: M5 - Semantic model extraction parity
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Implement sln/slnx loading logic in ProjectGraphService using SolutionFallbackService
+- **Next step**: Begin M5 semantic model extraction implementation
 
 ## Milestone Map
 
@@ -17,7 +17,7 @@
 | M1 | Core reuse extraction (CodeModel/Metadata) | Done | All acceptance criteria verified: build 0 errors, CodeModel 102/102, TypeMapping 71/71, zero VS refs |
 | M2 | CLI contract, diagnostics, and configuration precedence | Done | T013–T018 done: CLI parser, diagnostics infrastructure, config loader, ApplicationRunner validation stub with exit-code mapping; all M2 acceptance tests verified (129/129 pass) |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Done | All acceptance criteria verified: restore/build 0 errors, 133/133 tests pass, origin/ unchanged, zero VS coupling |
-| M4 | MSBuild loading: `.sln` and `.slnx` | In progress | TW2110/TW2310 diagnostic codes added (#115) |
+| M4 | MSBuild loading: `.sln` and `.slnx` | Done | All acceptance criteria verified: restore/build 0 errors, 150/150 tests pass, all 4 SolutionLoaderTests green, TW2110/TW2310 covered, InputResolver accepts .sln/.slnx, origin/ unchanged, zero VS refs |
 | M5 | Semantic model extraction parity | Not started | |
 | M6 | Template execution and output management | Not started | |
 | M7 | Golden parity and fixture repos | Not started | |
@@ -75,6 +75,7 @@
 | #121 Extend ProjectGraphService with .slnx fallback support | M4 | Executor | Done | `ProjectGraphService` now accepts `ISolutionFallbackService`; TW2110 on ProjectGraph failure for .sln/.slnx; .slnx fallback via `ListProjectPathsAsync`; 5 new integration tests; build 0 errors/warnings |
 | #122 Compose SolutionFallbackService in Program.cs | M4 | Executor | Done | `ProjectGraphService` constructor updated to accept `ISolutionFallbackService`; `Program.cs` instantiates `SolutionFallbackService` and passes it in; `CsprojIntegrationTests` updated to match new ctor signature |
 | #123 Add SolutionLoaderTests integration tests | M4 | Executor | Done | `SolutionLoader.cs` + `SolutionLoaderTests.cs`; 4 tests: Sln_LoadsExpectedProjects, Slnx_LoadsExpectedProjects, SlnAndSlnx_ProduceSameTraversalPlan, Slnx_WhenGraphFails_UsesFallback; TW2110/TW2310 exercised |
+| #124 Run M4 acceptance criteria verification | M4 | Executor | Done | restore/build/test all pass; 150/150 tests; all 4 SolutionLoaderTests green; TW2310 test added (`SolutionFallbackService_NonExistentSolution_EmitsTW2310`); origin/ unchanged; zero VS coupling |
 
 ## Decisions
 
@@ -97,7 +98,7 @@
 | Q2 | How is upstream `requestRender` callback mirrored in batch mode? | 2026-02-19 | Design notes in `_archive/Q2-request-render-batch-mode-resolution-notes.md` | M5 |
 | Q3 | Should v1 mutate project files? | 2026-02-19 | Default no; revisit post-v1 | M8 |
 | Q4 | Are source-generated symbols visible in workspace pipeline? | 2026-02-19 | Open — needs generator fixture | M5 |
-| Q5 | Is `.slnx` fallback needed in practice? | 2026-02-19 | Open — needs force-failure simulation | M4 |
+| Q5 | Is `.slnx` fallback needed in practice? | 2026-02-19 | Resolved — `Slnx_WhenGraphFails_UsesFallback` confirms fallback path works; `SolutionFallbackService` uses `dotnet sln list` as robust cross-platform fallback | M4 |
 | Q6 | Watch mode in v1 or post-v1? | 2026-02-19 | Deferred unless required for release | M9 |
 
 Note: Q1 (`IncludeProject(name)` ambiguity) was resolved — see `_archive/Q1-include-project-name-ambiguity-decision.md`.

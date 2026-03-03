@@ -153,6 +153,22 @@ public class SolutionIntegrationTests
     }
 
     [Fact]
+    public async Task SolutionFallbackService_NonExistentSolution_EmitsTW2310()
+    {
+        // Arrange: use a non-existent path so that `dotnet sln list` exits with non-zero.
+        var nonExistentSlnx = Path.Combine(Path.GetTempPath(), "nonexistent_" + Guid.NewGuid() + ".slnx");
+        var fallback = new SolutionFallbackService();
+        var reporter = new CapturingReporter();
+
+        // Act
+        var result = await fallback.ListProjectPathsAsync(nonExistentSlnx, reporter, CancellationToken.None);
+
+        // Assert: null returned and TW2310 emitted on non-zero exit from dotnet sln list.
+        Assert.Null(result);
+        Assert.Contains(reporter.Messages, m => m.Code == DiagnosticCode.TW2310);
+    }
+
+    [Fact]
     public async Task Slnx_ProjectGraphFailure_FallbackProducesValidPlan()
     {
         // Arrange: use a non-existent .slnx path to force ProjectGraph failure,
