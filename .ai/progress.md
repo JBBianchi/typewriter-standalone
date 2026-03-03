@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-03 by Claude (Executor, #115)
+> Last touched: 2026-03-03 by Claude (Executor, #121)
 
 ## Current State
 
@@ -72,6 +72,7 @@
 | #118 Create solution-sln test fixture | M4 | Executor | Done | `tests/fixtures/solution-sln/SolutionSln.sln` + ProjectA + ProjectB; targets net10.0; `dotnet sln list` and `dotnet restore` verified |
 | #119 Implement SolutionFallbackService | M4 | Executor | Done | `src/Typewriter.Loading.MSBuild/SolutionFallbackService.cs`; implements ISolutionFallbackService; spawns `dotnet sln <path> list`, parses stdout, resolves relative→absolute paths; TW2310 on non-zero exit; build 0 errors/warnings |
 | #120 Create solution-slnx test fixture | M4 | Executor | Done | `tests/fixtures/solution-slnx/SolutionSlnx.slnx` + independent ProjectA + ProjectB copies (Option B); valid XML; targets net10.0 |
+| #121 Extend ProjectGraphService with .slnx fallback support | M4 | Executor | Done | `ProjectGraphService` now accepts `ISolutionFallbackService`; TW2110 on ProjectGraph failure for .sln/.slnx; .slnx fallback via `ListProjectPathsAsync`; 5 new integration tests; build 0 errors/warnings |
 
 ## Decisions
 

@@ -36,7 +36,8 @@ public class CsprojIntegrationTests
         // Wire real services (no mocks)
         var locator = new MsBuildLocatorService();
         var restoreService = new RestoreService();
-        var graphService = new ProjectGraphService(locator);
+        var fallbackService = new SolutionFallbackService();
+        var graphService = new ProjectGraphService(locator, fallbackService);
         var resolver = new InputResolver();
         var reporter = new FakeDiagnosticReporter();
 

@@ -59,7 +59,8 @@ generateCommand.SetHandler(async (InvocationContext ctx) =>
     var locatorService = new MsBuildLocatorService();
     var inputResolver = new InputResolver();
     var restoreService = new RestoreService();
-    var projectGraphService = new ProjectGraphService(locatorService);
+    var fallbackService = new SolutionFallbackService();
+    var projectGraphService = new ProjectGraphService(locatorService, fallbackService);
 
     var runner = new ApplicationRunner(inputResolver, restoreService, projectGraphService);
     ctx.ExitCode = await runner.RunAsync(options, reporter, ctx.GetCancellationToken());
