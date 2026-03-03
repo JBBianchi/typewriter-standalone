@@ -21,7 +21,7 @@
 | M5 | Semantic model extraction parity | Not started | |
 | M6 | Template execution and output management | Not started | |
 | M7 | Golden parity and fixture repos | Not started | |
-| M8 | CI pipelines and release readiness | Not started | |
+| M8 | CI pipelines and release readiness | In progress | eng/versioning.props created (#166) |
 | M9 | Performance and caching hardening | Not started | |
 
 ## Active Tasks
