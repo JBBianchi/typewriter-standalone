@@ -7,7 +7,7 @@
 - **Active milestone**: M5 - Semantic model extraction parity
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Implement workspace loading service (IWorkspaceLoader / WorkspaceLoader) that populates WorkspaceLoadResult
+- **Next step**: Implement RoslynWorkspaceService in Loading.MSBuild that satisfies IRoslynWorkspaceService
 
 ## Milestone Map
 
@@ -78,6 +78,7 @@
 | #124 Run M4 acceptance criteria verification | M4 | Executor | Done | restore/build/test all pass; 150/150 tests; all 4 SolutionLoaderTests green; TW2310 test added (`SolutionFallbackService_NonExistentSolution_EmitsTW2310`); origin/ unchanged; zero VS coupling |
 | #125 Add TW2200–TW2205 workspace diagnostic codes | M5 | Executor | Done | Added TW2200 (Error, workspace load failure), TW2201 (Warning, non-fatal workspace diagnostic), TW2202 (Error, compilation failure), TW2203 (Error, project not found), TW2204 (Error, unresolved project reference), TW2205 (Warning, partial documents); build 0 errors/warnings |
 | #126 Create WorkspaceLoadResult DTO | M5 | Executor | Done | `src/Typewriter.Application/Orchestration/WorkspaceLoadResult.cs`; positional record; `IReadOnlyList<(Project, Compilation)>`; no MSBuild types; build 0 errors/warnings |
+| #129 Create IRoslynWorkspaceService interface | M5 | Executor | Done | `src/Typewriter.Application/Loading/IRoslynWorkspaceService.cs`; `LoadAsync(ProjectLoadPlan, IDiagnosticReporter, CancellationToken)` returning `Task<WorkspaceLoadResult?>`; no MSBuild types; build 0 errors/warnings |
 
 ## Decisions
 
