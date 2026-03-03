@@ -1,3 +1,5 @@
+using RoslynCompilation = Microsoft.CodeAnalysis.Compilation;
+using RoslynProject = Microsoft.CodeAnalysis.Project;
 using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
@@ -62,8 +64,23 @@ public class CliContractTests
         }
     }
 
+    /// <summary>Roslyn workspace service stub that returns an empty but non-null workspace result.</summary>
+    private sealed class StubRoslynWorkspaceService : IRoslynWorkspaceService
+    {
+        public Task<WorkspaceLoadResult?> LoadAsync(
+            ProjectLoadPlan plan,
+            IDiagnosticReporter reporter,
+            CancellationToken ct = default)
+            => Task.FromResult<WorkspaceLoadResult?>(
+                new WorkspaceLoadResult(new List<(RoslynProject, RoslynCompilation)>()));
+    }
+
     private static ApplicationRunner CreateRunner()
-        => new ApplicationRunner(new StubInputResolver(), new StubRestoreService(), new StubProjectGraphService());
+        => new ApplicationRunner(
+            new StubInputResolver(),
+            new StubRestoreService(),
+            new StubProjectGraphService(),
+            new StubRoslynWorkspaceService());
 
     [Fact]
     public async Task Generate_InvalidArgs_Returns2()

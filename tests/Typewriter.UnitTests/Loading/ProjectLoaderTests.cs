@@ -1,3 +1,5 @@
+using RoslynCompilation = Microsoft.CodeAnalysis.Compilation;
+using RoslynProject = Microsoft.CodeAnalysis.Project;
 using NSubstitute;
 using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
@@ -39,6 +41,7 @@ public class ProjectLoaderTests
         var inputResolver = Substitute.For<IInputResolver>();
         var restoreService = Substitute.For<IRestoreService>();
         var graphService = Substitute.For<IProjectGraphService>();
+        var workspaceService = Substitute.For<IRoslynWorkspaceService>();
         var reporter = Substitute.For<IDiagnosticReporter>();
 
         inputResolver
@@ -59,7 +62,11 @@ public class ProjectLoaderTests
                 Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<ProjectLoadPlan?>(ValidPlan(ProjectPath)));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService);
+        workspaceService
+            .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult(new List<(RoslynProject, RoslynCompilation)>())));
+
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, workspaceService);
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: false), reporter);
@@ -78,6 +85,7 @@ public class ProjectLoaderTests
         var inputResolver = Substitute.For<IInputResolver>();
         var restoreService = Substitute.For<IRestoreService>();
         var graphService = Substitute.For<IProjectGraphService>();
+        var workspaceService = Substitute.For<IRoslynWorkspaceService>();
         var reporter = Substitute.For<IDiagnosticReporter>();
 
         inputResolver
@@ -88,7 +96,7 @@ public class ProjectLoaderTests
             .CheckAssetsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(false));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService);
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, workspaceService);
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: false), reporter);
@@ -105,6 +113,7 @@ public class ProjectLoaderTests
         var inputResolver = Substitute.For<IInputResolver>();
         var restoreService = Substitute.For<IRestoreService>();
         var graphService = Substitute.For<IProjectGraphService>();
+        var workspaceService = Substitute.For<IRoslynWorkspaceService>();
         var reporter = Substitute.For<IDiagnosticReporter>();
 
         inputResolver
@@ -129,7 +138,11 @@ public class ProjectLoaderTests
                 Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<ProjectLoadPlan?>(ValidPlan(ProjectPath)));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService);
+        workspaceService
+            .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult(new List<(RoslynProject, RoslynCompilation)>())));
+
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, workspaceService);
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: true), reporter);
