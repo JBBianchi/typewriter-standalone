@@ -5,6 +5,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Exclude fixture project source trees; the SDK glob would otherwise pick up their
+         handwritten .cs files AND obj-generated AssemblyInfo/AssemblyAttributes files,
+         producing duplicate-attribute build errors. -->
+    <Compile Remove="Fixtures\SourceGenerators\SourceGenLib\**\*.cs" />
+    <Compile Remove="Fixtures\SourceGenerators\SourceGenerator\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="xunit" Version="2.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
@@ -19,6 +27,9 @@
     <ProjectReference Include="..\..\src\Typewriter.Metadata\Typewriter.Metadata.csproj" />
     <ProjectReference Include="..\..\src\Typewriter.Metadata.Roslyn\Typewriter.Metadata.Roslyn.csproj" />
     <ProjectReference Include="..\..\src\Typewriter.Generation\Typewriter.Generation.csproj" />
+    <!-- SourceGenerator fixture project: needed so SourceGenFixtureTests can instantiate
+         HelloWorldGenerator directly to run the generator in-process. -->
+    <ProjectReference Include="Fixtures\SourceGenerators\SourceGenerator\SourceGenerator.csproj" />
   </ItemGroup>
 
 </Project>
