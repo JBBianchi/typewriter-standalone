@@ -12,6 +12,18 @@
     -->
     <PackageReference Include="Microsoft.Build" Version="17.*" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Build.Locator" Version="1.*" />
+    <!--
+      MSBuildWorkspace requires Microsoft.CodeAnalysis.Workspaces.MSBuild.
+      Microsoft.Build.Tasks.Core, Microsoft.Build.Framework, Microsoft.Build.Utilities.Core,
+      and Microsoft.NET.StringTools are overridden here to lift the transitive MSBuild
+      assemblies to the latest patched 17.x; ExcludeAssets="runtime" keeps them
+      compile-time-only so MSBuildLocator controls the runtime copies and suppresses MSBL001.
+    -->
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.*" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.NET.StringTools" Version="17.*" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

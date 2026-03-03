@@ -8,6 +8,17 @@
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <!--
+      Suppress MSBL001: Microsoft.Build.* packages flow transitively from
+      Microsoft.CodeAnalysis.Workspaces.MSBuild via Typewriter.Loading.MSBuild.
+      ExcludeAssets="runtime" prevents the assemblies from being copied here —
+      runtime resolution is handled by MsBuildLocatorService.
+    -->
+    <PackageReference Include="Microsoft.Build" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.NET.StringTools" Version="17.*" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>
