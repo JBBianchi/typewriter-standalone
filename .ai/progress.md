@@ -7,7 +7,7 @@
 - **Active milestone**: M5 - Semantic model extraction parity
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Begin M5 semantic model extraction implementation
+- **Next step**: Implement Roslyn workspace loading services using TW2200–TW2205 codes
 
 ## Milestone Map
 
@@ -76,6 +76,7 @@
 | #122 Compose SolutionFallbackService in Program.cs | M4 | Executor | Done | `ProjectGraphService` constructor updated to accept `ISolutionFallbackService`; `Program.cs` instantiates `SolutionFallbackService` and passes it in; `CsprojIntegrationTests` updated to match new ctor signature |
 | #123 Add SolutionLoaderTests integration tests | M4 | Executor | Done | `SolutionLoader.cs` + `SolutionLoaderTests.cs`; 4 tests: Sln_LoadsExpectedProjects, Slnx_LoadsExpectedProjects, SlnAndSlnx_ProduceSameTraversalPlan, Slnx_WhenGraphFails_UsesFallback; TW2110/TW2310 exercised |
 | #124 Run M4 acceptance criteria verification | M4 | Executor | Done | restore/build/test all pass; 150/150 tests; all 4 SolutionLoaderTests green; TW2310 test added (`SolutionFallbackService_NonExistentSolution_EmitsTW2310`); origin/ unchanged; zero VS coupling |
+| #125 Add TW2200–TW2205 workspace diagnostic codes | M5 | Executor | Done | Added TW2200 (Error, workspace load failure), TW2201 (Warning, non-fatal workspace diagnostic), TW2202 (Error, compilation failure), TW2203 (Error, project not found), TW2204 (Error, unresolved project reference), TW2205 (Warning, partial documents); build 0 errors/warnings |
 
 ## Decisions
 
