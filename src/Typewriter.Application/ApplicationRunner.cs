@@ -4,22 +4,29 @@ using Typewriter.Application.Loading;
 namespace Typewriter.Application;
 
 /// <summary>
-/// Orchestrates the generate pipeline: input resolution → restore → project graph → generation.
+/// Orchestrates the generate pipeline: input resolution → restore → project graph → workspace load → generation.
 /// </summary>
 public sealed class ApplicationRunner
 {
     private readonly IInputResolver _inputResolver;
     private readonly IRestoreService _restoreService;
     private readonly IProjectGraphService _projectGraphService;
+    private readonly IRoslynWorkspaceService _roslynWorkspaceService;
 
+    /// <param name="inputResolver">Resolves and validates the input project or solution path.</param>
+    /// <param name="restoreService">Checks and runs <c>dotnet restore</c> when needed.</param>
+    /// <param name="projectGraphService">Builds the topological <see cref="ProjectLoadPlan"/> via MSBuild ProjectGraph.</param>
+    /// <param name="roslynWorkspaceService">Opens each project in a Roslyn MSBuildWorkspace and retrieves compilations.</param>
     public ApplicationRunner(
         IInputResolver inputResolver,
         IRestoreService restoreService,
-        IProjectGraphService projectGraphService)
+        IProjectGraphService projectGraphService,
+        IRoslynWorkspaceService roslynWorkspaceService)
     {
         _inputResolver = inputResolver;
         _restoreService = restoreService;
         _projectGraphService = projectGraphService;
+        _roslynWorkspaceService = roslynWorkspaceService;
     }
 
     /// <summary>
@@ -86,7 +93,12 @@ public sealed class ApplicationRunner
         if (plan is null)
             return 3;
 
-        // 6. Elevate warnings to errors if --fail-on-warnings was specified.
+        // 6. Load the Roslyn workspace for semantic model extraction.
+        var workspaceResult = await _roslynWorkspaceService.LoadAsync(plan, reporter, cancellationToken);
+        if (workspaceResult is null)
+            return 3;
+
+        // 7. Elevate warnings to errors if --fail-on-warnings was specified.
         if (options.FailOnWarnings && reporter.WarningCount > 0)
             return 1;
 

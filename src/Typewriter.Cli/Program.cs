@@ -61,8 +61,9 @@ generateCommand.SetHandler(async (InvocationContext ctx) =>
     var restoreService = new RestoreService();
     var solutionFallbackService = new SolutionFallbackService();
     var projectGraphService = new ProjectGraphService(locatorService, solutionFallbackService);
+    var roslynWorkspaceService = new RoslynWorkspaceService();
 
-    var runner = new ApplicationRunner(inputResolver, restoreService, projectGraphService);
+    var runner = new ApplicationRunner(inputResolver, restoreService, projectGraphService, roslynWorkspaceService);
     ctx.ExitCode = await runner.RunAsync(options, reporter, ctx.GetCancellationToken());
 });
 

@@ -7,7 +7,7 @@
 - **Active milestone**: M5 - Semantic model extraction parity
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Wire RoslynWorkspaceService into ApplicationRunner pipeline (M5 continuation)
+- **Next step**: Implement semantic metadata extraction using WorkspaceLoadResult (M5 continuation)
 
 ## Milestone Map
 
@@ -83,6 +83,7 @@
 | #129 Create IRoslynWorkspaceService interface | M5 | Executor | Done | `src/Typewriter.Application/Loading/IRoslynWorkspaceService.cs`; `LoadAsync(ProjectLoadPlan, IDiagnosticReporter, CancellationToken)` returning `Task<WorkspaceLoadResult?>`; no MSBuild types; build 0 errors/warnings |
 | #130 Implement RoslynWorkspaceService | M5 | Executor | Done | `src/Typewriter.Loading.MSBuild/RoslynWorkspaceService.cs`; MSBuildWorkspace.Create from GlobalProperties; OpenProjectAsync per LoadTarget; workspace diagnostics → TW2200/TW2201; null/error compilation → TW2202; returns WorkspaceLoadResult; build 0 errors/warnings |
 | #131 Rewrite RoslynMetadataProvider | M5 | Executor | Done | `src/Typewriter.Metadata.Roslyn/RoslynMetadataProvider.cs`; takes WorkspaceLoadResult; implements IMetadataProvider.GetFile (path lookup) and GetFiles (enumerate all .cs docs); no VS/DTE refs; WorkspaceLoadResult moved to Typewriter.Metadata.Roslyn; build 0 errors/warnings |
+| #133 Compose RoslynWorkspaceService in Program.cs | M5 | Executor | Done | `Program.cs` instantiates `RoslynWorkspaceService`; passed to `ApplicationRunner` ctor; `ApplicationRunner` calls `LoadAsync` after `BuildPlanAsync` (step 6); all tests updated; 151/151 pass |
 
 ## Decisions
 
