@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-03 by Claude (Executor, #121)
+> Last touched: 2026-03-03 by Claude (Executor, #123)
 
 ## Current State
 
@@ -74,6 +74,7 @@
 | #120 Create solution-slnx test fixture | M4 | Executor | Done | `tests/fixtures/solution-slnx/SolutionSlnx.slnx` + independent ProjectA + ProjectB copies (Option B); valid XML; targets net10.0 |
 | #121 Extend ProjectGraphService with .slnx fallback support | M4 | Executor | Done | `ProjectGraphService` now accepts `ISolutionFallbackService`; TW2110 on ProjectGraph failure for .sln/.slnx; .slnx fallback via `ListProjectPathsAsync`; 5 new integration tests; build 0 errors/warnings |
 | #122 Compose SolutionFallbackService in Program.cs | M4 | Executor | Done | `ProjectGraphService` constructor updated to accept `ISolutionFallbackService`; `Program.cs` instantiates `SolutionFallbackService` and passes it in; `CsprojIntegrationTests` updated to match new ctor signature |
+| #123 Add SolutionLoaderTests integration tests | M4 | Executor | Done | `SolutionLoader.cs` + `SolutionLoaderTests.cs`; 4 tests: Sln_LoadsExpectedProjects, Slnx_LoadsExpectedProjects, SlnAndSlnx_ProduceSameTraversalPlan, Slnx_WhenGraphFails_UsesFallback; TW2110/TW2310 exercised |
 
 ## Decisions
 
