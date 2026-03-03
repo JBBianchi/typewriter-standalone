@@ -16,12 +16,20 @@ public sealed class SolutionFallbackService : ISolutionFallbackService
             RedirectStandardError = true,
             UseShellExecute = false,
         };
+        // Suppress SDK logo and telemetry output so they don't contaminate stdout
+        // and avoid a deadlock when both stdout and stderr buffers fill concurrently.
+        psi.EnvironmentVariables["DOTNET_NOLOGO"] = "1";
+        psi.EnvironmentVariables["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
 
         using var process = new Process { StartInfo = psi };
         process.Start();
 
-        var stdout = await process.StandardOutput.ReadToEndAsync(ct);
-        var stderr = await process.StandardError.ReadToEndAsync(ct);
+        // Read stdout and stderr concurrently to prevent pipe-buffer deadlocks.
+        var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
+        var stderrTask = process.StandardError.ReadToEndAsync(ct);
+        await Task.WhenAll(stdoutTask, stderrTask);
+        var stdout = stdoutTask.Result;
+        var stderr = stderrTask.Result;
         await process.WaitForExitAsync(ct);
 
         if (process.ExitCode != 0)
