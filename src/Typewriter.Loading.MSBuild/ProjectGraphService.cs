@@ -8,10 +8,12 @@ namespace Typewriter.Loading.MSBuild;
 public sealed class ProjectGraphService : IProjectGraphService
 {
     private readonly IMsBuildLocatorService _locatorService;
+    private readonly ISolutionFallbackService _solutionFallbackService;
 
-    public ProjectGraphService(IMsBuildLocatorService locatorService)
+    public ProjectGraphService(IMsBuildLocatorService locatorService, ISolutionFallbackService solutionFallbackService)
     {
         _locatorService = locatorService;
+        _solutionFallbackService = solutionFallbackService;
     }
 
     public Task<ProjectLoadPlan?> BuildPlanAsync(
