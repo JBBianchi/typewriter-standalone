@@ -71,6 +71,7 @@
 | #117 Update InputResolver to accept .sln and .slnx | M4 | Executor | Done | Added explicit extension validation (.csproj/.sln/.slnx accepted, others TW2002); `InputResolverTests.cs` 7 new tests; 140 tests pass |
 | #118 Create solution-sln test fixture | M4 | Executor | Done | `tests/fixtures/solution-sln/SolutionSln.sln` + ProjectA + ProjectB; targets net10.0; `dotnet sln list` and `dotnet restore` verified |
 | #119 Implement SolutionFallbackService | M4 | Executor | Done | `src/Typewriter.Loading.MSBuild/SolutionFallbackService.cs`; implements ISolutionFallbackService; spawns `dotnet sln <path> list`, parses stdout, resolves relative→absolute paths; TW2310 on non-zero exit; build 0 errors/warnings |
+| #120 Create solution-slnx test fixture | M4 | Executor | Done | `tests/fixtures/solution-slnx/SolutionSlnx.slnx` + independent ProjectA + ProjectB copies (Option B); valid XML; targets net10.0 |
 
 ## Decisions
 
