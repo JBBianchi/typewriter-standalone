@@ -7,7 +7,7 @@
 - **Active milestone**: M5 - Semantic model extraction parity
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Implement Roslyn workspace loading services using TW2200–TW2205 codes
+- **Next step**: Implement workspace loading service (IWorkspaceLoader / WorkspaceLoader) that populates WorkspaceLoadResult
 
 ## Milestone Map
 
@@ -18,7 +18,7 @@
 | M2 | CLI contract, diagnostics, and configuration precedence | Done | T013–T018 done: CLI parser, diagnostics infrastructure, config loader, ApplicationRunner validation stub with exit-code mapping; all M2 acceptance tests verified (129/129 pass) |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Done | All acceptance criteria verified: restore/build 0 errors, 133/133 tests pass, origin/ unchanged, zero VS coupling |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Done | All acceptance criteria verified: restore/build 0 errors, 150/150 tests pass, all 4 SolutionLoaderTests green, TW2110/TW2310 covered, InputResolver accepts .sln/.slnx, origin/ unchanged, zero VS refs |
-| M5 | Semantic model extraction parity | Not started | |
+| M5 | Semantic model extraction parity | In progress | WorkspaceLoadResult DTO created (#126) |
 | M6 | Template execution and output management | Not started | |
 | M7 | Golden parity and fixture repos | Not started | |
 | M8 | CI pipelines and release readiness | In progress | eng/versioning.props created (#166) |
@@ -77,6 +77,7 @@
 | #123 Add SolutionLoaderTests integration tests | M4 | Executor | Done | `SolutionLoader.cs` + `SolutionLoaderTests.cs`; 4 tests: Sln_LoadsExpectedProjects, Slnx_LoadsExpectedProjects, SlnAndSlnx_ProduceSameTraversalPlan, Slnx_WhenGraphFails_UsesFallback; TW2110/TW2310 exercised |
 | #124 Run M4 acceptance criteria verification | M4 | Executor | Done | restore/build/test all pass; 150/150 tests; all 4 SolutionLoaderTests green; TW2310 test added (`SolutionFallbackService_NonExistentSolution_EmitsTW2310`); origin/ unchanged; zero VS coupling |
 | #125 Add TW2200–TW2205 workspace diagnostic codes | M5 | Executor | Done | Added TW2200 (Error, workspace load failure), TW2201 (Warning, non-fatal workspace diagnostic), TW2202 (Error, compilation failure), TW2203 (Error, project not found), TW2204 (Error, unresolved project reference), TW2205 (Warning, partial documents); build 0 errors/warnings |
+| #126 Create WorkspaceLoadResult DTO | M5 | Executor | Done | `src/Typewriter.Application/Orchestration/WorkspaceLoadResult.cs`; positional record; `IReadOnlyList<(Project, Compilation)>`; no MSBuild types; build 0 errors/warnings |
 | #128 Create source-generator test fixture | M5 | Executor | Done | `SourceGenLib.csproj` (net10.0) + `Class1.cs`; `SourceGenerator/` (netstandard2.0, HelloWorldGenerator IIncrementalGenerator); `SourceGenFixtureTests` verifies `GetTypesByMetadataName("SourceGenLib.GeneratedHelper")` returns non-empty; IntegrationTests.csproj updated (exclusions + SourceGenerator ref); build 0 errors/warnings, test passes |
 
 ## Decisions
