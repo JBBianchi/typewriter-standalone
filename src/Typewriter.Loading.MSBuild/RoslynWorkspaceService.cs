@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.MSBuild;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
 using Typewriter.Application.Orchestration;
+using Typewriter.Metadata.Roslyn;
 
 using RoslynDiagnosticSeverity = Microsoft.CodeAnalysis.DiagnosticSeverity;
 using TwDiagnosticSeverity = Typewriter.Application.Diagnostics.DiagnosticSeverity;
