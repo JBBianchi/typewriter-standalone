@@ -20,9 +20,12 @@ public sealed class SolutionFallbackService : ISolutionFallbackService
         using var process = new Process { StartInfo = psi };
         process.Start();
 
-        var stdout = await process.StandardOutput.ReadToEndAsync(ct);
-        var stderr = await process.StandardError.ReadToEndAsync(ct);
+        // Read stdout and stderr concurrently to avoid deadlock when both pipe buffers fill.
+        var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
+        var stderrTask = process.StandardError.ReadToEndAsync(ct);
         await process.WaitForExitAsync(ct);
+        var stdout = await stdoutTask;
+        var stderr = await stderrTask;
 
         if (process.ExitCode != 0)
         {
