@@ -16,7 +16,7 @@ public sealed class ProjectGraphService : IProjectGraphService
         _solutionFallbackService = solutionFallbackService;
     }
 
-    public Task<ProjectLoadPlan?> BuildPlanAsync(
+    public async Task<ProjectLoadPlan?> BuildPlanAsync(
         ResolvedInput input,
         string? framework,
         string? configuration,
@@ -27,7 +27,7 @@ public sealed class ProjectGraphService : IProjectGraphService
         _locatorService.EnsureRegistered(reporter);
 
         if (reporter.ErrorCount > 0)
-            return Task.FromResult<ProjectLoadPlan?>(null);
+            return null;
 
         var globalProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -36,18 +36,44 @@ public sealed class ProjectGraphService : IProjectGraphService
         if (runtime != null)
             globalProperties["RuntimeIdentifier"] = runtime;
 
-        ProjectGraph graph;
+        var ext = Path.GetExtension(input.ProjectPath);
+        var isSlnx = ext.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
+        var isSln = ext.Equals(".sln", StringComparison.OrdinalIgnoreCase);
+
+        ProjectGraph? graph = null;
         try
         {
             graph = new ProjectGraph(input.ProjectPath, globalProperties);
         }
         catch (Exception ex)
         {
+            var code = (isSln || isSlnx) ? DiagnosticCode.TW2110 : DiagnosticCode.TW2002;
             reporter.Report(new DiagnosticMessage(
                 DiagnosticSeverity.Error,
-                DiagnosticCode.TW2002,
+                code,
                 $"Failed to load project graph from '{input.ProjectPath}': {ex.Message}"));
-            return Task.FromResult<ProjectLoadPlan?>(null);
+        }
+
+        if (graph == null)
+        {
+            if (!isSlnx)
+                return null;
+
+            // .slnx fallback: enumerate projects via SolutionFallbackService
+            var fallbackPaths = await _solutionFallbackService.ListProjectPathsAsync(input.ProjectPath, reporter, ct);
+            if (fallbackPaths == null || fallbackPaths.Count == 0)
+                return null;
+
+            var entryPoints = fallbackPaths
+                .Select(p => new ProjectGraphEntryPoint(p, globalProperties));
+            try
+            {
+                graph = new ProjectGraph(entryPoints);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         var sortedNodes = TopologicalSort(graph);
@@ -102,10 +128,10 @@ public sealed class ProjectGraphService : IProjectGraphService
         }
 
         if (hasError)
-            return Task.FromResult<ProjectLoadPlan?>(null);
+            return null;
 
         var plan = new ProjectLoadPlan(input.ProjectPath, input.SolutionDirectory, targets, globalProperties);
-        return Task.FromResult<ProjectLoadPlan?>(plan);
+        return plan;
     }
 
     private static List<string> GetTargetFrameworks(ProjectGraphNode node)
