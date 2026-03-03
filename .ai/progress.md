@@ -69,6 +69,7 @@
 | #115 Add TW2110 and TW2310 to DiagnosticCode.cs | M4 | Executor | Done | Added TW2110 (Error, ProjectGraph sln/slnx load failure) and TW2310 (Warning, SolutionFallbackService slnx list failure); build 0 errors/warnings |
 | #116 Create ISolutionFallbackService interface | M4 | Executor | Done | `src/Typewriter.Application/Loading/ISolutionFallbackService.cs`; ListProjectPathsAsync signature matches spec; build 0 errors/warnings |
 | #117 Update InputResolver to accept .sln and .slnx | M4 | Executor | Done | Added explicit extension validation (.csproj/.sln/.slnx accepted, others TW2002); `InputResolverTests.cs` 7 new tests; 140 tests pass |
+| #118 Create solution-sln test fixture | M4 | Executor | Done | `tests/fixtures/solution-sln/SolutionSln.sln` + ProjectA + ProjectB; targets net10.0; `dotnet sln list` and `dotnet restore` verified |
 
 ## Decisions
 
