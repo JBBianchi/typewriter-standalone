@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #172)
+> Last touched: 2026-03-04 by Claude (Executor, #171)
 
 ## Current State
 
@@ -113,6 +113,7 @@
 | #161 Implement golden test runner (M7) | M7 | Executor | Done | `GoldenTestBase` infrastructure class with `CapturingOutputWriter` and `TestDiagnosticReporter`; 5 per-fixture test classes (GoldenTest_Simple, GoldenTest_MultiProject, GoldenTest_MultiTarget, GoldenTest_SourceGenerators, GoldenTest_ComplexTypes); all 5 golden tests pass against committed baselines; xunit.runner.json disables parallel test collections; 179/179 tests pass |
 | #163 Document baseline update workflow (M7) | M7 | Executor | Done | `tests/Typewriter.GoldenTests/README.md` — documents running golden tests, updating baselines (`Verify.UpdateSnapshots=1` + manual process), when to update, CI baseline diff review, and how golden tests work internally |
 | #164 Run M7 acceptance criteria (M7) | M7 | Executor | Done | All 179/179 tests pass (159 unit + 13 integration + 6 golden + 1 perf); all 8 `identical` ParityMatrix features have passing golden tests; CI matrix covers Windows/Ubuntu/macOS; origin/ unchanged; M7→Done, active milestone→M8 |
+| #171 Create release.yml tag-triggered workflow (M8) | M8 | Executor | Done | `.github/workflows/release.yml` — tag-triggered (`v*.*.*`) release workflow with `build-test` (3-OS matrix), `parity-gate` (golden tests), `publish` (NuGet via `NUGET_API_KEY` secret); artifact upload/download for nupkg |
 | #172 Verify release dry-run locally (M8) | M8 | Executor | Done | [T172-verify-release-dryrun.md](.ai/tasks/T172-verify-release-dryrun.md) — `dotnet pack` → local tool install → `typewriter-cli generate` smoke test all pass; reusable script `eng/verify-release-dryrun.sh` created; 179/179 tests pass |
 
 ## Decisions
