@@ -187,6 +187,44 @@ public class TemplateEngineTests : IDisposable
     }
 
     /// <summary>
+    /// Verifies that the simple fixture <c>Interfaces.tst</c> template is parseable
+    /// by <see cref="TemplateCodeParser"/>.
+    /// </summary>
+    [Fact]
+    public void SimpleFixture_InterfacesTemplate_IsParseable()
+    {
+        var templatePath = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "..", "..",
+            "tests", "fixtures", "simple", "SimpleProject", "Interfaces.tst"));
+        var templateContent = File.ReadAllText(templatePath);
+        var extensions = new List<Type>();
+
+        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions);
+
+        Assert.NotNull(result);
+        Assert.NotEmpty(extensions);
+    }
+
+    /// <summary>
+    /// Verifies that the simple fixture <c>Enums.tst</c> template is parseable
+    /// by <see cref="TemplateCodeParser"/>.
+    /// </summary>
+    [Fact]
+    public void SimpleFixture_EnumsTemplate_IsParseable()
+    {
+        var templatePath = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "..", "..",
+            "tests", "fixtures", "simple", "SimpleProject", "Enums.tst"));
+        var templateContent = File.ReadAllText(templatePath);
+        var extensions = new List<Type>();
+
+        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions);
+
+        Assert.NotNull(result);
+        Assert.NotEmpty(extensions);
+    }
+
+    /// <summary>
     /// Copies the specified assembly's DLL to <see cref="_tempDir"/>.
     /// </summary>
     private void CopyAssemblyToTemp(Assembly assembly)
