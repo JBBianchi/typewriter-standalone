@@ -21,10 +21,10 @@ namespace Typewriter.Metadata.Roslyn
     public sealed class RenderQueue
     {
         /// <summary>
-        /// Maximum number of re-render iterations allowed per render session.
-        /// If this cap is reached, the queue aborts to prevent infinite loops.
+        /// Maximum number of distinct files allowed per render session (safety cap = 100).
+        /// If this cap is reached, the queue rejects further enqueues to prevent infinite loops.
         /// </summary>
-        internal const int MaxRenderIterations = 100;
+        public const int MaxRenderIterations = 100;
 
         private readonly Queue<string> _queue = new();
         private readonly HashSet<string> _processedOrQueued;

@@ -38,9 +38,12 @@ namespace Typewriter.Metadata.Roslyn
 
         public bool IsDefined => _symbol.Locations.Any(l => l.IsInSource);
 
-        public bool IsValueTuple => _symbol.Name.Equals(string.Empty, StringComparison.OrdinalIgnoreCase) &&
-                                    string.Equals(_symbol.BaseType?.Name, "ValueType", StringComparison.OrdinalIgnoreCase) &&
-                                    string.Equals(_symbol.BaseType.ContainingNamespace.Name, "System", StringComparison.OrdinalIgnoreCase);
+        /// <summary>
+        /// Returns <see langword="true"/> when the underlying type symbol represents a C# value
+        /// tuple (e.g. <c>(string A, int B)</c>).  Uses the Roslyn <see cref="INamedTypeSymbol.IsTupleType"/>
+        /// API which is reliable across all Roslyn 4.x versions.
+        /// </summary>
+        public bool IsValueTuple => _symbol is INamedTypeSymbol namedType && namedType.IsTupleType;
 
         public string Namespace => _symbol.GetNamespace();
 
@@ -84,37 +87,19 @@ namespace Typewriter.Metadata.Roslyn
 
         public IEnumerable<IInterfaceMetadata> NestedInterfaces => RoslynInterfaceMetadata.FromNamedTypeSymbols(_symbol.GetMembers().OfType<INamedTypeSymbol>().Where(s => s.TypeKind == TypeKind.Interface), null, Settings);
 
+        /// <summary>
+        /// Returns the named elements of a value tuple type (e.g. <c>A</c> and <c>B</c> for
+        /// <c>(string A, int B)</c>).  Uses the Roslyn <see cref="INamedTypeSymbol.TupleElements"/>
+        /// public API directly instead of the previous reflection-based approach.
+        /// </summary>
         public IEnumerable<IFieldMetadata> TupleElements
         {
             get
             {
-#pragma warning disable CC0004 // Catch block cannot be empty
-                try
+                if (_symbol is INamedTypeSymbol n && n.IsTupleType)
                 {
-                    if (_symbol is INamedTypeSymbol n && n.Name == string.Empty && string.Equals(
-                            n.BaseType?.Name,
-                            "ValueType",
-                            StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals(
-                            n.BaseType.ContainingNamespace.Name,
-                            "System",
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        var property = n.GetType().GetProperty(nameof(TupleElements));
-                        if (property != null)
-                        {
-                            var value = property.GetValue(_symbol);
-                            var tupleElements = value as IEnumerable<IFieldSymbol>;
-
-                            return RoslynFieldMetadata.FromFieldSymbols(tupleElements, Settings);
-                        }
-                    }
+                    return RoslynFieldMetadata.FromFieldSymbols(n.TupleElements, Settings);
                 }
-                catch
-                {
-                    // noop
-                }
-#pragma warning restore CC0004 // Catch block cannot be empty
 
                 return Array.Empty<IFieldMetadata>();
             }

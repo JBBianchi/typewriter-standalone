@@ -5,6 +5,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.*" />
     <PackageReference Include="NSubstitute" Version="5.*" />
     <!-- Suppress MSBL001: Microsoft.Build.* packages flow transitively via Typewriter.Loading.MSBuild; runtime managed by MsBuildLocatorService -->
     <PackageReference Include="Microsoft.Build" Version="17.*" ExcludeAssets="runtime" />
@@ -22,6 +23,7 @@
     <ProjectReference Include="..\..\src\Typewriter.Metadata\Typewriter.Metadata.csproj" />
     <ProjectReference Include="..\..\src\Typewriter.Metadata.Roslyn\Typewriter.Metadata.Roslyn.csproj" />
     <ProjectReference Include="..\..\src\Typewriter.Generation\Typewriter.Generation.csproj" />
+    <ProjectReference Include="..\Typewriter.IntegrationTests\Fixtures\SourceGenerators\SourceGenerator\SourceGenerator.csproj" />
   </ItemGroup>
 
 </Project>
