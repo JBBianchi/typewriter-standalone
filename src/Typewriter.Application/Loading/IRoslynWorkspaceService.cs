@@ -1,5 +1,6 @@
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Orchestration;
+using Typewriter.Metadata.Roslyn;
 
 namespace Typewriter.Application.Loading;
 
