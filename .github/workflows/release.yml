@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  build-test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/global.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore Typewriter.Cli.slnx
+
+      - name: Build
+        run: dotnet build Typewriter.Cli.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Typewriter.Cli.slnx -c Release --no-build
+
+      - name: Pack
+        run: dotnet pack src/Typewriter.Cli/Typewriter.Cli.csproj -c Release -o ./artifacts/nupkg --no-build
+
+      - name: Upload NuGet artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: ./artifacts/nupkg/*.nupkg
+
+  parity-gate:
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/global.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore Typewriter.Cli.slnx
+
+      - name: Build
+        run: dotnet build Typewriter.Cli.slnx -c Release --no-restore
+
+      - name: Run golden parity tests
+        run: dotnet test tests/Typewriter.GoldenTests/ -c Release --no-build
+
+  publish:
+    needs: [build-test, parity-gate]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download NuGet artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nupkg
+          path: ./artifacts/nupkg
+
+      - name: Publish to NuGet
+        run: dotnet nuget push ./artifacts/nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
