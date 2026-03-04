@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #137)
+> Last touched: 2026-03-04 by Claude (Executor, #138)
 
 ## Current State
 
@@ -89,6 +89,7 @@
 | #135 Implement requestRender render queue | M5 | Executor | Done | `RenderQueue.cs` (FIFO, dedup, 100-cap, scope boundary, observability callbacks); `RoslynMetadataProvider` gains `CreateRenderQueue`, `SeedRenderQueue`, `ProcessRenderQueue`; Q2 resolved; build 0 errors, 151/151 tests pass |
 | #136 Add MetadataParityTests unit tests | M5 | Executor | Done | 6 tests: NullableTaskTupleGenericParity, SourceGeneratorTypes_AreVisible, PartialCombinedMode_RequestRenderEquivalent, PartialCombinedMode_RequestRender_RespectsScopeBoundary, PartialCombinedMode_RequestRender_ConvergesWithinSafetyCap, PartialCombinedMode_RequestRender_DetailedLogsNewEnqueue |
 | #137 Run M5 acceptance criteria verification | M5 | Executor | Done | restore/build/test all pass; 155/155 tests; all 6 MetadataParityTests green; RoslynFileMetadata.cs zero VS refs; source-gen fixture green; origin/ unchanged; zero EnvDTE/VS refs; M5→Done, active milestone→M6 |
+| #138 Audit Generation/ files for VS coupling | M6 | Executor | Done | [T138-m6-generation-audit.md](.ai/tasks/T138-m6-generation-audit.md) — 5/6 files VS-coupled (ItemFilter.cs clean); dominant pattern: EnvDTE.ProjectItem threading; key replacements: ProjectItem→string paths, ErrorList/Log→IDiagnosticReporter, Assembly.LoadFrom→AssemblyLoadContext, remove VS project mutation |
 
 ## Decisions
 
