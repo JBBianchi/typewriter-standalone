@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #160)
+> Last touched: 2026-03-04 by Claude (Executor, #161)
 
 ## Current State
 
 - **Active milestone**: M7 - Golden parity and fixture repos
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Complete remaining M7 tasks (golden test harness)
+- **Next step**: Complete remaining M7 acceptance criteria verification
 
 ## Milestone Map
 
@@ -20,7 +20,7 @@
 | M4 | MSBuild loading: `.sln` and `.slnx` | Done | All acceptance criteria verified: restore/build 0 errors, 150/150 tests pass, all 4 SolutionLoaderTests green, TW2110/TW2310 covered, InputResolver accepts .sln/.slnx, origin/ unchanged, zero VS refs |
 | M5 | Semantic model extraction parity | Done | All acceptance criteria verified (#137): restore/build 0 errors/0 warnings, 155/155 tests pass (142 unit + 13 integration), all 6 MetadataParityTests green (incl. SourceGeneratorTypes_AreVisible), RoslynFileMetadata.cs zero VS refs, source-gen fixture green, origin/ unchanged, zero EnvDTE/VS refs |
 | M6 | Template execution and output management | Done | All acceptance criteria verified (#151): restore/build 0 errors/0 warnings, 170/170 tests pass (157 unit + 13 integration), TemplateEngineTests 3/3, OutputPolicyTests 3/3, AssemblyLoadContextTests 7/7, Placeholder.cs deleted, zero VS coupling in Generation/ source, origin/ unchanged |
-| M7 | Golden parity and fixture repos | In progress | Simple (#154), multi-project (#155), multi-target (#156), source-generators (#157), complex-types (#158) fixtures created; ParityMatrix.md (#159) done; baselines captured (#160) |
+| M7 | Golden parity and fixture repos | In progress | Simple (#154), multi-project (#155), multi-target (#156), source-generators (#157), complex-types (#158) fixtures created; ParityMatrix.md (#159) done; baselines captured (#160); golden test runner implemented (#161) |
 | M8 | CI pipelines and release readiness | In progress | eng/versioning.props created (#166) |
 | M9 | Performance and caching hardening | Not started | |
 
@@ -110,6 +110,7 @@
 | #158 Create complex-types fixture (M7) | M7 | Executor | Done | `tests/fixtures/complex-types/ComplexTypesLib/` — net10.0 project with NullableTypes (string?, int?, Guid?), AsyncService (Task\<T\>, Task\<(string,int)\>, defaults), GenericRepository\<T\> (where T : class, new()), PartialEntity (split across 2 files); 2 .tst templates (ComplexModels.tst, AsyncTypes.tst); dotnet restore/build verified |
 | #159 Create ParityMatrix.md (M7) | M7 | Executor | Done | `tests/Typewriter.GoldenTests/ParityMatrix.md` — 12 parity features tagged: 6 identical (class, enum, interface gen; nullable/generic types; partial classes; BOM policy; collision naming), 4 transformed (multi-project refs, TFM selection, source-gen symbols, requestRender batch), 0 deferred; all identical features reference golden test fixtures |
 | #160 Run generation against fixtures and capture baselines (M7) | M7 | Executor | Done | Ran `typewriter-cli generate` against all 5 fixtures (simple, multi-project, multi-target, source-generators, complex-types); captured 12 baseline .ts files in `tests/baselines/`; LF line endings enforced via `.gitattributes`; fixed SourceGenTypes.tst predicate filter syntax (`$IsSourceGenLib`); fixed TemplateAssemblyLoadContext to defer to default context for shared assemblies; fixed ShadowClass compilation to include System.Runtime/Collections/netstandard refs; fixed Parser extension method lookup via GetMethods+IsAssignableFrom; fixed ProjectGraphService JIT-safety via NoInlining wrapper; 174/174 tests pass |
+| #161 Implement golden test runner (M7) | M7 | Executor | Done | `GoldenTestBase` infrastructure class with `CapturingOutputWriter` and `TestDiagnosticReporter`; 5 per-fixture test classes (GoldenTest_Simple, GoldenTest_MultiProject, GoldenTest_MultiTarget, GoldenTest_SourceGenerators, GoldenTest_ComplexTypes); all 5 golden tests pass against committed baselines; xunit.runner.json disables parallel test collections; 179/179 tests pass |
 
 ## Decisions
 
