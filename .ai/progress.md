@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-03 by Claude (Executor, #132)
+> Last touched: 2026-03-04 by Claude (Executor, #134)
 
 ## Current State
 
@@ -85,6 +85,7 @@
 | #131 Rewrite RoslynMetadataProvider | M5 | Executor | Done | `src/Typewriter.Metadata.Roslyn/RoslynMetadataProvider.cs`; takes WorkspaceLoadResult; implements IMetadataProvider.GetFile (path lookup) and GetFiles (enumerate all .cs docs); no VS/DTE refs; WorkspaceLoadResult moved to Typewriter.Metadata.Roslyn; fixed missing `using Typewriter.Metadata.Roslyn` in CliContractTests + ProjectLoaderTests; build 0 errors/warnings |
 | #132 Wire IRoslynWorkspaceService into ApplicationRunner | M5 | Executor | Done | `ApplicationRunner` constructor gains `IRoslynWorkspaceService`; `LoadAsync` called after `BuildPlanAsync`; null return → TW2200 + exit 3; `WorkspaceLoadResult` stored for M6; `Program.cs` composes `RoslynWorkspaceService`; unit tests updated; build 0 errors, 151/151 tests pass |
 | #133 Compose RoslynWorkspaceService in Program.cs | M5 | Executor | Done | `Program.cs` instantiates `RoslynWorkspaceService`; passed to `ApplicationRunner` ctor; `ApplicationRunner` calls `LoadAsync` after `BuildPlanAsync` (step 6); all tests updated; 151/151 pass |
+| #134 Remove ThreadHelper from RoslynFileMetadata.cs | M5 | Executor | Done | Already clean: `ThreadHelper`, `IVsThreadedWaitDialogFactory`, `Microsoft.VisualStudio.*` were removed during prior M5/M1 ports (T008); verified via grep; build 0 errors, 151 tests pass |
 
 ## Decisions
 
