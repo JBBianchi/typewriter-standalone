@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #154)
+> Last touched: 2026-03-04 by Claude (Executor, #158)
 
 ## Current State
 
 - **Active milestone**: M7 - Golden parity and fixture repos
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Create remaining M7 fixture sets (multi-target, source-generators, complex-types)
+- **Next step**: Create remaining M7 fixture sets (multi-target, source-generators)
 
 ## Milestone Map
 
@@ -20,7 +20,7 @@
 | M4 | MSBuild loading: `.sln` and `.slnx` | Done | All acceptance criteria verified: restore/build 0 errors, 150/150 tests pass, all 4 SolutionLoaderTests green, TW2110/TW2310 covered, InputResolver accepts .sln/.slnx, origin/ unchanged, zero VS refs |
 | M5 | Semantic model extraction parity | Done | All acceptance criteria verified (#137): restore/build 0 errors/0 warnings, 155/155 tests pass (142 unit + 13 integration), all 6 MetadataParityTests green (incl. SourceGeneratorTypes_AreVisible), RoslynFileMetadata.cs zero VS refs, source-gen fixture green, origin/ unchanged, zero EnvDTE/VS refs |
 | M6 | Template execution and output management | Done | All acceptance criteria verified (#151): restore/build 0 errors/0 warnings, 170/170 tests pass (157 unit + 13 integration), TemplateEngineTests 3/3, OutputPolicyTests 3/3, AssemblyLoadContextTests 7/7, Placeholder.cs deleted, zero VS coupling in Generation/ source, origin/ unchanged |
-| M7 | Golden parity and fixture repos | In progress | Simple fixture created (#154) |
+| M7 | Golden parity and fixture repos | In progress | Simple (#154), multi-project (#155), complex-types (#158) fixtures created |
 | M8 | CI pipelines and release readiness | In progress | eng/versioning.props created (#166) |
 | M9 | Performance and caching hardening | Not started | |
 
@@ -105,6 +105,7 @@
 | #152 Review origin/ for fixture templates (M7) | M7 | Executor | Done | [T152-m7-fixture-review.md](.ai/tasks/T152-m7-fixture-review.md) — catalogued 6 templates, 3 golden files, 14+ input types; mapped to 5 M7 fixture sets (simple, multi-project, multi-target, source-generators, complex-types); documented parity tags (identical/transformed/deferred) |
 | #154 Create simple fixture for golden tests (M7) | M7 | Executor | Done | `tests/fixtures/simple/SimpleProject/` — net10.0 project with UserModel (class+base+interface), UserRole (enum), INamedEntity (interface); 2 .tst templates (Interfaces.tst, Enums.tst); ShadowClass fix: added Typewriter.Metadata assembly ref for Typewriter.Configuration namespace; 2 new parseability tests; build 0 errors/0 warnings, 174/174 tests pass |
 | #155 Create multi-project fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-project/` — MultiProject.sln with DomainLib (IEntity, EntityBase, Address) and ApiLib (UserEntity, OrderEntity → EntityBase); CrossProjectTypes.tst traverses cross-project references; dotnet restore/build verified |
+| #158 Create complex-types fixture (M7) | M7 | Executor | Done | `tests/fixtures/complex-types/ComplexTypesLib/` — net10.0 project with NullableTypes (string?, int?, Guid?), AsyncService (Task\<T\>, Task\<(string,int)\>, defaults), GenericRepository\<T\> (where T : class, new()), PartialEntity (split across 2 files); 2 .tst templates (ComplexModels.tst, AsyncTypes.tst); dotnet restore/build verified |
 
 ## Decisions
 
