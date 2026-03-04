@@ -149,8 +149,9 @@ public class TemplateEngineTests : IDisposable
     }
 
     /// <summary>
-    /// Verifies that <see cref="TemplateAssemblyLoadContext"/> resolves an assembly
-    /// from the <c>assemblyDir</c> probe path on Linux and macOS.
+    /// Verifies that <see cref="TemplateAssemblyLoadContext"/> defers to the default context
+    /// for assemblies already loaded there (preserving type identity for shared assemblies
+    /// like Typewriter.CodeModel), and probes the assembly directory for unknown assemblies.
     /// Skipped on Windows — targets non-Windows file-path and resolver behavior.
     /// </summary>
     [Fact]
@@ -173,12 +174,14 @@ public class TemplateEngineTests : IDisposable
         var loaded = context.LoadFromAssemblyName(
             new AssemblyName(sourceAssembly.GetName().Name!));
 
-        // Assert
+        // Assert — the assembly is already in the default context, so Load()
+        // returns null and the runtime resolves it from DefaultAssemblyLoadContext.
+        // This preserves type identity for shared host assemblies.
         Assert.NotNull(loaded);
         Assert.Equal(sourceAssembly.GetName().Name, loaded.GetName().Name);
 
         var loadContext = AssemblyLoadContext.GetLoadContext(loaded);
-        Assert.IsType<TemplateAssemblyLoadContext>(loadContext);
+        Assert.NotEqual(typeof(TemplateAssemblyLoadContext), loadContext?.GetType());
 
         // Cleanup
         context.Unload();

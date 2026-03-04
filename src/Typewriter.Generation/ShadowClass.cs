@@ -187,10 +187,17 @@ public class ShadowClass
             .ToList();
 
         // Add core runtime references that the upstream ShadowWorkspace included by default.
-        AddCoreReferenceIfMissing(metadataReferences, typeof(object));     // System.Runtime
+        AddCoreReferenceIfMissing(metadataReferences, typeof(object));     // System.Private.CoreLib
         AddCoreReferenceIfMissing(metadataReferences, typeof(Uri));        // System
         AddCoreReferenceIfMissing(metadataReferences, typeof(Enumerable)); // System.Linq
         AddCoreReferenceIfMissing(metadataReferences, typeof(Console));    // System.Console
+
+        // .NET uses type-forwarding from System.Runtime for core types (Object,
+        // IEnumerable<T>, etc.). Without this reference the compilation fails with
+        // CS0012 "type is defined in an assembly that is not referenced".
+        AddTrustedPlatformAssembly(metadataReferences, "System.Runtime.dll");
+        AddTrustedPlatformAssembly(metadataReferences, "System.Collections.dll");
+        AddTrustedPlatformAssembly(metadataReferences, "netstandard.dll");
 
         var compilation = CSharpCompilation.Create(
             assemblyName: Path.GetFileNameWithoutExtension(outputPath),
@@ -200,6 +207,20 @@ public class ShadowClass
 
         using var fileStream = File.Create(outputPath);
         return compilation.Emit(fileStream);
+    }
+
+    private static void AddTrustedPlatformAssembly(List<MetadataReference> references, string assemblyFileName)
+    {
+        var trustedAssemblies = (AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string)?
+            .Split(Path.PathSeparator) ?? [];
+
+        var match = trustedAssemblies
+            .FirstOrDefault(a => string.Equals(Path.GetFileName(a), assemblyFileName, StringComparison.OrdinalIgnoreCase));
+
+        if (match != null && !references.Any(r => string.Equals(r.Display, match, StringComparison.OrdinalIgnoreCase)))
+        {
+            references.Add(MetadataReference.CreateFromFile(match));
+        }
     }
 
     private static void AddCoreReferenceIfMissing(List<MetadataReference> references, System.Type type)
@@ -220,31 +241,34 @@ public class ShadowClass
 
     private static CompilationUnitSyntax MakeAllMethodsPublicStatic(CompilationUnitSyntax root)
     {
-        // Rewrite constructors to public.
-        var constructors = root.DescendantNodes().OfType<ConstructorDeclarationSyntax>().ToArray();
-        foreach (var ctor in constructors)
+        return (CompilationUnitSyntax)PublicStaticRewriter.Instance.Visit(root);
+    }
+
+    /// <summary>
+    /// Single-pass syntax rewriter that adds <c>public static</c> modifiers to all methods
+    /// and <c>public</c> to all constructors. Using a rewriter instead of iterative
+    /// <see cref="SyntaxNode.ReplaceNode"/> avoids span-invalidation bugs when multiple
+    /// declarations exist.
+    /// </summary>
+    private sealed class PublicStaticRewriter : CSharpSyntaxRewriter
+    {
+        public static readonly PublicStaticRewriter Instance = new();
+
+        public override SyntaxNode? VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
-            var currentCtor = root.DescendantNodes().OfType<ConstructorDeclarationSyntax>()
-                .First(c => c.Span == ctor.Span);
-            var trivia = currentCtor.GetTrailingTrivia();
+            var trivia = node.GetTrailingTrivia();
             var modifiers = SyntaxFactory.TokenList(
                 SyntaxFactory.Token(SyntaxKind.PublicKeyword).WithTrailingTrivia(trivia));
-            root = root.ReplaceNode(currentCtor, currentCtor.WithModifiers(modifiers));
+            return node.WithModifiers(modifiers);
         }
 
-        // Rewrite methods to public static.
-        var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>().ToArray();
-        foreach (var method in methods)
+        public override SyntaxNode? VisitMethodDeclaration(MethodDeclarationSyntax node)
         {
-            var currentMethod = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
-                .First(m => m.Span == method.Span);
-            var trivia = currentMethod.ReturnType.GetTrailingTrivia();
+            var trivia = node.ReturnType.GetTrailingTrivia();
             var modifiers = SyntaxFactory.TokenList(
                 SyntaxFactory.Token(SyntaxKind.PublicKeyword).WithTrailingTrivia(trivia),
                 SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(trivia));
-            root = root.ReplaceNode(currentMethod, currentMethod.WithModifiers(modifiers));
+            return node.WithModifiers(modifiers);
         }
-
-        return root;
     }
 }

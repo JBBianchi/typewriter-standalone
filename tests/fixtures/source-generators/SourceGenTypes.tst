@@ -14,7 +14,7 @@ ${
 // If GeneratedHelper does not appear below, the Roslyn workspace may not be
 // running generators during metadata extraction. See Q4 in progress.md.
 
-$Classes(IsSourceGenLib)[
+$Classes($IsSourceGenLib)[
 export class $Name {
     $Properties[
     $name: $Type;]

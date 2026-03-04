@@ -19,6 +19,7 @@
       assemblies to the latest patched 17.x; ExcludeAssets="runtime" keeps them
       compile-time-only so MSBuildLocator controls the runtime copies and suppresses MSBL001.
     -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.*" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.*" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Build.Framework" Version="17.*" ExcludeAssets="runtime" />

@@ -38,6 +38,17 @@ public sealed class TemplateAssemblyLoadContext : AssemblyLoadContext
     /// <returns>The loaded assembly, or <c>null</c> if not found in any probed location.</returns>
     protected override Assembly? Load(AssemblyName assemblyName)
     {
+        // If the assembly is already loaded in the default context, return null so the
+        // runtime resolves it from there. This preserves type identity for shared
+        // assemblies (e.g. Typewriter.CodeModel) — without this, the template's
+        // compiled code would see a different `Class` type than the host, causing
+        // extension method lookups via IsAssignableFrom to fail.
+        if (Default.Assemblies.Any(a => string.Equals(
+                a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)))
+        {
+            return null;
+        }
+
         var fileName = assemblyName.Name + ".dll";
 
         // 1. Probe the template assembly directory.

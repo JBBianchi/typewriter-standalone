@@ -1,0 +1,2 @@
+# Enforce LF line endings for baseline files to ensure cross-platform determinism.
+tests/baselines/**/*.ts text eol=lf
