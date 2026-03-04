@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #134)
+> Last touched: 2026-03-04 by Claude (Executor, #135)
 
 ## Current State
 
@@ -86,6 +86,7 @@
 | #132 Wire IRoslynWorkspaceService into ApplicationRunner | M5 | Executor | Done | `ApplicationRunner` constructor gains `IRoslynWorkspaceService`; `LoadAsync` called after `BuildPlanAsync`; null return → TW2200 + exit 3; `WorkspaceLoadResult` stored for M6; `Program.cs` composes `RoslynWorkspaceService`; unit tests updated; build 0 errors, 151/151 tests pass |
 | #133 Compose RoslynWorkspaceService in Program.cs | M5 | Executor | Done | `Program.cs` instantiates `RoslynWorkspaceService`; passed to `ApplicationRunner` ctor; `ApplicationRunner` calls `LoadAsync` after `BuildPlanAsync` (step 6); all tests updated; 151/151 pass |
 | #134 Remove ThreadHelper from RoslynFileMetadata.cs | M5 | Executor | Done | Already clean: `ThreadHelper`, `IVsThreadedWaitDialogFactory`, `Microsoft.VisualStudio.*` were removed during prior M5/M1 ports (T008); verified via grep; build 0 errors, 151 tests pass |
+| #135 Implement requestRender render queue | M5 | Executor | Done | `RenderQueue.cs` (FIFO, dedup, 100-cap, scope boundary, observability callbacks); `RoslynMetadataProvider` gains `CreateRenderQueue`, `SeedRenderQueue`, `ProcessRenderQueue`; Q2 resolved; build 0 errors, 151/151 tests pass |
 
 ## Decisions
 
@@ -105,7 +106,7 @@
 
 | ID | Question | Raised | Status | Target |
 |----|----------|--------|--------|--------|
-| Q2 | How is upstream `requestRender` callback mirrored in batch mode? | 2026-02-19 | Design notes in `_archive/Q2-request-render-batch-mode-resolution-notes.md` | M5 |
+| Q2 | How is upstream `requestRender` callback mirrored in batch mode? | 2026-02-19 | Resolved — `RenderQueue` implements deterministic FIFO queue with dedup, 100-cap safety, scope boundary; wired into `RoslynMetadataProvider` via `CreateRenderQueue`/`ProcessRenderQueue`. See #135 | M5 |
 | Q3 | Should v1 mutate project files? | 2026-02-19 | Default no; revisit post-v1 | M8 |
 | Q4 | Are source-generated symbols visible in workspace pipeline? | 2026-02-19 | Fixture confirmed: `HelloWorldGenerator` (IIncrementalGenerator) produces `SourceGenLib.GeneratedHelper`; `Compilation.GetTypesByMetadataName` returns non-empty after `RunGeneratorsAndUpdateCompilation`. Full workspace integration TBD. | M5 |
 | Q5 | Is `.slnx` fallback needed in practice? | 2026-02-19 | Resolved — `Slnx_WhenGraphFails_UsesFallback` confirms fallback path works; `SolutionFallbackService` uses `dotnet sln list` as robust cross-platform fallback | M4 |
