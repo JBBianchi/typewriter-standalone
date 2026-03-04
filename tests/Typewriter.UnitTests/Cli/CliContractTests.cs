@@ -4,6 +4,7 @@ using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
 using Typewriter.Application.Orchestration;
+using Typewriter.Metadata.Roslyn;
 using Xunit;
 
 namespace Typewriter.UnitTests.Cli;
