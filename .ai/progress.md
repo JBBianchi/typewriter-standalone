@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #154)
+> Last touched: 2026-03-04 by Claude (Executor, #156)
 
 ## Current State
 
@@ -105,6 +105,7 @@
 | #152 Review origin/ for fixture templates (M7) | M7 | Executor | Done | [T152-m7-fixture-review.md](.ai/tasks/T152-m7-fixture-review.md) — catalogued 6 templates, 3 golden files, 14+ input types; mapped to 5 M7 fixture sets (simple, multi-project, multi-target, source-generators, complex-types); documented parity tags (identical/transformed/deferred) |
 | #154 Create simple fixture for golden tests (M7) | M7 | Executor | Done | `tests/fixtures/simple/SimpleProject/` — net10.0 project with UserModel (class+base+interface), UserRole (enum), INamedEntity (interface); 2 .tst templates (Interfaces.tst, Enums.tst); ShadowClass fix: added Typewriter.Metadata assembly ref for Typewriter.Configuration namespace; 2 new parseability tests; build 0 errors/0 warnings, 174/174 tests pass |
 | #155 Create multi-project fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-project/` — MultiProject.sln with DomainLib (IEntity, EntityBase, Address) and ApiLib (UserEntity, OrderEntity → EntityBase); CrossProjectTypes.tst traverses cross-project references; dotnet restore/build verified |
+| #156 Create multi-target fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-target/MultiTargetLib/` — `<TargetFrameworks>net10.0;net8.0</TargetFrameworks>`, `PlatformInfo.cs` with `#if NET8_0` conditional compilation, `PlatformInfo.tst` template; restore/build verified for both TFMs |
 
 ## Decisions
 
