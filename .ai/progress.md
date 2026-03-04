@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #140)
+> Last touched: 2026-03-04 by Claude (Executor, #145)
 
 ## Current State
 
@@ -96,6 +96,7 @@
 | #142 Adapt TemplateCodeParser.cs | M6 | Executor | Done | `TemplateCodeParser.cs` adapted: `ProjectItem`→`string templateFilePath`, `PathResolver.ResolveRelative`→inline `ResolveReferencePath`, `Log.Error` removed; `#reference` parsing intact; stubs for `ShadowClass`, `Compiler`, `Contexts`; `Stream`+`Snippet` ported as-is to `Lexing/`; build 0 errors/0 warnings, 157/157 tests pass |
 | #143 Port Parser.cs and SingleFileParser.cs | M6 | Executor | Done | feat: port Parser.cs and SingleFileParser.cs to Typewriter.Generation (M6, #143) |
 | #144 Adapt Compiler.cs with TemplateAssemblyLoadContext | M6 | Executor | Done | `Compiler.cs` adapted: `Assembly.LoadFrom`→`TemplateAssemblyLoadContext`, `ProjectItem`→`string templateFilePath`, `ErrorList`/`Log` (VS) removed; `ShadowClass` upgraded from stub: `Clear`/`Parse`/`AddBlock`/`AddLambda`/`AddReference` now assemble source code, `Compile()` uses `CSharpCompilation` directly; build 0 errors/0 warnings, 157/157 tests pass |
+| #145 Adapt Template.cs removing DTE project mutation | M6 | Executor | Done | `Template.cs` adapted: `ProjectItem`→string paths, all DTE/VS calls removed (project mutation, source control, registry), output writing delegated to `IOutputWriter`, collision avoidance delegated to `IOutputPathPolicy`, single-file and multi-file modes preserved; build 0 errors/0 warnings, 160/160 tests pass |
 | #149 Add Linux/macOS TemplateAssemblyLoadContext resolver tests | M6 | Executor | Done | `AssemblyLoadContextTests.cs` — 7 tests: constructor validation, assemblyDir probe, BaseDirectory fallback, null fallback (3 Linux/macOS-specific + 4 cross-platform); build 0 errors/0 warnings, 164/164 tests pass |
 
 ## Decisions
