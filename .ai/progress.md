@@ -94,6 +94,8 @@
 | #140 Port ItemFilter.cs | M6 | Executor | Done | Direct lift from upstream — zero VS coupling; `namespace Typewriter.Generation`; Placeholder.cs removed; build 0 errors/warnings, 157/157 tests pass |
 | #141 Implement TemplateAssemblyLoadContext | M6 | Executor | Done | `TemplateAssemblyLoadContext.cs` — collectible `AssemblyLoadContext` subclass; probes assemblyDir → AppContext.BaseDirectory → null fallback; TW3002 added for assembly load failures |
 | #142 Adapt TemplateCodeParser.cs | M6 | Executor | Done | `TemplateCodeParser.cs` adapted: `ProjectItem`→`string templateFilePath`, `PathResolver.ResolveRelative`→inline `ResolveReferencePath`, `Log.Error` removed; `#reference` parsing intact; stubs for `ShadowClass`, `Compiler`, `Contexts`; `Stream`+`Snippet` ported as-is to `Lexing/`; build 0 errors/0 warnings, 157/157 tests pass |
+| #143 Port Parser.cs and SingleFileParser.cs | M6 | Executor | Done | feat: port Parser.cs and SingleFileParser.cs to Typewriter.Generation (M6, #143) |
+| #149 Add Linux/macOS TemplateAssemblyLoadContext resolver tests | M6 | Executor | Done | `AssemblyLoadContextTests.cs` — 7 tests: constructor validation, assemblyDir probe, BaseDirectory fallback, null fallback (3 Linux/macOS-specific + 4 cross-platform); build 0 errors/0 warnings, 164/164 tests pass |
 
 ## Decisions
 
