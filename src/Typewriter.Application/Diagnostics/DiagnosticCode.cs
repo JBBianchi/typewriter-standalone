@@ -47,6 +47,9 @@ public static class DiagnosticCode
     /// <summary>Template compile error.</summary>
     public const string TW3001 = "TW3001";
 
+    /// <summary>Template assembly load failure: a required dependency could not be resolved by the isolated load context.</summary>
+    public const string TW3002 = "TW3002";
+
     /// <summary>Output write error.</summary>
     public const string TW4001 = "TW4001";
 

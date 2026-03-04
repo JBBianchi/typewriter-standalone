@@ -92,6 +92,7 @@
 | #138 Audit Generation/ files for VS coupling | M6 | Executor | Done | [T138-m6-generation-audit.md](.ai/tasks/T138-m6-generation-audit.md) — 5/6 files VS-coupled (ItemFilter.cs clean); dominant pattern: EnvDTE.ProjectItem threading; key replacements: ProjectItem→string paths, ErrorList/Log→IDiagnosticReporter, Assembly.LoadFrom→AssemblyLoadContext, remove VS project mutation |
 | #139 Create Output/ directory with path policy and writer | M6 | Executor | Done | `IOutputPathPolicy.cs`, `OutputPathPolicy.cs`, `IOutputWriter.cs`, `OutputWriter.cs` in `src/Typewriter.Generation/Output/`; `_1`/`_2` collision suffixes; skip-write on unchanged content; BOM support; build 0 errors/0 warnings, 157/157 tests pass |
 | #140 Port ItemFilter.cs | M6 | Executor | Done | Direct lift from upstream — zero VS coupling; `namespace Typewriter.Generation`; Placeholder.cs removed; build 0 errors/warnings, 157/157 tests pass |
+| #141 Implement TemplateAssemblyLoadContext | M6 | Executor | Done | `TemplateAssemblyLoadContext.cs` — collectible `AssemblyLoadContext` subclass; probes assemblyDir → AppContext.BaseDirectory → null fallback; TW3002 added for assembly load failures |
 
 ## Decisions
 
