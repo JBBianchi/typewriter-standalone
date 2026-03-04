@@ -39,3 +39,10 @@ jobs:
 
       - name: Pack
         run: dotnet pack src/Typewriter.Cli/Typewriter.Cli.csproj -c Release -o ./artifacts/nupkg --no-build
+
+      - name: Smoke test
+        shell: bash
+        run: |
+          set -e
+          dotnet tool install --local --add-source ./artifacts/nupkg typewriter-cli --create-manifest-if-needed
+          dotnet typewriter-cli generate "**/*.tst" --project tests/fixtures/simple/SimpleProject/SimpleProject.csproj
