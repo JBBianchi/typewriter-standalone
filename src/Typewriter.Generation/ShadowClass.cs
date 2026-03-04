@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
 using Typewriter.CodeModel;
+using Typewriter.Configuration;
 using Typewriter.Generation.Lexing;
 using File = System.IO.File;
 
@@ -73,6 +74,7 @@ public class ShadowClass
 
         _referencedAssemblies.Clear();
         _referencedAssemblies.Add(typeof(Class).Assembly);
+        _referencedAssemblies.Add(typeof(PartialRenderingMode).Assembly);
     }
 
     /// <summary>Finalizes the shadow class by closing the class and namespace declarations.</summary>
