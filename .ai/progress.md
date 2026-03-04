@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #135)
+> Last touched: 2026-03-04 by Claude (Executor, #137)
 
 ## Current State
 
-- **Active milestone**: M5 - Semantic model extraction parity
-- **Status**: In progress
+- **Active milestone**: M6 - Template execution and output management
+- **Status**: Not started
 - **Blocker**: None
-- **Next step**: Implement metadata extraction (M6 — template execution and output management)
+- **Next step**: Begin M6 implementation — template execution and output management
 
 ## Milestone Map
 
@@ -18,7 +18,7 @@
 | M2 | CLI contract, diagnostics, and configuration precedence | Done | T013–T018 done: CLI parser, diagnostics infrastructure, config loader, ApplicationRunner validation stub with exit-code mapping; all M2 acceptance tests verified (129/129 pass) |
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Done | All acceptance criteria verified: restore/build 0 errors, 133/133 tests pass, origin/ unchanged, zero VS coupling |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Done | All acceptance criteria verified: restore/build 0 errors, 150/150 tests pass, all 4 SolutionLoaderTests green, TW2110/TW2310 covered, InputResolver accepts .sln/.slnx, origin/ unchanged, zero VS refs |
-| M5 | Semantic model extraction parity | In progress | #127 added Microsoft.CodeAnalysis.Workspaces.MSBuild 4.* ref + MSBL001 suppression; WorkspaceLoadResult DTO (#126); source-gen fixture (#128); IRoslynWorkspaceService (#129); RoslynWorkspaceService (#130); IRoslynWorkspaceService wired into ApplicationRunner (#132) |
+| M5 | Semantic model extraction parity | Done | All acceptance criteria verified (#137): restore/build 0 errors/0 warnings, 155/155 tests pass (142 unit + 13 integration), all 6 MetadataParityTests green (incl. SourceGeneratorTypes_AreVisible), RoslynFileMetadata.cs zero VS refs, source-gen fixture green, origin/ unchanged, zero EnvDTE/VS refs |
 | M6 | Template execution and output management | Not started | |
 | M7 | Golden parity and fixture repos | Not started | |
 | M8 | CI pipelines and release readiness | In progress | eng/versioning.props created (#166) |
@@ -87,6 +87,8 @@
 | #133 Compose RoslynWorkspaceService in Program.cs | M5 | Executor | Done | `Program.cs` instantiates `RoslynWorkspaceService`; passed to `ApplicationRunner` ctor; `ApplicationRunner` calls `LoadAsync` after `BuildPlanAsync` (step 6); all tests updated; 151/151 pass |
 | #134 Remove ThreadHelper from RoslynFileMetadata.cs | M5 | Executor | Done | Already clean: `ThreadHelper`, `IVsThreadedWaitDialogFactory`, `Microsoft.VisualStudio.*` were removed during prior M5/M1 ports (T008); verified via grep; build 0 errors, 151 tests pass |
 | #135 Implement requestRender render queue | M5 | Executor | Done | `RenderQueue.cs` (FIFO, dedup, 100-cap, scope boundary, observability callbacks); `RoslynMetadataProvider` gains `CreateRenderQueue`, `SeedRenderQueue`, `ProcessRenderQueue`; Q2 resolved; build 0 errors, 151/151 tests pass |
+| #136 Add MetadataParityTests unit tests | M5 | Executor | Done | 6 tests: NullableTaskTupleGenericParity, SourceGeneratorTypes_AreVisible, PartialCombinedMode_RequestRenderEquivalent, PartialCombinedMode_RequestRender_RespectsScopeBoundary, PartialCombinedMode_RequestRender_ConvergesWithinSafetyCap, PartialCombinedMode_RequestRender_DetailedLogsNewEnqueue |
+| #137 Run M5 acceptance criteria verification | M5 | Executor | Done | restore/build/test all pass; 155/155 tests; all 6 MetadataParityTests green; RoslynFileMetadata.cs zero VS refs; source-gen fixture green; origin/ unchanged; zero EnvDTE/VS refs; M5→Done, active milestone→M6 |
 
 ## Decisions
 
