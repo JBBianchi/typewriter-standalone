@@ -142,6 +142,7 @@ public abstract class GoldenTestBase : IAsyncLifetime
             $"Missing generated files that have baselines: {string.Join(", ", missingFiles)}");
 
         // Compare content of each file.
+        // Normalize EOL on both sides to prevent Windows CRLF vs Linux LF false positives.
         foreach (var (fileName, baselinePath) in baselineFiles)
         {
             Assert.True(
@@ -160,8 +161,16 @@ public abstract class GoldenTestBase : IAsyncLifetime
     }
 
     /// <summary>
-    /// Normalizes line endings to LF for cross-platform comparison.
+    /// Normalizes line endings to LF (<c>\n</c>) for deterministic cross-platform comparison.
     /// </summary>
+    /// <remarks>
+    /// Git checkout on Windows may convert LF baselines to CRLF, and generators may emit
+    /// platform-native line endings. Without normalization, identical logical content would
+    /// produce false-positive mismatches across Windows (CRLF) and Linux/macOS (LF).
+    /// This only replaces <c>\r\n</c> and standalone <c>\r</c> sequences; BOM bytes are unaffected.
+    /// </remarks>
+    /// <param name="text">The text content to normalize.</param>
+    /// <returns>The text with all line endings converted to LF.</returns>
     private static string NormalizeLineEndings(string text) =>
         text.Replace("\r\n", "\n").Replace("\r", "\n");
 }
