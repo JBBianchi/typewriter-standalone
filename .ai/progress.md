@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #151)
+> Last touched: 2026-03-04 by Claude (Executor, #152)
 
 ## Current State
 
 - **Active milestone**: M7 - Golden parity and fixture repos
-- **Status**: Not started
+- **Status**: In progress
 - **Blocker**: None
-- **Next step**: Begin M7 tasks (golden parity snapshots, fixture repos)
+- **Next step**: Create fixture directories and golden test infrastructure based on T152 review
 
 ## Milestone Map
 
@@ -102,6 +102,7 @@
 | #148 Add OutputPolicyTests unit tests | M6 | Executor | Done | OutputPolicyTests verified collision suffixes, .d.ts handling, directory preservation; build 0 errors/0 warnings |
 | #150 Wire template execution into ApplicationRunner | M6 | Executor | Done | `ApplicationRunner` gains `IOutputWriter` + `IOutputPathPolicy` deps; template execution loop after workspace load: validates .tst files, creates `RoslynMetadataProvider`, iterates `IFileMetadata`, handles single-file vs per-file mode, TW3001/TW3002 errors; all callers updated; build 0 errors/0 warnings, 169/169 tests pass |
 | #151 Run M6 acceptance criteria verification | M6 | Executor | Done | restore/build/test all pass; 170/170 tests (157 unit + 13 integration); TemplateEngineTests 3/3, OutputPolicyTests 3/3, AssemblyLoadContextTests 7/7; Placeholder.cs deleted; zero VS coupling in Generation/ source; origin/ unchanged; M6→Done, active milestone→M7 |
+| #152 Review origin/ for fixture templates (M7) | M7 | Executor | Done | [T152-m7-fixture-review.md](.ai/tasks/T152-m7-fixture-review.md) — catalogued 6 templates, 3 golden files, 14+ input types; mapped to 5 M7 fixture sets (simple, multi-project, multi-target, source-generators, complex-types); documented parity tags (identical/transformed/deferred) |
 
 ## Decisions
 
