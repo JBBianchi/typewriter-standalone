@@ -19,7 +19,7 @@
 | M3 | MSBuild loading: `.csproj` and restore pipeline | Done | All acceptance criteria verified: restore/build 0 errors, 133/133 tests pass, origin/ unchanged, zero VS coupling |
 | M4 | MSBuild loading: `.sln` and `.slnx` | Done | All acceptance criteria verified: restore/build 0 errors, 150/150 tests pass, all 4 SolutionLoaderTests green, TW2110/TW2310 covered, InputResolver accepts .sln/.slnx, origin/ unchanged, zero VS refs |
 | M5 | Semantic model extraction parity | Done | All acceptance criteria verified (#137): restore/build 0 errors/0 warnings, 155/155 tests pass (142 unit + 13 integration), all 6 MetadataParityTests green (incl. SourceGeneratorTypes_AreVisible), RoslynFileMetadata.cs zero VS refs, source-gen fixture green, origin/ unchanged, zero EnvDTE/VS refs |
-| M6 | Template execution and output management | Not started | |
+| M6 | Template execution and output management | In progress | Output path policy + writer done (#139) |
 | M7 | Golden parity and fixture repos | Not started | |
 | M8 | CI pipelines and release readiness | In progress | eng/versioning.props created (#166) |
 | M9 | Performance and caching hardening | Not started | |
@@ -90,6 +90,7 @@
 | #136 Add MetadataParityTests unit tests | M5 | Executor | Done | 6 tests: NullableTaskTupleGenericParity, SourceGeneratorTypes_AreVisible, PartialCombinedMode_RequestRenderEquivalent, PartialCombinedMode_RequestRender_RespectsScopeBoundary, PartialCombinedMode_RequestRender_ConvergesWithinSafetyCap, PartialCombinedMode_RequestRender_DetailedLogsNewEnqueue |
 | #137 Run M5 acceptance criteria verification | M5 | Executor | Done | restore/build/test all pass; 155/155 tests; all 6 MetadataParityTests green; RoslynFileMetadata.cs zero VS refs; source-gen fixture green; origin/ unchanged; zero EnvDTE/VS refs; M5→Done, active milestone→M6 |
 | #138 Audit Generation/ files for VS coupling | M6 | Executor | Done | [T138-m6-generation-audit.md](.ai/tasks/T138-m6-generation-audit.md) — 5/6 files VS-coupled (ItemFilter.cs clean); dominant pattern: EnvDTE.ProjectItem threading; key replacements: ProjectItem→string paths, ErrorList/Log→IDiagnosticReporter, Assembly.LoadFrom→AssemblyLoadContext, remove VS project mutation |
+| #139 Create Output/ directory with path policy and writer | M6 | Executor | Done | `IOutputPathPolicy.cs`, `OutputPathPolicy.cs`, `IOutputWriter.cs`, `OutputWriter.cs` in `src/Typewriter.Generation/Output/`; `_1`/`_2` collision suffixes; skip-write on unchanged content; BOM support; build 0 errors/0 warnings, 157/157 tests pass |
 | #140 Port ItemFilter.cs | M6 | Executor | Done | Direct lift from upstream — zero VS coupling; `namespace Typewriter.Generation`; Placeholder.cs removed; build 0 errors/warnings, 157/157 tests pass |
 
 ## Decisions
