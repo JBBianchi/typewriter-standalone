@@ -96,6 +96,27 @@ This project is derived from [AdaskoTheBeAsT/Typewriter](https://github.com/Adas
 
 Reuse policy: **"lift first, rewrite last"** — upstream generation and CodeModel logic is reused as the default strategy; rewriting occurs only where Visual Studio coupling makes reuse unsafe.
 
+## Release
+
+Releases are triggered by pushing a version tag that matches `v*.*.*`:
+
+```bash
+git tag v1.0.0
+git push --tags
+```
+
+The release workflow runs:
+
+1. **Test matrix** — build and test across Windows, Linux, and macOS.
+2. **Parity gate** — verify golden output and diagnostic stability.
+3. **NuGet publish** — pack and push the `typewriter-cli` tool package to NuGet.
+
+### Configuring the NuGet API key
+
+The workflow requires a `NUGET_API_KEY` secret to publish packages. Set it in your GitHub repository under **Settings → Secrets and variables → Actions → New repository secret**.
+
+> **Never hardcode the API key in workflow files or source code.** Always use the GitHub Actions secret mechanism to provide it at runtime.
+
 ## Contributing
 
 See [`AGENTS.md`](AGENTS.md) for coding-agent conventions and project guidelines.
