@@ -7,7 +7,7 @@
 - **Active milestone**: M7 - Golden parity and fixture repos
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Create remaining M7 fixture sets (multi-project, multi-target, source-generators, complex-types)
+- **Next step**: Create remaining M7 fixture sets (multi-target, source-generators, complex-types)
 
 ## Milestone Map
 
@@ -104,6 +104,7 @@
 | #151 Run M6 acceptance criteria verification | M6 | Executor | Done | restore/build/test all pass; 170/170 tests (157 unit + 13 integration); TemplateEngineTests 3/3, OutputPolicyTests 3/3, AssemblyLoadContextTests 7/7; Placeholder.cs deleted; zero VS coupling in Generation/ source; origin/ unchanged; M6→Done, active milestone→M7 |
 | #152 Review origin/ for fixture templates (M7) | M7 | Executor | Done | [T152-m7-fixture-review.md](.ai/tasks/T152-m7-fixture-review.md) — catalogued 6 templates, 3 golden files, 14+ input types; mapped to 5 M7 fixture sets (simple, multi-project, multi-target, source-generators, complex-types); documented parity tags (identical/transformed/deferred) |
 | #154 Create simple fixture for golden tests (M7) | M7 | Executor | Done | `tests/fixtures/simple/SimpleProject/` — net10.0 project with UserModel (class+base+interface), UserRole (enum), INamedEntity (interface); 2 .tst templates (Interfaces.tst, Enums.tst); ShadowClass fix: added Typewriter.Metadata assembly ref for Typewriter.Configuration namespace; 2 new parseability tests; build 0 errors/0 warnings, 174/174 tests pass |
+| #155 Create multi-project fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-project/` — MultiProject.sln with DomainLib (IEntity, EntityBase, Address) and ApiLib (UserEntity, OrderEntity → EntityBase); CrossProjectTypes.tst traverses cross-project references; dotnet restore/build verified |
 
 ## Decisions
 
