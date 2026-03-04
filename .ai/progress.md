@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #155)
+> Last touched: 2026-03-04 by Claude (Executor, #157)
 
 ## Current State
 
 - **Active milestone**: M7 - Golden parity and fixture repos
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Create remaining M7 fixture sets (simple, multi-target, source-generators, complex-types)
+- **Next step**: Create remaining M7 fixture sets (simple, multi-target, complex-types)
 
 ## Milestone Map
 
@@ -104,6 +104,7 @@
 | #151 Run M6 acceptance criteria verification | M6 | Executor | Done | restore/build/test all pass; 170/170 tests (157 unit + 13 integration); TemplateEngineTests 3/3, OutputPolicyTests 3/3, AssemblyLoadContextTests 7/7; Placeholder.cs deleted; zero VS coupling in Generation/ source; origin/ unchanged; M6→Done, active milestone→M7 |
 | #152 Review origin/ for fixture templates (M7) | M7 | Executor | Done | [T152-m7-fixture-review.md](.ai/tasks/T152-m7-fixture-review.md) — catalogued 6 templates, 3 golden files, 14+ input types; mapped to 5 M7 fixture sets (simple, multi-project, multi-target, source-generators, complex-types); documented parity tags (identical/transformed/deferred) |
 | #155 Create multi-project fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-project/` — MultiProject.sln with DomainLib (IEntity, EntityBase, Address) and ApiLib (UserEntity, OrderEntity → EntityBase); CrossProjectTypes.tst traverses cross-project references; dotnet restore/build verified |
+| #157 Create source-generators fixture (M7) | M7 | Executor | Done | `tests/fixtures/source-generators/` — SourceGenLib (net10.0, handwritten Class1 + generator-produced GeneratedHelper) + SourceGenerator (netstandard2.0, HelloWorldGenerator IIncrementalGenerator); SourceGenTypes.tst iterates $Classes with namespace filter; PARITY-GAP documented for source-generator visibility (new capability, no upstream equivalent); dotnet restore/build verified |
 
 ## Decisions
 
