@@ -93,6 +93,7 @@
 | #139 Create Output/ directory with path policy and writer | M6 | Executor | Done | `IOutputPathPolicy.cs`, `OutputPathPolicy.cs`, `IOutputWriter.cs`, `OutputWriter.cs` in `src/Typewriter.Generation/Output/`; `_1`/`_2` collision suffixes; skip-write on unchanged content; BOM support; build 0 errors/0 warnings, 157/157 tests pass |
 | #140 Port ItemFilter.cs | M6 | Executor | Done | Direct lift from upstream — zero VS coupling; `namespace Typewriter.Generation`; Placeholder.cs removed; build 0 errors/warnings, 157/157 tests pass |
 | #141 Implement TemplateAssemblyLoadContext | M6 | Executor | Done | `TemplateAssemblyLoadContext.cs` — collectible `AssemblyLoadContext` subclass; probes assemblyDir → AppContext.BaseDirectory → null fallback; TW3002 added for assembly load failures |
+| #142 Adapt TemplateCodeParser.cs | M6 | Executor | Done | `TemplateCodeParser.cs` adapted: `ProjectItem`→`string templateFilePath`, `PathResolver.ResolveRelative`→inline `ResolveReferencePath`, `Log.Error` removed; `#reference` parsing intact; stubs for `ShadowClass`, `Compiler`, `Contexts`; `Stream`+`Snippet` ported as-is to `Lexing/`; build 0 errors/0 warnings, 157/157 tests pass |
 
 ## Decisions
 
