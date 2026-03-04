@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #156)
+> Last touched: 2026-03-04 by Claude (Executor, #159)
 
 ## Current State
 
 - **Active milestone**: M7 - Golden parity and fixture repos
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Create remaining M7 fixture sets (multi-target, source-generators, complex-types)
+- **Next step**: Create remaining M7 fixture sets (source-generators, complex-types) and golden baseline tests
 
 ## Milestone Map
 
@@ -106,6 +106,7 @@
 | #154 Create simple fixture for golden tests (M7) | M7 | Executor | Done | `tests/fixtures/simple/SimpleProject/` — net10.0 project with UserModel (class+base+interface), UserRole (enum), INamedEntity (interface); 2 .tst templates (Interfaces.tst, Enums.tst); ShadowClass fix: added Typewriter.Metadata assembly ref for Typewriter.Configuration namespace; 2 new parseability tests; build 0 errors/0 warnings, 174/174 tests pass |
 | #155 Create multi-project fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-project/` — MultiProject.sln with DomainLib (IEntity, EntityBase, Address) and ApiLib (UserEntity, OrderEntity → EntityBase); CrossProjectTypes.tst traverses cross-project references; dotnet restore/build verified |
 | #156 Create multi-target fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-target/MultiTargetLib/` — `<TargetFrameworks>net10.0;net8.0</TargetFrameworks>`, `PlatformInfo.cs` with `#if NET8_0` conditional compilation, `PlatformInfo.tst` template; restore/build verified for both TFMs |
+| #159 Create ParityMatrix.md (M7) | M7 | Executor | Done | `tests/Typewriter.GoldenTests/ParityMatrix.md` — 12 parity features tagged: 6 identical (class, enum, interface gen; nullable/generic types; partial classes; BOM policy; collision naming), 4 transformed (multi-project refs, TFM selection, source-gen symbols, requestRender batch), 0 deferred; all identical features reference golden test fixtures |
 
 ## Decisions
 
