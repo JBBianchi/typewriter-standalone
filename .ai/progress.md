@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #157)
+> Last touched: 2026-03-04 by Claude (Executor, #158)
 
 ## Current State
 
 - **Active milestone**: M7 - Golden parity and fixture repos
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Create remaining M7 fixture sets (complex-types)
+- **Next step**: Create remaining M7 fixture sets
 
 ## Milestone Map
 
@@ -20,7 +20,7 @@
 | M4 | MSBuild loading: `.sln` and `.slnx` | Done | All acceptance criteria verified: restore/build 0 errors, 150/150 tests pass, all 4 SolutionLoaderTests green, TW2110/TW2310 covered, InputResolver accepts .sln/.slnx, origin/ unchanged, zero VS refs |
 | M5 | Semantic model extraction parity | Done | All acceptance criteria verified (#137): restore/build 0 errors/0 warnings, 155/155 tests pass (142 unit + 13 integration), all 6 MetadataParityTests green (incl. SourceGeneratorTypes_AreVisible), RoslynFileMetadata.cs zero VS refs, source-gen fixture green, origin/ unchanged, zero EnvDTE/VS refs |
 | M6 | Template execution and output management | Done | All acceptance criteria verified (#151): restore/build 0 errors/0 warnings, 170/170 tests pass (157 unit + 13 integration), TemplateEngineTests 3/3, OutputPolicyTests 3/3, AssemblyLoadContextTests 7/7, Placeholder.cs deleted, zero VS coupling in Generation/ source, origin/ unchanged |
-| M7 | Golden parity and fixture repos | In progress | Simple fixture created (#154) |
+| M7 | Golden parity and fixture repos | In progress | Simple (#154), multi-project (#155), multi-target (#156), complex-types (#158) fixtures created |
 | M8 | CI pipelines and release readiness | In progress | eng/versioning.props created (#166) |
 | M9 | Performance and caching hardening | Not started | |
 
@@ -107,6 +107,7 @@
 | #155 Create multi-project fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-project/` — MultiProject.sln with DomainLib (IEntity, EntityBase, Address) and ApiLib (UserEntity, OrderEntity → EntityBase); CrossProjectTypes.tst traverses cross-project references; dotnet restore/build verified |
 | #156 Create multi-target fixture (M7) | M7 | Executor | Done | `tests/fixtures/multi-target/MultiTargetLib/` — `<TargetFrameworks>net10.0;net8.0</TargetFrameworks>`, `PlatformInfo.cs` with `#if NET8_0` conditional compilation, `PlatformInfo.tst` template; restore/build verified for both TFMs |
 | #157 Create source-generators fixture (M7) | M7 | Executor | Done | `tests/fixtures/source-generators/` — SourceGenLib (net10.0, handwritten Class1 + generator-produced GeneratedHelper) + SourceGenerator (netstandard2.0, HelloWorldGenerator IIncrementalGenerator); SourceGenTypes.tst iterates $Classes with namespace filter; PARITY-GAP documented for source-generator visibility (new capability, no upstream equivalent); dotnet restore/build verified |
+| #158 Create complex-types fixture (M7) | M7 | Executor | Done | `tests/fixtures/complex-types/ComplexTypesLib/` — net10.0 project with NullableTypes (string?, int?, Guid?), AsyncService (Task\<T\>, Task\<(string,int)\>, defaults), GenericRepository\<T\> (where T : class, new()), PartialEntity (split across 2 files); 2 .tst templates (ComplexModels.tst, AsyncTypes.tst); dotnet restore/build verified |
 
 ## Decisions
 
