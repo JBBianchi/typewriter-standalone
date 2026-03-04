@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #145)
+> Last touched: 2026-03-04 by Claude (Executor, #150)
 
 ## Current State
 
 - **Active milestone**: M6 - Template execution and output management
 - **Status**: In progress
 - **Blocker**: None
-- **Next step**: Port remaining Generation/ files (Parser.cs, SingleFileParser.cs, TemplateCodeParser.cs, Compiler.cs, Template.cs)
+- **Next step**: Complete remaining M6 tasks (golden parity, integration tests)
 
 ## Milestone Map
 
@@ -99,6 +99,8 @@
 | #145 Adapt Template.cs removing DTE project mutation | M6 | Executor | Done | `Template.cs` adapted: `ProjectItem`→string paths, all DTE/VS calls removed (project mutation, source control, registry), output writing delegated to `IOutputWriter`, collision avoidance delegated to `IOutputPathPolicy`, single-file and multi-file modes preserved; build 0 errors/0 warnings, 160/160 tests pass |
 | #149 Add Linux/macOS TemplateAssemblyLoadContext resolver tests | M6 | Executor | Done | `AssemblyLoadContextTests.cs` — 7 tests: constructor validation, assemblyDir probe, BaseDirectory fallback, null fallback (3 Linux/macOS-specific + 4 cross-platform); build 0 errors/0 warnings, 164/164 tests pass |
 | #146 Delete Placeholder.cs from Typewriter.Generation | M6 | Executor | Done | Already removed in #140 (commit 191b407); verified no references remain; build 0 errors/0 warnings, 167/167 tests pass |
+| #148 Add OutputPolicyTests unit tests | M6 | Executor | Done | OutputPolicyTests verified collision suffixes, .d.ts handling, directory preservation; build 0 errors/0 warnings |
+| #150 Wire template execution into ApplicationRunner | M6 | Executor | Done | `ApplicationRunner` gains `IOutputWriter` + `IOutputPathPolicy` deps; template execution loop after workspace load: validates .tst files, creates `RoslynMetadataProvider`, iterates `IFileMetadata`, handles single-file vs per-file mode, TW3001/TW3002 errors; all callers updated; build 0 errors/0 warnings, 169/169 tests pass |
 
 ## Decisions
 

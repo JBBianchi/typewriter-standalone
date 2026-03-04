@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
+using Typewriter.Generation.Output;
 using Typewriter.Loading.MSBuild;
 
 var rootCommand = new RootCommand("typewriter-cli \u2014 standalone Typewriter code generator");
@@ -63,7 +64,9 @@ generateCommand.SetHandler(async (InvocationContext ctx) =>
     var projectGraphService = new ProjectGraphService(locatorService, solutionFallbackService);
     var roslynWorkspaceService = new RoslynWorkspaceService();
 
-    var runner = new ApplicationRunner(inputResolver, restoreService, projectGraphService, roslynWorkspaceService);
+    var outputWriter = new OutputWriter();
+    var outputPathPolicy = new OutputPathPolicy();
+    var runner = new ApplicationRunner(inputResolver, restoreService, projectGraphService, roslynWorkspaceService, outputWriter, outputPathPolicy);
     ctx.ExitCode = await runner.RunAsync(options, reporter, ctx.GetCancellationToken());
 });
 

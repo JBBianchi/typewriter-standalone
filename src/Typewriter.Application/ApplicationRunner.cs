@@ -1,5 +1,10 @@
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
+using Typewriter.CodeModel.Configuration;
+using Typewriter.CodeModel.Implementation;
+using Typewriter.Generation;
+using Typewriter.Generation.Output;
+using Typewriter.Metadata.Roslyn;
 
 namespace Typewriter.Application;
 
@@ -12,24 +17,32 @@ public sealed class ApplicationRunner
     private readonly IRestoreService _restoreService;
     private readonly IProjectGraphService _projectGraphService;
     private readonly IRoslynWorkspaceService _roslynWorkspaceService;
+    private readonly IOutputWriter _outputWriter;
+    private readonly IOutputPathPolicy _outputPathPolicy;
 
     /// <summary>
-    /// Initializes a new <see cref="ApplicationRunner"/> with the required loading services.
+    /// Initializes a new <see cref="ApplicationRunner"/> with the required loading and generation services.
     /// </summary>
     /// <param name="inputResolver">Resolves and validates the input project or solution path.</param>
     /// <param name="restoreService">Checks and performs NuGet restore when needed.</param>
     /// <param name="projectGraphService">Builds the topological load plan from MSBuild project graph.</param>
     /// <param name="roslynWorkspaceService">Opens projects in a Roslyn workspace and returns compilations.</param>
+    /// <param name="outputWriter">Writer for persisting generated output to disk.</param>
+    /// <param name="outputPathPolicy">Policy for resolving output paths with collision avoidance.</param>
     public ApplicationRunner(
         IInputResolver inputResolver,
         IRestoreService restoreService,
         IProjectGraphService projectGraphService,
-        IRoslynWorkspaceService roslynWorkspaceService)
+        IRoslynWorkspaceService roslynWorkspaceService,
+        IOutputWriter outputWriter,
+        IOutputPathPolicy outputPathPolicy)
     {
         _inputResolver = inputResolver;
         _restoreService = restoreService;
         _projectGraphService = projectGraphService;
         _roslynWorkspaceService = roslynWorkspaceService;
+        _outputWriter = outputWriter;
+        _outputPathPolicy = outputPathPolicy;
     }
 
     /// <summary>
@@ -107,10 +120,88 @@ public sealed class ApplicationRunner
             return 3;
         }
 
-        // workspaceResult is stored for use by the template execution step (M6).
-        _ = workspaceResult;
+        // 7. Validate that all template files exist before execution.
+        foreach (var templatePath in options.Templates)
+        {
+            if (!File.Exists(templatePath))
+            {
+                reporter.Report(new DiagnosticMessage(
+                    DiagnosticSeverity.Error,
+                    DiagnosticCode.TW3001,
+                    $"Template file not found: '{templatePath}'."));
+                return 1;
+            }
+        }
 
-        // 7. Elevate warnings to errors if --fail-on-warnings was specified.
+        // 8. Execute templates against loaded metadata.
+        var metadataProvider = new RoslynMetadataProvider(workspaceResult);
+        var solutionFullName = resolvedInput.SolutionDirectory ?? resolvedInput.ProjectPath;
+        var hasGenerationErrors = false;
+
+        foreach (var templatePath in options.Templates)
+        {
+            try
+            {
+                // Pre-check: enumerate source files with a lightweight settings instance.
+                // GetFiles yields all .cs documents regardless of Settings, so this is safe.
+                // Avoids triggering template compilation when the workspace has no source files.
+                var probeSettings = new SettingsImpl(templatePath, solutionFullName);
+                var sourceFiles = metadataProvider.GetFiles(probeSettings, null).ToList();
+
+                if (sourceFiles.Count == 0)
+                    continue;
+
+                var template = new Template(
+                    templatePath,
+                    solutionFullName,
+                    _outputPathPolicy,
+                    _outputWriter,
+                    error =>
+                    {
+                        reporter.Report(new DiagnosticMessage(
+                            DiagnosticSeverity.Error,
+                            DiagnosticCode.TW3001,
+                            error));
+                        hasGenerationErrors = true;
+                    });
+
+                if (template.Settings.IsSingleFileMode)
+                {
+                    var files = sourceFiles
+                        .Select(m => new FileImpl(m, template.Settings))
+                        .ToArray();
+
+                    if (!template.RenderFile(files))
+                        hasGenerationErrors = true;
+                }
+                else
+                {
+                    foreach (var fileMetadata in sourceFiles)
+                    {
+                        var file = new FileImpl(fileMetadata, template.Settings);
+
+                        if (!template.RenderFile(file))
+                            hasGenerationErrors = true;
+
+                        if (template.HasCompileException)
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                reporter.Report(new DiagnosticMessage(
+                    DiagnosticSeverity.Error,
+                    DiagnosticCode.TW3002,
+                    $"Template execution failed for '{templatePath}': {ex.Message}"));
+                hasGenerationErrors = true;
+            }
+        }
+
+        if (hasGenerationErrors)
+            return 1;
+
+        // 9. Elevate warnings to errors if --fail-on-warnings was specified.
         if (options.FailOnWarnings && reporter.WarningCount > 0)
             return 1;
 

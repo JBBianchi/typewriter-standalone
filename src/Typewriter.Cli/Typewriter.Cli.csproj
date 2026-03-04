@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Typewriter.Application\Typewriter.Application.csproj" />
+    <ProjectReference Include="..\Typewriter.Generation\Typewriter.Generation.csproj" />
     <ProjectReference Include="..\Typewriter.Loading.MSBuild\Typewriter.Loading.MSBuild.csproj" />
   </ItemGroup>
 

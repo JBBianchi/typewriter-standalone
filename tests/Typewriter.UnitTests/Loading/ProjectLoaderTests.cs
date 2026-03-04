@@ -5,14 +5,27 @@ using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
 using Typewriter.Application.Orchestration;
+using Typewriter.Generation.Output;
 using Typewriter.Metadata.Roslyn;
 using Xunit;
 
 namespace Typewriter.UnitTests.Loading;
 
-public class ProjectLoaderTests
+public class ProjectLoaderTests : IDisposable
 {
     private const string ProjectPath = "SimpleLib/SimpleLib.csproj";
+    private readonly string _templatePath;
+
+    public ProjectLoaderTests()
+    {
+        _templatePath = Path.Combine(Path.GetTempPath(), $"tw_test_{Guid.NewGuid():N}.tst");
+        File.WriteAllText(_templatePath, "$Classes[$Name]");
+    }
+
+    public void Dispose()
+    {
+        try { File.Delete(_templatePath); } catch { /* best-effort cleanup */ }
+    }
 
     private static ProjectLoadPlan ValidPlan(string projectPath) =>
         new ProjectLoadPlan(
@@ -21,10 +34,10 @@ public class ProjectLoaderTests
             [new LoadTarget(projectPath, "SimpleLib", "net10.0", null, null, 0)],
             new Dictionary<string, string>());
 
-    private static GenerateCommandOptions MakeOptions(bool restore, string project = ProjectPath) =>
+    private GenerateCommandOptions MakeOptions(bool restore, string project = ProjectPath) =>
         GenerateCommandOptions.Merge(
             config: null,
-            templates: ["tmpl.tst"],
+            templates: [_templatePath],
             solution: null,
             project: project,
             framework: null,
@@ -67,7 +80,7 @@ public class ProjectLoaderTests
             .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult([])));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService);
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>());
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: false), reporter);
@@ -97,7 +110,7 @@ public class ProjectLoaderTests
             .CheckAssetsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(false));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService);
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>());
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: false), reporter);
@@ -143,7 +156,7 @@ public class ProjectLoaderTests
             .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult([])));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService);
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>());
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: true), reporter);
