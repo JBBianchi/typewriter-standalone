@@ -206,7 +206,12 @@ namespace Typewriter.Generation
                     return true;
                 }
 
-                var extension = extensions.Select(e => e.GetMethod(identifier, new[] { type })).FirstOrDefault(m => m != null);
+                var extension = extensions
+                    .Select(e => e.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
+                        .FirstOrDefault(m => string.Equals(m.Name, identifier, StringComparison.Ordinal)
+                            && m.GetParameters().Length == 1
+                            && m.GetParameters()[0].ParameterType.IsAssignableFrom(type)))
+                    .FirstOrDefault(m => m != null);
                 if (extension != null)
                 {
                     value = extension.Invoke(null, new[] { context });

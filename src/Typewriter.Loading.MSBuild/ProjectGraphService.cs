@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.Build.Graph;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
@@ -16,6 +17,15 @@ public sealed class ProjectGraphService : IProjectGraphService
         _solutionFallbackService = solutionFallbackService;
     }
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// MSBuild locator registration must complete before any method referencing
+    /// <c>Microsoft.Build</c> types is JIT-compiled. This wrapper calls
+    /// <see cref="IMsBuildLocatorService.EnsureRegistered"/> first, then delegates
+    /// to <see cref="BuildPlanCoreAsync"/> so the JIT defers resolution of
+    /// <see cref="ProjectGraph"/> and related types until the assembly-resolve
+    /// handler is in place.
+    /// </remarks>
     public async Task<ProjectLoadPlan?> BuildPlanAsync(
         ResolvedInput input,
         string? framework,
@@ -29,6 +39,18 @@ public sealed class ProjectGraphService : IProjectGraphService
         if (reporter.ErrorCount > 0)
             return null;
 
+        return await BuildPlanCoreAsync(input, framework, configuration, runtime, reporter, ct);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private async Task<ProjectLoadPlan?> BuildPlanCoreAsync(
+        ResolvedInput input,
+        string? framework,
+        string? configuration,
+        string? runtime,
+        IDiagnosticReporter reporter,
+        CancellationToken ct)
+    {
         var globalProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["Configuration"] = configuration ?? "Release"
