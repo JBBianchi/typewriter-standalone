@@ -59,7 +59,7 @@ public sealed class Compiler
             // can resolve them at runtime.
             foreach (var refAsm in shadowClass.ReferencedAssemblies)
             {
-                var asmSourcePath = refAsm.Location;
+                var asmSourcePath = ShadowClass.ResolveAssemblyPath(refAsm);
                 if (string.IsNullOrEmpty(asmSourcePath))
                 {
                     continue;
