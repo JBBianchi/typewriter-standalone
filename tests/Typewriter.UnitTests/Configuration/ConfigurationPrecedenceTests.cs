@@ -271,6 +271,48 @@ public class ConfigurationPrecedenceTests
     }
 
     [Fact]
+    public void Loader_ParsesDryRunFromJson()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDir);
+        Directory.CreateDirectory(Path.Combine(tempDir, ".git"));
+
+        var json = """{"dryRun": true}""";
+        File.WriteAllText(Path.Combine(tempDir, "typewriter.json"), json);
+        try
+        {
+            var result = TypewriterConfigLoader.Load(tempDir);
+            Assert.NotNull(result);
+            Assert.True(result.DryRun);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Loader_DryRunIsNullWhenNotSpecified()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDir);
+        Directory.CreateDirectory(Path.Combine(tempDir, ".git"));
+
+        var json = """{"framework": "net10.0"}""";
+        File.WriteAllText(Path.Combine(tempDir, "typewriter.json"), json);
+        try
+        {
+            var result = TypewriterConfigLoader.Load(tempDir);
+            Assert.NotNull(result);
+            Assert.Null(result.DryRun);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    [Fact]
     public void Loader_ThrowsOrReturnsNull_OnMalformedJson()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
