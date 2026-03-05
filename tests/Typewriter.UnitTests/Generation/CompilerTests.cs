@@ -67,4 +67,27 @@ public class CompilerTests
         compiler.Dispose();
         compiler.Dispose();
     }
+
+    /// <summary>
+    /// Verifies that each Compiler instance gets a unique per-invocation subdirectory.
+    /// </summary>
+    [Fact]
+    public void Constructor_CreatesUniqueSubDirectoryPerInstance()
+    {
+        // Arrange & Act
+        var compiler1 = new Compiler(new InvocationCache());
+        var compiler2 = new Compiler(new InvocationCache());
+
+        var subDirField = typeof(Compiler).GetField("_subDirectory",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var subDir1 = (string)subDirField.GetValue(compiler1)!;
+        var subDir2 = (string)subDirField.GetValue(compiler2)!;
+
+        // Assert – subdirectories must be distinct
+        Assert.NotEqual(subDir1, subDir2);
+
+        // Cleanup
+        compiler1.Dispose();
+        compiler2.Dispose();
+    }
 }

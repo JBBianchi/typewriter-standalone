@@ -98,4 +98,37 @@ public class CompilerStaleCleanupTests : IDisposable
 
         Assert.Null(exception);
     }
+
+    /// <summary>
+    /// Verifies that cleanup tolerates a stale directory containing a locked file without throwing,
+    /// and that other stale directories are still cleaned up.
+    /// </summary>
+    [Fact]
+    public void CleanupStaleDirectories_ToleratesLockedFiles()
+    {
+        // Arrange – create a stale directory with a locked file
+        var lockedDir = Path.Combine(_testRoot, "locked");
+        Directory.CreateDirectory(lockedDir);
+        var lockedFilePath = Path.Combine(lockedDir, "locked.dll");
+        // Open file with exclusive lock to prevent deletion
+        using var lockedStream = new FileStream(
+            lockedFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+        Directory.SetLastWriteTimeUtc(lockedDir, DateTime.UtcNow.AddHours(-48));
+
+        // Create another stale directory that can be deleted
+        var deletableDir = Path.Combine(_testRoot, "deletable");
+        Directory.CreateDirectory(deletableDir);
+        Directory.SetLastWriteTimeUtc(deletableDir, DateTime.UtcNow.AddHours(-48));
+
+        // Act – should not throw despite locked file
+        var exception = Record.Exception(() =>
+            Compiler.CleanupStaleDirectories(_testRoot, TimeSpan.FromHours(24)));
+
+        // Assert
+        Assert.Null(exception);
+        // The unlocked stale directory should be deleted
+        Assert.False(Directory.Exists(deletableDir));
+        // The locked directory may still exist (best-effort)
+        // No assertion on lockedDir existence — the point is no exception was thrown
+    }
 }
