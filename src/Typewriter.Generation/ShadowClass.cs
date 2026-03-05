@@ -181,8 +181,9 @@ public class ShadowClass
         syntaxTree = root.SyntaxTree;
 
         var metadataReferences = _referencedAssemblies
-            .Where(a => !string.IsNullOrEmpty(a.Location))
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
+            .Select(ResolveAssemblyPath)
+            .Where(path => path != null)
+            .Select(path => MetadataReference.CreateFromFile(path!))
             .Cast<MetadataReference>()
             .ToList();
 
