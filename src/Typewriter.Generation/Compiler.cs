@@ -18,7 +18,7 @@ namespace Typewriter.Generation;
 /// Roslyn <see cref="Microsoft.CodeAnalysis.CSharp.CSharpCompilation"/> logic is preserved
 /// in <see cref="ShadowClass.Compile(string)"/>.
 /// </summary>
-public sealed class Compiler
+public sealed class Compiler : IDisposable
 {
     private static readonly string TempDirectory = Path.Combine(Path.GetTempPath(), "Typewriter");
 
@@ -130,5 +130,28 @@ public sealed class Compiler
         var type = assembly.GetType("__Typewriter.Template");
         return type ?? throw new InvalidOperationException(
             $"Compiled assembly does not contain the expected type '__Typewriter.Template'. Template: {templateFilePath}");
+    }
+
+    /// <summary>
+    /// Performs best-effort deletion of the per-invocation temporary subdirectory.
+    /// Locked or already-deleted files do not cause exceptions to propagate.
+    /// </summary>
+    public void Dispose()
+    {
+        try
+        {
+            if (Directory.Exists(_subDirectory))
+            {
+                Directory.Delete(_subDirectory, recursive: true);
+            }
+        }
+        catch (IOException)
+        {
+            // Files may be locked by another process; best-effort cleanup.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Insufficient permissions on some platforms; best-effort cleanup.
+        }
     }
 }

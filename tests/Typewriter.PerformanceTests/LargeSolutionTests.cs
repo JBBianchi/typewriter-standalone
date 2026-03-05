@@ -37,13 +37,14 @@ public class LargeSolutionTests : IAsyncLifetime
     public Task DisposeAsync() => Task.CompletedTask;
 
     /// <summary>
-    /// Verifies that the full end-to-end pipeline completes within the 60-second budget
-    /// on a GitHub-hosted ubuntu runner.
+    /// Verifies that the full end-to-end pipeline completes within the 90-second budget
+    /// on GitHub-hosted CI runners (ubuntu, macOS, Windows).
     /// </summary>
     [Fact]
     [Trait("Category", "Performance")]
     public async Task LargeSolution_CompletesUnderThreshold()
     {
+        const int budgetSeconds = 90;
         var solutionPath = FixturePath("large-solution", "LargeSolution.sln");
         var templatePaths = GetLargeSolutionTemplatePaths();
 
@@ -55,8 +56,8 @@ public class LargeSolutionTests : IAsyncLifetime
 
         Assert.Equal(0, exitCode);
         Assert.True(
-            stopwatch.Elapsed.TotalSeconds <= 60,
-            $"Pipeline took {stopwatch.Elapsed.TotalSeconds:F2} s, exceeding the 60 s budget.");
+            stopwatch.Elapsed.TotalSeconds <= budgetSeconds,
+            $"Pipeline took {stopwatch.Elapsed.TotalSeconds:F2} s, exceeding the {budgetSeconds} s budget.");
     }
 
     /// <summary>
