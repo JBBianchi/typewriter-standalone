@@ -12,5 +12,7 @@ public class TypewriterConfig
     public string? Output { get; set; }
     public string? Verbosity { get; set; }
     public bool? FailOnWarnings { get; set; }
+
+    /// <summary>When <c>true</c>, enables dry-run mode so no files are written to disk.</summary>
     public bool? DryRun { get; set; }
 }
