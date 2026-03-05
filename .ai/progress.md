@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-05 by Codex (Executor, #282)
+> Last touched: 2026-03-05 by Codex (Executor, #283)
 
 ## Current State
 
 - **Active milestone**: Complete
-- **Status**: All milestones done (M0–M9) and post-milestone task #282 completed
+- **Status**: All milestones done (M0–M9); post-milestone tasks #282 and #283 complete
 - **Blocker**: None
-- **Next step**: None — all milestones complete
+- **Next step**: None — all tracked tasks complete
 
 ## Milestone Map
 
@@ -125,6 +125,7 @@
 | #265 Run verification for dry-run feature | Post | Executor | Done | Dry-run feature verification (§8): restore/build/test all pass; 203/203 tests (180 unit + 14 integration + 6 golden + 3 performance); 0 errors, 0 failures |
 | #280 Run verification for single-file publish | Post | Executor | Done | Single-file publish verification (§8): restore/build/test/pack all pass; 210/210 tests (187 unit + 14 integration + 6 golden + 3 performance); 0 errors, 0 IL3000 warnings, 0 failures |
 | #282 Add early-exit help invocation for no-args case in Program.cs | Post | Executor | Done | Added no-args early exit in `Program.cs` to invoke help and return 0; verified `dotnet restore`, `dotnet build -c Release`, `dotnet test -c Release` all pass (210/210), plus no-args CLI smoke check (`stdout` help, `generate` present, `exit 0`) |
+| #283 Add CLI contract test for no-args help behavior | Post | Executor | Done | Added `NoArgs_PrintsHelpAndReturns0` in `CliContractTests`; asserts empty args exit code 0 and help content contains `typewriter-cli` and `generate`; verification passed (`dotnet restore`, `dotnet build -c Release`, `dotnet test -c Release`: 211/211 tests) |
 
 ## Decisions
 

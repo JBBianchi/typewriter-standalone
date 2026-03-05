@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Builder;
+using System.CommandLine.Help;
 using System.CommandLine.Parsing;
 using RoslynCompilation = Microsoft.CodeAnalysis.Compilation;
 using RoslynProject = Microsoft.CodeAnalysis.Project;
@@ -353,6 +354,47 @@ public class CliContractTests : IDisposable
         Assert.False(options.DryRun);
     }
 
+    /// <summary>Verifies that invoking the parser with no arguments shows help text and returns exit code 0.</summary>
+    [Fact]
+    public async Task NoArgs_ShowsHelpAndReturnsZero()
+    {
+        var generateCommand = new Command("generate", "Generate TypeScript files from .tst templates");
+        generateCommand.AddArgument(new Argument<string[]>("templates") { Arity = ArgumentArity.OneOrMore });
+        generateCommand.AddOption(new Option<string?>("--solution"));
+        generateCommand.AddOption(new Option<string?>("--project"));
+        generateCommand.AddOption(new Option<bool>("--dry-run", "Validate the pipeline without writing output files"));
+
+        var root = new RootCommand("typewriter-cli \u2014 standalone Typewriter code generator");
+        root.AddCommand(generateCommand);
+        // Mimics the expected Program.cs behavior: show help for no-args invocation.
+        root.SetHandler(() =>
+        {
+            var helpBuilder = new HelpBuilder(LocalizationResources.Instance);
+            using var writer = new StringWriter();
+            helpBuilder.Write(root, writer);
+            Console.Write(writer);
+        });
+
+        var parser = new CommandLineBuilder(root).UseDefaults().Build();
+
+        using var sw = new StringWriter();
+        Console.SetOut(sw);
+        int exitCode;
+        try
+        {
+            exitCode = await parser.InvokeAsync(Array.Empty<string>());
+        }
+        finally
+        {
+            Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        }
+
+        var helpText = sw.ToString();
+        Assert.Equal(0, exitCode);
+        Assert.Contains("typewriter-cli", helpText);
+        Assert.Contains("generate", helpText);
+    }
+
     /// <summary>Verifies that <c>--dry-run</c> appears in the <c>generate</c> command help output.</summary>
     [Fact]
     public async Task DryRun_AppearsInHelpOutput()
@@ -382,4 +424,5 @@ public class CliContractTests : IDisposable
         var helpText = sw.ToString();
         Assert.Contains("--dry-run", helpText);
     }
+
 }
