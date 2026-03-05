@@ -25,6 +25,7 @@ namespace Typewriter.Loading.MSBuild;
 public sealed class RoslynWorkspaceService : IRoslynWorkspaceService
 {
     private readonly InvocationCache _cache;
+    private int _workspaceCreated;
 
     /// <summary>
     /// Initializes a new <see cref="RoslynWorkspaceService"/> with the specified invocation cache.
@@ -52,6 +53,14 @@ public sealed class RoslynWorkspaceService : IRoslynWorkspaceService
         IDiagnosticReporter reporter,
         CancellationToken ct)
     {
+        // Guard: at most one MSBuildWorkspace per invocation (AGENTS.md §11.2).
+        if (Interlocked.CompareExchange(ref _workspaceCreated, 1, 0) != 0)
+        {
+            throw new InvalidOperationException(
+                "An MSBuildWorkspace has already been created for this invocation. " +
+                "RoslynWorkspaceService.LoadAsync must not be called more than once.");
+        }
+
         var properties = new Dictionary<string, string>(plan.GlobalProperties);
 
         MSBuildWorkspace workspace;

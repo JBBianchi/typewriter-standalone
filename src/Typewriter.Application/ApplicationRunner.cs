@@ -94,6 +94,11 @@ public sealed class ApplicationRunner
         if (resolvedInput is null)
             return 2;
 
+        // Bind the cache scope to the resolved entry-point so that compilation cache keys
+        // include the scope and cannot be served to a different --project/--solution run
+        // (AGENTS.md §11.1 — scope isolation).
+        _cache.SetScope(resolvedInput.ProjectPath);
+
         // 4. Check restore assets; run restore if requested.
         var assetsPresent = await _restoreService.CheckAssetsAsync(resolvedInput.ProjectPath, cancellationToken);
         if (!assetsPresent)
