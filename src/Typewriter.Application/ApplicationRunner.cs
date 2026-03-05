@@ -100,21 +100,38 @@ public sealed class ApplicationRunner
         _cache.SetScope(resolvedInput.ProjectPath);
 
         // 4. Check restore assets; run restore if requested.
-        var assetsPresent = await _restoreService.CheckAssetsAsync(resolvedInput.ProjectPath, cancellationToken);
-        if (!assetsPresent)
-        {
-            if (!options.Restore)
-            {
-                reporter.Report(new DiagnosticMessage(
-                    DiagnosticSeverity.Error,
-                    DiagnosticCode.TW2003,
-                    $"Restore assets missing for '{resolvedInput.ProjectPath}'. Run with --restore or run 'dotnet restore' manually."));
-                return 3;
-            }
+        // For solution inputs (.sln/.slnx), skip the early CheckAssetsAsync call — the per-project
+        // check in ProjectGraphService.BuildPlanAsync already handles per-project assets validation.
+        var isSolution = resolvedInput.ProjectPath.EndsWith(".sln", StringComparison.OrdinalIgnoreCase)
+            || resolvedInput.ProjectPath.EndsWith(".slnx", StringComparison.OrdinalIgnoreCase);
 
-            var restoreOk = await _restoreService.RestoreAsync(resolvedInput.ProjectPath, reporter, cancellationToken);
-            if (!restoreOk)
-                return 3;
+        if (isSolution)
+        {
+            if (options.Restore)
+            {
+                var restoreOk = await _restoreService.RestoreAsync(resolvedInput.ProjectPath, reporter, cancellationToken);
+                if (!restoreOk)
+                    return 3;
+            }
+        }
+        else
+        {
+            var assetsPresent = await _restoreService.CheckAssetsAsync(resolvedInput.ProjectPath, cancellationToken);
+            if (!assetsPresent)
+            {
+                if (!options.Restore)
+                {
+                    reporter.Report(new DiagnosticMessage(
+                        DiagnosticSeverity.Error,
+                        DiagnosticCode.TW2003,
+                        $"Restore assets missing for '{resolvedInput.ProjectPath}'. Run with --restore or run 'dotnet restore' manually."));
+                    return 3;
+                }
+
+                var restoreOk = await _restoreService.RestoreAsync(resolvedInput.ProjectPath, reporter, cancellationToken);
+                if (!restoreOk)
+                    return 3;
+            }
         }
 
         // 5. Build the project graph / load plan.
