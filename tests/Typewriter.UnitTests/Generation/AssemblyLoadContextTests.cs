@@ -216,6 +216,36 @@ public class AssemblyLoadContextTests : IDisposable
     }
 
     /// <summary>
+    /// Verifies that <see cref="TemplateAssemblyLoadContext"/> resolves assemblies from a
+    /// per-invocation subdirectory path structure (e.g. <c>Typewriter/&lt;guid&gt;/</c>),
+    /// matching the directory layout produced by <see cref="Compiler"/>.
+    /// </summary>
+    [Fact]
+    public void Load_AssemblyInPerInvocationSubdirectory_Resolves()
+    {
+        // Arrange: create a nested path that mirrors Compiler._subDirectory layout.
+        var perInvocationDir = Path.Combine(_tempDir, "Typewriter", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(perInvocationDir);
+
+        var sourceAssembly = typeof(TemplateAssemblyLoadContext).Assembly;
+        var sourcePath = sourceAssembly.Location;
+        var destPath = Path.Combine(perInvocationDir, Path.GetFileName(sourcePath));
+        File.Copy(sourcePath, destPath);
+
+        // Act: create the context pointing at the per-invocation subdirectory, same as
+        // Compiler.cs line ~120: new TemplateAssemblyLoadContext(Path.GetDirectoryName(path)!)
+        var context = new TemplateAssemblyLoadContext(perInvocationDir);
+        var loaded = context.LoadFromAssemblyName(
+            new AssemblyName(sourceAssembly.GetName().Name!));
+
+        // Assert
+        Assert.NotNull(loaded);
+        Assert.Equal(sourceAssembly.GetName().Name, loaded.GetName().Name);
+
+        UnloadAndRelease(context);
+    }
+
+    /// <summary>
     /// Unloads the context and triggers garbage collection so that
     /// Windows releases file locks on assemblies loaded from <see cref="_tempDir"/>.
     /// </summary>
