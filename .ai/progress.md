@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-05 by Claude (Executor, #183)
+> Last touched: 2026-03-05 by Claude (Executor, #265)
 
 ## Current State
 
@@ -122,6 +122,7 @@
 | #181 Tag performance tests and update ci.yml filter | M9 | Executor | Done | All tests in PerformanceTests tagged `[Trait("Category", "Performance")]`; ci.yml excludes with `--filter "Category!=Performance"`; dedicated `performance` job on ubuntu-latest; `workflow_dispatch` trigger added; README.md with manual run docs; 182 non-perf tests pass |
 | #182 Document performance budgets in README.md | M9 | Executor | Done | `tests/Typewriter.PerformanceTests/README.md` — wall-time (60 s), memory (2 GB), run command, update process, fixture description |
 | #183 Run M9 acceptance criteria verification | M9 | Executor | Done | All M9 gates verified: restore/build/test pass (185/185); functional suite clean (182 non-perf); LargeSolution perf test passes (15s < 60s budget); stage timings in ApplicationRunner at --verbosity detailed; ci.yml updated with performance filter + dedicated job; budgets documented in README.md; M9→Done, active→Complete |
+| #265 Run verification for dry-run feature | Post | Executor | Done | Dry-run feature verification (§8): restore/build/test all pass; 203/203 tests (180 unit + 14 integration + 6 golden + 3 performance); 0 errors, 0 failures |
 
 ## Decisions
 
