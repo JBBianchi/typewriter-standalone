@@ -36,6 +36,7 @@ public class ProjectLoaderTests : IDisposable
             new Dictionary<string, string>());
 
     private const string SolutionPath = "MySolution.sln";
+    private const string SolutionXPath = "MySolution.slnx";
 
     private GenerateCommandOptions MakeOptions(bool restore, string project = ProjectPath) =>
         GenerateCommandOptions.Merge(
@@ -255,6 +256,94 @@ public class ProjectLoaderTests : IDisposable
         await restoreService
             .Received(1)
             .RestoreAsync(SolutionPath, Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>());
+        await restoreService
+            .DidNotReceive()
+            .CheckAssetsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Slnx_SkipsCheckAssets_DoesNotTriggerTW2003()
+    {
+        // Arrange
+        var inputResolver = Substitute.For<IInputResolver>();
+        var restoreService = Substitute.For<IRestoreService>();
+        var graphService = Substitute.For<IProjectGraphService>();
+        var roslynWorkspaceService = Substitute.For<IRoslynWorkspaceService>();
+        var reporter = Substitute.For<IDiagnosticReporter>();
+
+        inputResolver
+            .ResolveAsync(Arg.Any<string>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<ResolvedInput?>(new ResolvedInput(SolutionXPath, null)));
+
+        graphService
+            .BuildPlanAsync(
+                Arg.Any<ResolvedInput>(),
+                Arg.Any<string?>(),
+                Arg.Any<string?>(),
+                Arg.Any<string?>(),
+                Arg.Any<IDiagnosticReporter>(),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<ProjectLoadPlan?>(ValidPlan(ProjectPath)));
+
+        roslynWorkspaceService
+            .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult([])));
+
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>(), new InvocationCache());
+
+        // Act
+        var exitCode = await runner.RunAsync(MakeOptions(restore: false, project: SolutionXPath), reporter);
+
+        // Assert
+        Assert.Equal(0, exitCode);
+        await restoreService
+            .DidNotReceive()
+            .CheckAssetsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        reporter.DidNotReceive().Report(Arg.Is<DiagnosticMessage>(m => m.Code == DiagnosticCode.TW2003));
+    }
+
+    [Fact]
+    public async Task Slnx_WithRestore_CallsRestoreAsync()
+    {
+        // Arrange
+        var inputResolver = Substitute.For<IInputResolver>();
+        var restoreService = Substitute.For<IRestoreService>();
+        var graphService = Substitute.For<IProjectGraphService>();
+        var roslynWorkspaceService = Substitute.For<IRoslynWorkspaceService>();
+        var reporter = Substitute.For<IDiagnosticReporter>();
+
+        inputResolver
+            .ResolveAsync(Arg.Any<string>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<ResolvedInput?>(new ResolvedInput(SolutionXPath, null)));
+
+        restoreService
+            .RestoreAsync(Arg.Any<string>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(true));
+
+        graphService
+            .BuildPlanAsync(
+                Arg.Any<ResolvedInput>(),
+                Arg.Any<string?>(),
+                Arg.Any<string?>(),
+                Arg.Any<string?>(),
+                Arg.Any<IDiagnosticReporter>(),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<ProjectLoadPlan?>(ValidPlan(ProjectPath)));
+
+        roslynWorkspaceService
+            .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult([])));
+
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>(), new InvocationCache());
+
+        // Act
+        var exitCode = await runner.RunAsync(MakeOptions(restore: true, project: SolutionXPath), reporter);
+
+        // Assert
+        Assert.Equal(0, exitCode);
+        await restoreService
+            .Received(1)
+            .RestoreAsync(SolutionXPath, Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>());
         await restoreService
             .DidNotReceive()
             .CheckAssetsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
