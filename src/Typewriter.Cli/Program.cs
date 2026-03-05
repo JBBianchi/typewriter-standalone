@@ -5,6 +5,7 @@ using System.CommandLine.Parsing;
 using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Generation.Output;
+using Typewriter.Generation.Performance;
 using Typewriter.Loading.MSBuild;
 
 var rootCommand = new RootCommand("typewriter-cli \u2014 standalone Typewriter code generator");
@@ -57,16 +58,17 @@ generateCommand.SetHandler(async (InvocationContext ctx) =>
     var reporter = new MsBuildDiagnosticReporter();
 
     // Compose the loading pipeline services.
+    var cache = new InvocationCache();
     var locatorService = new MsBuildLocatorService();
     var inputResolver = new InputResolver();
     var restoreService = new RestoreService();
     var solutionFallbackService = new SolutionFallbackService();
     var projectGraphService = new ProjectGraphService(locatorService, solutionFallbackService);
-    var roslynWorkspaceService = new RoslynWorkspaceService();
+    var roslynWorkspaceService = new RoslynWorkspaceService(cache);
 
     var outputWriter = new OutputWriter();
     var outputPathPolicy = new OutputPathPolicy();
-    var runner = new ApplicationRunner(inputResolver, restoreService, projectGraphService, roslynWorkspaceService, outputWriter, outputPathPolicy);
+    var runner = new ApplicationRunner(inputResolver, restoreService, projectGraphService, roslynWorkspaceService, outputWriter, outputPathPolicy, cache);
     ctx.ExitCode = await runner.RunAsync(options, reporter, ctx.GetCancellationToken());
 });
 

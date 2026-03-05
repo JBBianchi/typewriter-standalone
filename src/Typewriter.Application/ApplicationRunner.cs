@@ -5,6 +5,7 @@ using Typewriter.CodeModel.Configuration;
 using Typewriter.CodeModel.Implementation;
 using Typewriter.Generation;
 using Typewriter.Generation.Output;
+using Typewriter.Generation.Performance;
 using Typewriter.Metadata.Roslyn;
 
 namespace Typewriter.Application;
@@ -20,6 +21,7 @@ public sealed class ApplicationRunner
     private readonly IRoslynWorkspaceService _roslynWorkspaceService;
     private readonly IOutputWriter _outputWriter;
     private readonly IOutputPathPolicy _outputPathPolicy;
+    private readonly InvocationCache _cache;
 
     /// <summary>
     /// Initializes a new <see cref="ApplicationRunner"/> with the required loading and generation services.
@@ -30,13 +32,19 @@ public sealed class ApplicationRunner
     /// <param name="roslynWorkspaceService">Opens projects in a Roslyn workspace and returns compilations.</param>
     /// <param name="outputWriter">Writer for persisting generated output to disk.</param>
     /// <param name="outputPathPolicy">Policy for resolving output paths with collision avoidance.</param>
+    /// <param name="cache">
+    /// Per-invocation cache for compiled template assemblies and Roslyn compilations.
+    /// Shared with <see cref="RoslynWorkspaceService"/> and <see cref="Compiler"/> to avoid
+    /// redundant work on repeated calls within the same process.
+    /// </param>
     public ApplicationRunner(
         IInputResolver inputResolver,
         IRestoreService restoreService,
         IProjectGraphService projectGraphService,
         IRoslynWorkspaceService roslynWorkspaceService,
         IOutputWriter outputWriter,
-        IOutputPathPolicy outputPathPolicy)
+        IOutputPathPolicy outputPathPolicy,
+        InvocationCache cache)
     {
         _inputResolver = inputResolver;
         _restoreService = restoreService;
@@ -44,6 +52,7 @@ public sealed class ApplicationRunner
         _roslynWorkspaceService = roslynWorkspaceService;
         _outputWriter = outputWriter;
         _outputPathPolicy = outputPathPolicy;
+        _cache = cache;
     }
 
     /// <summary>
@@ -151,6 +160,7 @@ public sealed class ApplicationRunner
         // 8. Execute templates against loaded metadata.
         var metadataProvider = new RoslynMetadataProvider(workspaceResult);
         var solutionFullName = resolvedInput.SolutionDirectory ?? resolvedInput.ProjectPath;
+        var compiler = new Compiler(_cache);
         var hasGenerationErrors = false;
 
         foreach (var templatePath in options.Templates)
@@ -171,6 +181,7 @@ public sealed class ApplicationRunner
                     solutionFullName,
                     _outputPathPolicy,
                     _outputWriter,
+                    compiler,
                     error =>
                     {
                         reporter.Report(new DiagnosticMessage(

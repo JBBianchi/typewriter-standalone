@@ -5,6 +5,7 @@ using NSubstitute;
 using Typewriter.CodeModel.Configuration;
 using Typewriter.CodeModel.Implementation;
 using Typewriter.Generation;
+using Typewriter.Generation.Performance;
 using Typewriter.Metadata;
 using Xunit;
 using File = System.IO.File;
@@ -74,9 +75,10 @@ public class TemplateEngineTests : IDisposable
         var templateContent = $"#reference {metadataDllName}\n#reference {generationDllName}\n";
 
         var extensions = new List<Type>();
+        var compiler = new Compiler(new InvocationCache());
 
         // Act
-        var result = TemplateCodeParser.Parse(templateFilePath, templateContent, extensions);
+        var result = TemplateCodeParser.Parse(templateFilePath, templateContent, extensions, compiler);
 
         // Assert — compilation succeeded and produced a type.
         Assert.NotEmpty(extensions);
@@ -201,8 +203,9 @@ public class TemplateEngineTests : IDisposable
             "tests", "fixtures", "simple", "SimpleProject", "Interfaces.tst"));
         var templateContent = File.ReadAllText(templatePath);
         var extensions = new List<Type>();
+        var compiler = new Compiler(new InvocationCache());
 
-        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions);
+        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions, compiler);
 
         Assert.NotNull(result);
         Assert.NotEmpty(extensions);
@@ -220,8 +223,9 @@ public class TemplateEngineTests : IDisposable
             "tests", "fixtures", "simple", "SimpleProject", "Enums.tst"));
         var templateContent = File.ReadAllText(templatePath);
         var extensions = new List<Type>();
+        var compiler = new Compiler(new InvocationCache());
 
-        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions);
+        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions, compiler);
 
         Assert.NotNull(result);
         Assert.NotEmpty(extensions);

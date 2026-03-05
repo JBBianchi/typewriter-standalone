@@ -23,8 +23,13 @@ public static class TemplateCodeParser
     /// <param name="templateFilePath">Absolute path to the <c>.tst</c> template file.</param>
     /// <param name="template">The raw template content.</param>
     /// <param name="extensions">List populated with compiled extension types.</param>
+    /// <param name="compiler">
+    /// The <see cref="Compiler"/> instance used to compile the parsed shadow class.
+    /// Uses <see cref="Performance.InvocationCache"/> internally to skip recompilation on
+    /// repeated calls with the same template path.
+    /// </param>
     /// <returns>The processed template output, or <c>null</c> if the template is empty.</returns>
-    public static string? Parse(string templateFilePath, string template, List<Type> extensions)
+    public static string? Parse(string templateFilePath, string template, List<Type> extensions, Compiler compiler)
     {
         if (string.IsNullOrWhiteSpace(template))
         {
@@ -61,7 +66,7 @@ public static class TemplateCodeParser
         shadowClass.Parse();
 
         extensions.Clear();
-        extensions.Add(Compiler.Compile(templateFilePath, shadowClass));
+        extensions.Add(compiler.Compile(templateFilePath, shadowClass));
         extensions.AddRange(FindExtensionClasses(shadowClass));
 
         return output;

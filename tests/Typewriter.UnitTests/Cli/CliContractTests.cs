@@ -5,6 +5,7 @@ using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
 using Typewriter.Application.Orchestration;
 using Typewriter.Generation.Output;
+using Typewriter.Generation.Performance;
 using Typewriter.Metadata.Roslyn;
 using Xunit;
 
@@ -132,7 +133,8 @@ public class CliContractTests : IDisposable
             new StubProjectGraphService(),
             new StubRoslynWorkspaceService(),
             new StubOutputWriter(),
-            new StubOutputPathPolicy());
+            new StubOutputPathPolicy(),
+            new InvocationCache());
 
     [Fact]
     public async Task Generate_InvalidArgs_Returns2()

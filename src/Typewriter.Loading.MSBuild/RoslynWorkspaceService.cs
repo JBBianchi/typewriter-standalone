@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.MSBuild;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
 using Typewriter.Application.Orchestration;
+using Typewriter.Generation.Performance;
 using Typewriter.Metadata.Roslyn;
 
 using RoslynDiagnosticSeverity = Microsoft.CodeAnalysis.DiagnosticSeverity;
@@ -16,8 +17,27 @@ namespace Typewriter.Loading.MSBuild;
 /// MSBuild registration must be completed by <see cref="IMsBuildLocatorService"/> before
 /// calling <see cref="LoadAsync"/>.
 /// </summary>
+/// <remarks>
+/// Uses <see cref="InvocationCache"/> to cache Roslyn <see cref="Compilation"/> objects
+/// per project path, avoiding redundant compilation on repeated invocations within the
+/// same process.
+/// </remarks>
 public sealed class RoslynWorkspaceService : IRoslynWorkspaceService
 {
+    private readonly InvocationCache _cache;
+
+    /// <summary>
+    /// Initializes a new <see cref="RoslynWorkspaceService"/> with the specified invocation cache.
+    /// </summary>
+    /// <param name="cache">
+    /// The per-invocation cache used to store Roslyn compilations, keyed by normalized
+    /// absolute project path.
+    /// </param>
+    public RoslynWorkspaceService(InvocationCache cache)
+    {
+        _cache = cache;
+    }
+
     /// <inheritdoc />
     /// <remarks>
     /// Creates a single <see cref="MSBuildWorkspace"/> for the entire plan, opens each
@@ -89,7 +109,10 @@ public sealed class RoslynWorkspaceService : IRoslynWorkspaceService
             Compilation? compilation;
             try
             {
-                compilation = await project.GetCompilationAsync(ct);
+                compilation = _cache.GetOrAddCompilation(loadTarget.ProjectPath, _ =>
+                    project.GetCompilationAsync(ct).GetAwaiter().GetResult()
+                    ?? throw new InvalidOperationException(
+                        $"Compilation was null for project '{loadTarget.ProjectName}'."));
             }
             catch (Exception ex)
             {
@@ -97,16 +120,6 @@ public sealed class RoslynWorkspaceService : IRoslynWorkspaceService
                     TwDiagnosticSeverity.Error,
                     DiagnosticCode.TW2202,
                     $"Compilation failed for project '{loadTarget.ProjectName}': {ex.Message}",
-                    File: loadTarget.ProjectPath));
-                continue;
-            }
-
-            if (compilation is null)
-            {
-                reporter.Report(new DiagnosticMessage(
-                    TwDiagnosticSeverity.Error,
-                    DiagnosticCode.TW2202,
-                    $"Compilation was null for project '{loadTarget.ProjectName}'.",
                     File: loadTarget.ProjectPath));
                 continue;
             }

@@ -30,6 +30,7 @@ public class Template
     private readonly string _solutionFullName;
     private readonly IOutputPathPolicy _outputPathPolicy;
     private readonly IOutputWriter _outputWriter;
+    private readonly Compiler _compiler;
     private readonly Action<string>? _errorReporter;
     private Lazy<string?> _template;
     private Lazy<SettingsImpl> _configuration;
@@ -58,18 +59,24 @@ public class Template
     /// <param name="solutionFullName">Absolute path to the solution or project file.</param>
     /// <param name="outputPathPolicy">Policy for resolving output paths with collision avoidance.</param>
     /// <param name="outputWriter">Writer for persisting generated output to disk.</param>
+    /// <param name="compiler">
+    /// The <see cref="Compiler"/> instance used for template compilation, with per-invocation
+    /// caching via <see cref="Performance.InvocationCache"/>.
+    /// </param>
     /// <param name="errorReporter">Optional callback invoked with diagnostic messages on errors.</param>
     public Template(
         string templatePath,
         string solutionFullName,
         IOutputPathPolicy outputPathPolicy,
         IOutputWriter outputWriter,
+        Compiler compiler,
         Action<string>? errorReporter = null)
     {
         _templatePath = templatePath;
         _solutionFullName = solutionFullName;
         _outputPathPolicy = outputPathPolicy;
         _outputWriter = outputWriter;
+        _compiler = compiler;
         _errorReporter = errorReporter;
         _template = LazyTemplate();
         _configuration = LazyConfiguration();
@@ -272,7 +279,7 @@ public class Template
             var code = System.IO.File.ReadAllText(_templatePath);
             try
             {
-                var result = TemplateCodeParser.Parse(_templatePath, code, _customExtensions);
+                var result = TemplateCodeParser.Parse(_templatePath, code, _customExtensions, _compiler);
                 _templateCompiled = true;
                 return result;
             }

@@ -6,6 +6,7 @@ using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
 using Typewriter.Application.Orchestration;
 using Typewriter.Generation.Output;
+using Typewriter.Generation.Performance;
 using Typewriter.Metadata.Roslyn;
 using Xunit;
 
@@ -80,7 +81,7 @@ public class ProjectLoaderTests : IDisposable
             .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult([])));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>());
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>(), new InvocationCache());
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: false), reporter);
@@ -110,7 +111,7 @@ public class ProjectLoaderTests : IDisposable
             .CheckAssetsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(false));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>());
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>(), new InvocationCache());
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: false), reporter);
@@ -156,7 +157,7 @@ public class ProjectLoaderTests : IDisposable
             .LoadAsync(Arg.Any<ProjectLoadPlan>(), Arg.Any<IDiagnosticReporter>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<WorkspaceLoadResult?>(new WorkspaceLoadResult([])));
 
-        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>());
+        var runner = new ApplicationRunner(inputResolver, restoreService, graphService, roslynWorkspaceService, Substitute.For<IOutputWriter>(), Substitute.For<IOutputPathPolicy>(), new InvocationCache());
 
         // Act
         var exitCode = await runner.RunAsync(MakeOptions(restore: true), reporter);

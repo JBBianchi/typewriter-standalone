@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace Typewriter.Application.Performance;
+namespace Typewriter.Generation.Performance;
 
 /// <summary>
 /// Per-invocation, memory-only cache for compiled template assemblies and Roslyn

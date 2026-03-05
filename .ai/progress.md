@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-05 by Claude (Executor, #176)
+> Last touched: 2026-03-05 by Claude (Executor, #178)
 
 ## Current State
 
@@ -117,6 +117,7 @@
 | #172 Verify release dry-run locally (M8) | M8 | Executor | Done | [T172-verify-release-dryrun.md](.ai/tasks/T172-verify-release-dryrun.md) — `dotnet pack` → local tool install → `typewriter-cli generate` smoke test all pass; reusable script `eng/verify-release-dryrun.sh` created; 179/179 tests pass |
 | #173 Run M8 acceptance criteria - CI matrix (M8) | M8 | Executor | Done | All M8 gates verified: CI matrix (3 OSes), smoke test, parity-gate→publish ordering, NUGET_API_KEY secret-only, release dry-run; 179/179 tests; `dotnet pack` produces versioned .nupkg; M8→Done, active→M9 |
 | #176 Create large-solution fixture generator | M9 | Executor | Done | `tests/fixtures/large-solution/` — 25 projects (Project01–Project25), LargeSolution.sln, generate.sh + generate.ps1; 5 .tst templates across Project03/07/12/18/22; dotnet restore verified; 179/179 tests pass |
+| #178 Integrate InvocationCache into Compiler and RoslynWorkspaceService | M9 | Executor | Done | `InvocationCache` moved to `Typewriter.Generation.Performance`; `Compiler` made non-static with cache injection (template Assembly caching); `RoslynWorkspaceService` caches Roslyn `Compilation` per project path; `InvocationCache` shared via `Program.cs` composition root → `ApplicationRunner` → `Compiler`; all 179/179 tests pass |
 
 ## Decisions
 

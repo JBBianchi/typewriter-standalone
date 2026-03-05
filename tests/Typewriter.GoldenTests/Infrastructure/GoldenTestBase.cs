@@ -1,6 +1,7 @@
 using Typewriter.Application;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Generation.Output;
+using Typewriter.Generation.Performance;
 using Typewriter.Loading.MSBuild;
 using Xunit;
 
@@ -76,11 +77,12 @@ public abstract class GoldenTestBase : IAsyncLifetime
         var reporter = new TestDiagnosticReporter();
         var capturingWriter = new CapturingOutputWriter();
 
+        var cache = new InvocationCache();
         var inputResolver = new InputResolver();
         var restoreService = new RestoreService();
         var solutionFallbackService = new SolutionFallbackService();
         var projectGraphService = new ProjectGraphService(Locator, solutionFallbackService);
-        var roslynWorkspaceService = new RoslynWorkspaceService();
+        var roslynWorkspaceService = new RoslynWorkspaceService(cache);
         var outputPathPolicy = new OutputPathPolicy();
 
         var runner = new ApplicationRunner(
@@ -89,7 +91,8 @@ public abstract class GoldenTestBase : IAsyncLifetime
             projectGraphService,
             roslynWorkspaceService,
             capturingWriter,
-            outputPathPolicy);
+            outputPathPolicy,
+            cache);
 
         var options = new GenerateCommandOptions(
             Templates: templatePaths,
