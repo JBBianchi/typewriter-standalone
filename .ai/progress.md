@@ -1,6 +1,6 @@
 # Progress Tracker
 
-> Last touched: 2026-03-05 by Claude (Executor, #265)
+> Last touched: 2026-03-05 by Claude (Executor, #280)
 
 ## Current State
 
@@ -123,6 +123,7 @@
 | #182 Document performance budgets in README.md | M9 | Executor | Done | `tests/Typewriter.PerformanceTests/README.md` — wall-time (60 s), memory (2 GB), run command, update process, fixture description |
 | #183 Run M9 acceptance criteria verification | M9 | Executor | Done | All M9 gates verified: restore/build/test pass (185/185); functional suite clean (182 non-perf); LargeSolution perf test passes (15s < 60s budget); stage timings in ApplicationRunner at --verbosity detailed; ci.yml updated with performance filter + dedicated job; budgets documented in README.md; M9→Done, active→Complete |
 | #265 Run verification for dry-run feature | Post | Executor | Done | Dry-run feature verification (§8): restore/build/test all pass; 203/203 tests (180 unit + 14 integration + 6 golden + 3 performance); 0 errors, 0 failures |
+| #280 Run verification for single-file publish | Post | Executor | Done | Single-file publish verification (§8): restore/build/test/pack all pass; 210/210 tests (187 unit + 14 integration + 6 golden + 3 performance); 0 errors, 0 IL3000 warnings, 0 failures |
 
 ## Decisions
 
