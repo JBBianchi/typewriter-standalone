@@ -1,3 +1,6 @@
+using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using RoslynCompilation = Microsoft.CodeAnalysis.Compilation;
 using RoslynProject = Microsoft.CodeAnalysis.Project;
 using Typewriter.Application;
@@ -243,5 +246,77 @@ public class CliContractTests : IDisposable
 
         Assert.Equal(1, exitCode);
         Assert.Contains(messages, m => m.Code == DiagnosticCode.TW3001);
+    }
+
+    /// <summary>Verifies that passing <c>--dry-run</c> sets <see cref="GenerateCommandOptions.DryRun"/> to <c>true</c>.</summary>
+    [Fact]
+    public void DryRun_WhenSpecified_SetsOptionToTrue()
+    {
+        var options = GenerateCommandOptions.Merge(
+            config:        null,
+            templates:     ["template.tst"],
+            solution:      "my.sln",
+            project:       null,
+            framework:     null,
+            configuration: null,
+            runtime:       null,
+            restore:       false,
+            output:        null,
+            verbosity:     null,
+            failOnWarnings: false,
+            dryRun:        true);
+
+        Assert.True(options.DryRun);
+    }
+
+    /// <summary>Verifies that omitting <c>--dry-run</c> leaves <see cref="GenerateCommandOptions.DryRun"/> as <c>false</c>.</summary>
+    [Fact]
+    public void DryRun_WhenNotSpecified_DefaultsToFalse()
+    {
+        var options = GenerateCommandOptions.Merge(
+            config:        null,
+            templates:     ["template.tst"],
+            solution:      "my.sln",
+            project:       null,
+            framework:     null,
+            configuration: null,
+            runtime:       null,
+            restore:       false,
+            output:        null,
+            verbosity:     null,
+            failOnWarnings: false,
+            dryRun:        false);
+
+        Assert.False(options.DryRun);
+    }
+
+    /// <summary>Verifies that <c>--dry-run</c> appears in the <c>generate</c> command help output.</summary>
+    [Fact]
+    public async Task DryRun_AppearsInHelpOutput()
+    {
+        var generateCommand = new Command("generate", "Generate TypeScript files from .tst templates");
+        generateCommand.AddArgument(new Argument<string[]>("templates") { Arity = ArgumentArity.OneOrMore });
+        generateCommand.AddOption(new Option<string?>("--solution"));
+        generateCommand.AddOption(new Option<string?>("--project"));
+        generateCommand.AddOption(new Option<bool>("--dry-run", "Validate the pipeline without writing output files"));
+
+        var root = new RootCommand();
+        root.AddCommand(generateCommand);
+
+        var parser = new CommandLineBuilder(root).UseDefaults().Build();
+
+        using var sw = new StringWriter();
+        Console.SetOut(sw);
+        try
+        {
+            await parser.InvokeAsync("generate --help");
+        }
+        finally
+        {
+            Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        }
+
+        var helpText = sw.ToString();
+        Assert.Contains("--dry-run", helpText);
     }
 }
