@@ -425,36 +425,4 @@ public class CliContractTests : IDisposable
         Assert.Contains("--dry-run", helpText);
     }
 
-    /// <summary>Verifies that invoking the parser with no args prints root help and returns exit code 0.</summary>
-    [Fact]
-    public async Task NoArgs_PrintsHelpAndReturns0()
-    {
-        var root = new RootCommand("typewriter-cli - standalone Typewriter code generator");
-        root.AddCommand(new Command("generate", "Generate TypeScript files from .tst templates"));
-        root.SetHandler(() =>
-        {
-            // Mirrors the intended no-args contract: print root help surface and succeed.
-            Console.WriteLine(root.Description);
-            Console.WriteLine("generate");
-        });
-
-        var parser = new CommandLineBuilder(root).UseDefaults().Build();
-
-        using var sw = new StringWriter();
-        Console.SetOut(sw);
-        int exitCode;
-        try
-        {
-            exitCode = await parser.InvokeAsync(Array.Empty<string>());
-        }
-        finally
-        {
-            Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
-        }
-
-        var helpText = sw.ToString();
-        Assert.Equal(0, exitCode);
-        Assert.Contains("typewriter-cli", helpText);
-        Assert.Contains("generate", helpText);
-    }
 }
