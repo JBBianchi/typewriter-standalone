@@ -209,6 +209,48 @@ public class ShadowClass
         return compilation.Emit(fileStream);
     }
 
+    /// <summary>
+    /// Resolves the file path of an assembly safely in both normal and single-file deployment
+    /// modes, where <see cref="Assembly.Location"/> returns an empty string.
+    /// </summary>
+    /// <param name="assembly">The assembly to resolve.</param>
+    /// <returns>
+    /// The absolute file path of the assembly, or <c>null</c> if no path can be resolved.
+    /// </returns>
+    internal static string? ResolveAssemblyPath(Assembly assembly)
+    {
+#pragma warning disable IL3000 // Assembly.Location returns empty in single-file — handled by fallbacks below
+        var location = assembly.Location;
+#pragma warning restore IL3000
+
+        if (!string.IsNullOrEmpty(location))
+        {
+            return location;
+        }
+
+        // Fallback: AppContext.BaseDirectory + assembly simple name + ".dll"
+        var baseDirCandidate = Path.Combine(AppContext.BaseDirectory, assembly.GetName().Name + ".dll");
+        if (File.Exists(baseDirCandidate))
+        {
+            return baseDirCandidate;
+        }
+
+        // Fallback: TRUSTED_PLATFORM_ASSEMBLIES lookup by filename
+        var fileName = assembly.GetName().Name + ".dll";
+        var trustedAssemblies = (AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string)?
+            .Split(Path.PathSeparator) ?? [];
+
+        var match = trustedAssemblies
+            .FirstOrDefault(a => string.Equals(Path.GetFileName(a), fileName, StringComparison.OrdinalIgnoreCase));
+
+        if (match != null)
+        {
+            return match;
+        }
+
+        return null;
+    }
+
     private static void AddTrustedPlatformAssembly(List<MetadataReference> references, string assemblyFileName)
     {
         var trustedAssemblies = (AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string)?
