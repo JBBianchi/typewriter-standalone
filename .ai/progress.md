@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-05 by Claude (Executor, #182)
+> Last touched: 2026-03-05 by Claude (Executor, #183)
 
 ## Current State
 
-- **Active milestone**: M9 - Performance and caching hardening
-- **Status**: In progress
+- **Active milestone**: Complete
+- **Status**: All milestones done (M0–M9)
 - **Blocker**: None
-- **Next step**: Continue M9 tasks
+- **Next step**: None — all milestones complete
 
 ## Milestone Map
 
@@ -22,7 +22,7 @@
 | M6 | Template execution and output management | Done | All acceptance criteria verified (#151): restore/build 0 errors/0 warnings, 170/170 tests pass (157 unit + 13 integration), TemplateEngineTests 3/3, OutputPolicyTests 3/3, AssemblyLoadContextTests 7/7, Placeholder.cs deleted, zero VS coupling in Generation/ source, origin/ unchanged |
 | M7 | Golden parity and fixture repos | Done | All acceptance criteria verified (#164): 5 fixtures created (simple, multi-project, multi-target, source-generators, complex-types); ParityMatrix.md with 8 identical + 4 transformed features; baselines captured (12 .ts files); golden test runner (5 tests); EOL normalization (#162); baseline update docs (#163); all 179/179 tests pass (159 unit + 13 integration + 6 golden + 1 perf); CI matrix covers Windows/Ubuntu/macOS; origin/ unchanged |
 | M8 | CI pipelines and release readiness | Done | All M8 acceptance criteria verified (#173): CI matrix green on all 3 OSes (restore/build/test/pack); smoke test on all 3 OSes; parity-gate before publish; release.yml tag-triggered auto-publish; NUGET_API_KEY secret-only; release dry-run verified (#172); 179/179 tests pass |
-| M9 | Performance and caching hardening | Not started | |
+| M9 | Performance and caching hardening | Done | All M9 acceptance criteria verified (#183): restore/build/test all pass; 185/185 tests (163 unit + 13 integration + 6 golden + 3 perf); functional suite clean (182 non-perf pass with Category!=Performance filter); LargeSolution_CompletesUnderThreshold passes (15s, well under 60s budget); stage timings visible at --verbosity detailed via StageTimer; performance tests excluded from CI matrix via category filter; dedicated performance job on ubuntu-latest; performance budgets documented in PerformanceTests/README.md; ci.yml updated with --filter and workflow_dispatch |
 
 ## Active Tasks
 
@@ -121,6 +121,7 @@
 | #179 Enforce AGENTS.md §11 constraints in cache integration | M9 | Executor | Done | Scope isolation: `InvocationCache.SetScope()` prefixes compilation keys with entry-point path; single workspace guard: `Interlocked.CompareExchange` in `RoslynWorkspaceService.LoadAsync`; MSBuild single-pass verified clean; 4 new unit tests (`InvocationCacheTests`); all 183/183 tests pass |
 | #181 Tag performance tests and update ci.yml filter | M9 | Executor | Done | All tests in PerformanceTests tagged `[Trait("Category", "Performance")]`; ci.yml excludes with `--filter "Category!=Performance"`; dedicated `performance` job on ubuntu-latest; `workflow_dispatch` trigger added; README.md with manual run docs; 182 non-perf tests pass |
 | #182 Document performance budgets in README.md | M9 | Executor | Done | `tests/Typewriter.PerformanceTests/README.md` — wall-time (60 s), memory (2 GB), run command, update process, fixture description |
+| #183 Run M9 acceptance criteria verification | M9 | Executor | Done | All M9 gates verified: restore/build/test pass (185/185); functional suite clean (182 non-perf); LargeSolution perf test passes (15s < 60s budget); stage timings in ApplicationRunner at --verbosity detailed; ci.yml updated with performance filter + dedicated job; budgets documented in README.md; M9→Done, active→Complete |
 
 ## Decisions
 
