@@ -184,68 +184,75 @@ public sealed class ApplicationRunner
         var compiler = new Compiler(_cache);
         var hasGenerationErrors = false;
 
-        foreach (var templatePath in options.Templates)
+        try
         {
-            try
+            foreach (var templatePath in options.Templates)
             {
-                // Pre-check: enumerate source files with a lightweight settings instance.
-                // GetFiles yields all .cs documents regardless of Settings, so this is safe.
-                // Avoids triggering template compilation when the workspace has no source files.
-                var probeSettings = new SettingsImpl(templatePath, solutionFullName);
-                var sourceFiles = metadataProvider.GetFiles(probeSettings, null).ToList();
-
-                if (sourceFiles.Count == 0)
-                    continue;
-
-                var template = new Template(
-                    templatePath,
-                    solutionFullName,
-                    _outputPathPolicy,
-                    effectiveWriter,
-                    compiler,
-                    error =>
-                    {
-                        reporter.Report(new DiagnosticMessage(
-                            DiagnosticSeverity.Error,
-                            DiagnosticCode.TW3001,
-                            error));
-                        hasGenerationErrors = true;
-                    });
-
-                if (template.Settings.IsSingleFileMode)
+                try
                 {
-                    var files = sourceFiles
-                        .Select(m => new FileImpl(m, template.Settings))
-                        .ToArray();
+                    // Pre-check: enumerate source files with a lightweight settings instance.
+                    // GetFiles yields all .cs documents regardless of Settings, so this is safe.
+                    // Avoids triggering template compilation when the workspace has no source files.
+                    var probeSettings = new SettingsImpl(templatePath, solutionFullName);
+                    var sourceFiles = metadataProvider.GetFiles(probeSettings, null).ToList();
 
-                    if (!template.RenderFile(files))
-                        hasGenerationErrors = true;
-                }
-                else
-                {
-                    foreach (var fileMetadata in sourceFiles)
-                    {
-                        var file = new FileImpl(fileMetadata, template.Settings);
+                    if (sourceFiles.Count == 0)
+                        continue;
 
-                        if (!template.RenderFile(file))
+                    var template = new Template(
+                        templatePath,
+                        solutionFullName,
+                        _outputPathPolicy,
+                        effectiveWriter,
+                        compiler,
+                        error =>
+                        {
+                            reporter.Report(new DiagnosticMessage(
+                                DiagnosticSeverity.Error,
+                                DiagnosticCode.TW3001,
+                                error));
                             hasGenerationErrors = true;
+                        });
 
-                        if (template.HasCompileException)
-                            break;
+                    if (template.Settings.IsSingleFileMode)
+                    {
+                        var files = sourceFiles
+                            .Select(m => new FileImpl(m, template.Settings))
+                            .ToArray();
+
+                        if (!template.RenderFile(files))
+                            hasGenerationErrors = true;
+                    }
+                    else
+                    {
+                        foreach (var fileMetadata in sourceFiles)
+                        {
+                            var file = new FileImpl(fileMetadata, template.Settings);
+
+                            if (!template.RenderFile(file))
+                                hasGenerationErrors = true;
+
+                            if (template.HasCompileException)
+                                break;
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    reporter.Report(new DiagnosticMessage(
+                        DiagnosticSeverity.Error,
+                        DiagnosticCode.TW3002,
+                        $"Template execution failed for '{templatePath}': {ex.Message}"));
+                    hasGenerationErrors = true;
+                }
             }
-            catch (Exception ex)
-            {
-                reporter.Report(new DiagnosticMessage(
-                    DiagnosticSeverity.Error,
-                    DiagnosticCode.TW3002,
-                    $"Template execution failed for '{templatePath}': {ex.Message}"));
-                hasGenerationErrors = true;
-            }
-        }
 
-        timer.StopStage();
+            timer.StopStage();
+        }
+        finally
+        {
+            compiler.Dispose();
+        }
 
         // Emit dry-run summary when applicable.
         if (dryRunWriter is not null)
