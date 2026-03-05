@@ -83,6 +83,7 @@ var parser = new CommandLineBuilder(rootCommand)
     .UseDefaults()
     .Build();
 
+// When invoked with no arguments, show help and exit successfully.
 if (args.Length == 0)
 {
     await parser.InvokeAsync(["--help"]);
