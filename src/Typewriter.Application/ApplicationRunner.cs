@@ -1,5 +1,6 @@
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
+using Typewriter.Application.Performance;
 using Typewriter.CodeModel.Configuration;
 using Typewriter.CodeModel.Implementation;
 using Typewriter.Generation;
@@ -73,6 +74,11 @@ public sealed class ApplicationRunner
             return 2;
         }
 
+        var timer = new StageTimer();
+
+        // --- Stage: load (resolve + restore + graph building) ---
+        timer.StartStage("load");
+
         // 3. Resolve the input path to an absolute, validated file path.
         var projectArg = string.IsNullOrWhiteSpace(options.Project) ? options.Solution! : options.Project;
         var resolvedInput = await _inputResolver.ResolveAsync(projectArg, reporter, cancellationToken);
@@ -109,6 +115,9 @@ public sealed class ApplicationRunner
         if (plan is null)
             return 3;
 
+        // --- Stage: metadata (workspace open + compile) ---
+        timer.StartStage("metadata");
+
         // 6. Load projects into a Roslyn workspace and obtain compilations.
         var workspaceResult = await _roslynWorkspaceService.LoadAsync(plan, reporter, cancellationToken);
         if (workspaceResult is null)
@@ -119,6 +128,9 @@ public sealed class ApplicationRunner
                 "Workspace load failed; see preceding diagnostics for details."));
             return 3;
         }
+
+        // --- Stage: render (template validation + compilation) ---
+        timer.StartStage("render");
 
         // 7. Validate that all template files exist before execution.
         foreach (var templatePath in options.Templates)
@@ -132,6 +144,9 @@ public sealed class ApplicationRunner
                 return 1;
             }
         }
+
+        // --- Stage: write (template execution + output writing) ---
+        timer.StartStage("write");
 
         // 8. Execute templates against loaded metadata.
         var metadataProvider = new RoslynMetadataProvider(workspaceResult);
@@ -196,6 +211,15 @@ public sealed class ApplicationRunner
                     $"Template execution failed for '{templatePath}': {ex.Message}"));
                 hasGenerationErrors = true;
             }
+        }
+
+        timer.StopStage();
+
+        // Emit stage timings at detailed verbosity or above.
+        if (string.Equals(options.Verbosity, "detailed", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(options.Verbosity, "diagnostic", StringComparison.OrdinalIgnoreCase))
+        {
+            timer.Report(reporter, DiagnosticSeverity.Info);
         }
 
         if (hasGenerationErrors)
