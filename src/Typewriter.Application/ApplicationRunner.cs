@@ -163,6 +163,22 @@ public sealed class ApplicationRunner
         timer.StartStage("write");
 
         // 8. Execute templates against loaded metadata.
+        // When dry-run mode is active, wrap the real writer so that file I/O is suppressed
+        // while the rest of the pipeline (load → metadata → render) executes normally.
+        DryRunOutputWriter? dryRunWriter = null;
+        IOutputWriter effectiveWriter = _outputWriter;
+        if (options.DryRun)
+        {
+            dryRunWriter = new DryRunOutputWriter(_outputWriter, filePath =>
+            {
+                reporter.Report(new DiagnosticMessage(
+                    DiagnosticSeverity.Info,
+                    DiagnosticCode.TW5001,
+                    $"Dry-run: would write '{filePath}'."));
+            });
+            effectiveWriter = dryRunWriter;
+        }
+
         var metadataProvider = new RoslynMetadataProvider(workspaceResult);
         var solutionFullName = resolvedInput.SolutionDirectory ?? resolvedInput.ProjectPath;
         var compiler = new Compiler(_cache);
@@ -185,7 +201,7 @@ public sealed class ApplicationRunner
                     templatePath,
                     solutionFullName,
                     _outputPathPolicy,
-                    _outputWriter,
+                    effectiveWriter,
                     compiler,
                     error =>
                     {
@@ -230,6 +246,15 @@ public sealed class ApplicationRunner
         }
 
         timer.StopStage();
+
+        // Emit dry-run summary when applicable.
+        if (dryRunWriter is not null)
+        {
+            reporter.Report(new DiagnosticMessage(
+                DiagnosticSeverity.Info,
+                DiagnosticCode.TW5002,
+                $"Dry-run complete: {dryRunWriter.FileCount} file(s) would have been written."));
+        }
 
         // Emit stage timings at detailed verbosity or above.
         if (string.Equals(options.Verbosity, "detailed", StringComparison.OrdinalIgnoreCase)

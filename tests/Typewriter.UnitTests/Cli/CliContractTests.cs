@@ -248,6 +248,69 @@ public class CliContractTests : IDisposable
         Assert.Contains(messages, m => m.Code == DiagnosticCode.TW3001);
     }
 
+    /// <summary>
+    /// Verifies that when <c>DryRun</c> is true, the runner emits a <c>TW5002</c> summary
+    /// diagnostic and still returns exit code 0.
+    /// </summary>
+    [Fact]
+    public async Task DryRun_EmptyWorkspace_EmitsTW5002AndReturns0()
+    {
+        var runner = CreateRunner();
+        var messages = new List<DiagnosticMessage>();
+        var reporter = new CapturingDiagnosticReporter(messages);
+        var templatePath = CreateTempTemplate();
+
+        var options = GenerateCommandOptions.Merge(
+            config:        null,
+            templates:     [templatePath],
+            solution:      "my.sln",
+            project:       null,
+            framework:     null,
+            configuration: null,
+            runtime:       null,
+            restore:       false,
+            output:        null,
+            verbosity:     null,
+            failOnWarnings: false,
+            dryRun:        true);
+
+        var exitCode = await runner.RunAsync(options, reporter);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains(messages, m => m.Code == DiagnosticCode.TW5002);
+    }
+
+    /// <summary>
+    /// Verifies that when <c>DryRun</c> is false, no <c>TW5002</c> diagnostic is emitted.
+    /// </summary>
+    [Fact]
+    public async Task NoDryRun_EmptyWorkspace_DoesNotEmitTW5002()
+    {
+        var runner = CreateRunner();
+        var messages = new List<DiagnosticMessage>();
+        var reporter = new CapturingDiagnosticReporter(messages);
+        var templatePath = CreateTempTemplate();
+
+        var options = GenerateCommandOptions.Merge(
+            config:        null,
+            templates:     [templatePath],
+            solution:      "my.sln",
+            project:       null,
+            framework:     null,
+            configuration: null,
+            runtime:       null,
+            restore:       false,
+            output:        null,
+            verbosity:     null,
+            failOnWarnings: false,
+            dryRun:        false);
+
+        var exitCode = await runner.RunAsync(options, reporter);
+
+        Assert.Equal(0, exitCode);
+        Assert.DoesNotContain(messages, m => m.Code == DiagnosticCode.TW5002);
+    }
+
     /// <summary>Verifies that passing <c>--dry-run</c> sets <see cref="GenerateCommandOptions.DryRun"/> to <c>true</c>.</summary>
     [Fact]
     public void DryRun_WhenSpecified_SetsOptionToTrue()
