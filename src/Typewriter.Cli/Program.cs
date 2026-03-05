@@ -27,6 +27,7 @@ var restoreOpt       = new Option<bool>   ("--restore",          "Run dotnet res
 var outputOpt        = new Option<string?>("--output",           "Override default output directory for generated files");
 var verbosityOpt     = new Option<string?>("--verbosity",        "Diagnostic verbosity: quiet|minimal|normal|detailed|diagnostic");
 var failOnWarningsOpt = new Option<bool>  ("--fail-on-warnings", "Exit with code 1 when warnings are emitted");
+var dryRunOpt         = new Option<bool>  ("--dry-run",          "Validate the pipeline without writing output files");
 
 generateCommand.AddArgument(templatesArg);
 generateCommand.AddOption(solutionOpt);
@@ -38,6 +39,7 @@ generateCommand.AddOption(restoreOpt);
 generateCommand.AddOption(outputOpt);
 generateCommand.AddOption(verbosityOpt);
 generateCommand.AddOption(failOnWarningsOpt);
+generateCommand.AddOption(dryRunOpt);
 
 generateCommand.SetHandler(async (InvocationContext ctx) =>
 {
@@ -54,7 +56,7 @@ generateCommand.SetHandler(async (InvocationContext ctx) =>
         output:        pr.GetValueForOption(outputOpt),
         verbosity:     pr.GetValueForOption(verbosityOpt),
         failOnWarnings: pr.GetValueForOption(failOnWarningsOpt),
-        dryRun:        false);
+        dryRun:        pr.GetValueForOption(dryRunOpt));
 
     var reporter = new MsBuildDiagnosticReporter();
 
