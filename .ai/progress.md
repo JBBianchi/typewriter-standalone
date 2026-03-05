@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-04 by Claude (Executor, #173)
+> Last touched: 2026-03-05 by Claude (Executor, #176)
 
 ## Current State
 
 - **Active milestone**: M9 - Performance and caching hardening
-- **Status**: Not started
+- **Status**: In progress
 - **Blocker**: None
-- **Next step**: Begin M9 tasks (performance profiling and caching)
+- **Next step**: Continue M9 tasks
 
 ## Milestone Map
 
@@ -116,6 +116,7 @@
 | #171 Create release.yml tag-triggered workflow (M8) | M8 | Executor | Done | `.github/workflows/release.yml` — tag-triggered (`v*.*.*`) release workflow with `build-test` (3-OS matrix), `parity-gate` (golden tests), `publish` (NuGet via `NUGET_API_KEY` secret); artifact upload/download for nupkg |
 | #172 Verify release dry-run locally (M8) | M8 | Executor | Done | [T172-verify-release-dryrun.md](.ai/tasks/T172-verify-release-dryrun.md) — `dotnet pack` → local tool install → `typewriter-cli generate` smoke test all pass; reusable script `eng/verify-release-dryrun.sh` created; 179/179 tests pass |
 | #173 Run M8 acceptance criteria - CI matrix (M8) | M8 | Executor | Done | All M8 gates verified: CI matrix (3 OSes), smoke test, parity-gate→publish ordering, NUGET_API_KEY secret-only, release dry-run; 179/179 tests; `dotnet pack` produces versioned .nupkg; M8→Done, active→M9 |
+| #176 Create large-solution fixture generator | M9 | Executor | Done | `tests/fixtures/large-solution/` — 25 projects (Project01–Project25), LargeSolution.sln, generate.sh + generate.ps1; 5 .tst templates across Project03/07/12/18/22; dotnet restore verified; 179/179 tests pass |
 
 ## Decisions
 
