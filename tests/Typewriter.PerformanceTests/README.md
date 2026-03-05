@@ -1,6 +1,17 @@
 # Performance Tests
 
-Performance acceptance tests for the typewriter-cli pipeline, enforcing time and memory budgets against a large-solution fixture.
+Performance acceptance tests for the typewriter-cli pipeline. These tests run the
+full end-to-end pipeline against the large-solution fixture (25 projects, 5 templates)
+and assert time and memory budgets defined in AGENTS.md section 11.
+
+## Why are they excluded from CI?
+
+All tests in this project are tagged with `[Trait("Category", "Performance")]`.
+The standard CI matrix (`ci.yml`) filters them out with `--filter "Category!=Performance"`
+to keep PR feedback fast and deterministic across all three OS runners.
+
+A dedicated `performance` job in `ci.yml` runs them on `ubuntu-latest` on pushes to
+`main` and on manual `workflow_dispatch` triggers.
 
 ## Wall-Time Budget
 
@@ -33,10 +44,24 @@ Assert.True(
 ## How to Run
 
 ```bash
+# Run only performance tests
 dotnet test tests/Typewriter.PerformanceTests/ -c Release --filter "Category=Performance"
+
+# Run all tests including performance
+dotnet test Typewriter.Cli.slnx -c Release
 ```
 
 Both tests are tagged with `[Trait("Category", "Performance")]`, so the filter selects them specifically. Run in `Release` configuration to measure representative performance.
+
+## Running performance tests in CI
+
+Trigger the workflow manually via the GitHub Actions UI or the CLI:
+
+```bash
+gh workflow run ci.yml
+```
+
+The `performance` job will execute on `ubuntu-latest`.
 
 ## How to Update Budgets
 
@@ -45,6 +70,13 @@ Both tests are tagged with `[Trait("Category", "Performance")]`, so the filter s
    - Wall-time: change `60` in `LargeSolution_CompletesUnderThreshold`.
    - Memory: change `2L * 1024 * 1024 * 1024` in `LargeSolution_PeakWorkingSet_UnderBudget`.
 3. Document the reason for the change in the commit message (e.g., new baseline after adding caching, accommodating a larger fixture).
+
+## Test Inventory
+
+| Test | Budget | What it measures |
+|------|--------|------------------|
+| `LargeSolution_CompletesUnderThreshold` | 60 s | End-to-end pipeline wall-clock time |
+| `LargeSolution_PeakWorkingSet_UnderBudget` | 2 GB | Peak process working set after pipeline run |
 
 ## Large-Solution Fixture
 
