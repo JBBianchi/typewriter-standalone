@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Typewriter.UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Typewriter.CodeModel\Typewriter.CodeModel.csproj" />
     <ProjectReference Include="..\Typewriter.Metadata\Typewriter.Metadata.csproj" />
     <ProjectReference Include="..\Typewriter.Metadata.Roslyn\Typewriter.Metadata.Roslyn.csproj" />

@@ -22,6 +22,11 @@ public sealed class Compiler : IDisposable
 {
     private static readonly string TempDirectory = Path.Combine(Path.GetTempPath(), "Typewriter");
 
+    /// <summary>
+    /// Subdirectories older than this threshold are considered stale and eligible for cleanup.
+    /// </summary>
+    internal static readonly TimeSpan StaleThreshold = TimeSpan.FromHours(24);
+
     private readonly InvocationCache _cache;
     private readonly string _subDirectory;
 
@@ -36,6 +41,55 @@ public sealed class Compiler : IDisposable
     {
         _cache = cache;
         _subDirectory = Path.Combine(TempDirectory, Guid.NewGuid().ToString("N"));
+        CleanupStaleDirectories(TempDirectory, StaleThreshold);
+    }
+
+    /// <summary>
+    /// Scans <paramref name="parentDirectory"/> for subdirectories whose last write time is
+    /// older than <paramref name="threshold"/> and deletes them on a best-effort basis.
+    /// All IO-related exceptions are swallowed so cleanup never disrupts the current invocation.
+    /// </summary>
+    /// <param name="parentDirectory">The parent temp directory to scan.</param>
+    /// <param name="threshold">Age threshold beyond which a subdirectory is considered stale.</param>
+    internal static void CleanupStaleDirectories(string parentDirectory, TimeSpan threshold)
+    {
+        try
+        {
+            if (!Directory.Exists(parentDirectory))
+            {
+                return;
+            }
+
+            var cutoff = DateTime.UtcNow - threshold;
+
+            foreach (var subDir in Directory.EnumerateDirectories(parentDirectory))
+            {
+                try
+                {
+                    var lastWrite = Directory.GetLastWriteTimeUtc(subDir);
+                    if (lastWrite < cutoff)
+                    {
+                        Directory.Delete(subDir, recursive: true);
+                    }
+                }
+                catch (IOException)
+                {
+                    // Locked files or in-use directory; skip silently.
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Permission denied; skip silently.
+                }
+            }
+        }
+        catch (IOException)
+        {
+            // Parent directory became inaccessible; nothing to do.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // No permission to enumerate parent; nothing to do.
+        }
     }
 
     /// <summary>
