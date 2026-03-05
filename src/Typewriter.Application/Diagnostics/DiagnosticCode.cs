@@ -53,6 +53,12 @@ public static class DiagnosticCode
     /// <summary>Output write error.</summary>
     public const string TW4001 = "TW4001";
 
+    /// <summary>Dry-run: would write file.</summary>
+    public const string TW5001 = "TW5001";
+
+    /// <summary>Dry-run complete summary.</summary>
+    public const string TW5002 = "TW5002";
+
     /// <summary>Internal violation.</summary>
     public const string TW9001 = "TW9001";
 }
