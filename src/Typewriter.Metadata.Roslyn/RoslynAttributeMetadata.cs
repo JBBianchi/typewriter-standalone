@@ -24,18 +24,7 @@ namespace Typewriter.Metadata.Roslyn
             if (index > -1)
             {
                 _value = declaration.Substring(index + 1, declaration.Length - index - 2);
-
-                // Trim {} from params
-                if (_value.EndsWith("\"}", StringComparison.OrdinalIgnoreCase))
-                {
-                    _value = _value.Remove(_value.LastIndexOf("{\"", StringComparison.Ordinal), 1);
-                    _value = _value.TrimEnd('}');
-                }
-                else if (_value.EndsWith("}", StringComparison.OrdinalIgnoreCase))
-                {
-                    _value = _value.Remove(_value.LastIndexOf("{", StringComparison.Ordinal), 1);
-                    _value = _value.TrimEnd('}');
-                }
+                _value = TrimParamsArrayBraces(_value);
             }
 
             if (_name.EndsWith("Attribute", StringComparison.OrdinalIgnoreCase))
@@ -66,6 +55,34 @@ namespace Typewriter.Metadata.Roslyn
         public static IEnumerable<IAttributeMetadata> FromAttributeData(IEnumerable<AttributeData> attributes, Settings settings)
         {
             return attributes.Select(a => new RoslynAttributeMetadata(a, settings));
+        }
+
+        private static string TrimParamsArrayBraces(string value)
+        {
+            // Preserve upstream string-based Value semantics, but only unwrap params-array
+            // braces when Roslyn's attribute text actually contains a matching opening brace.
+            if (value.EndsWith("\"}", StringComparison.OrdinalIgnoreCase))
+            {
+                return TrimParamsArrayBraces(value, "{\"");
+            }
+
+            if (value.EndsWith("}", StringComparison.OrdinalIgnoreCase))
+            {
+                return TrimParamsArrayBraces(value, "{");
+            }
+
+            return value;
+        }
+
+        private static string TrimParamsArrayBraces(string value, string openingToken)
+        {
+            var openingIndex = value.LastIndexOf(openingToken, StringComparison.Ordinal);
+            if (openingIndex < 0)
+            {
+                return value;
+            }
+
+            return value.Remove(openingIndex, 1).TrimEnd('}');
         }
     }
 }

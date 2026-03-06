@@ -273,6 +273,68 @@ public class TemplateEngineTests : IDisposable
     }
 
     /// <summary>
+    /// Verifies templates also compile when the constructor explicitly uses
+    /// <see cref="Typewriter.Metadata.Settings"/> and configures output filename factory.
+    /// </summary>
+    [Fact]
+    public void LegacyCompatibility_TemplateCompilesWithMetadataSettingsOutputFilenameFactory()
+    {
+        var templatePath = Path.Combine(_tempDir, "legacy-metadata-settings.tst");
+        const string templateContent = """
+            ${
+            using Typewriter.Metadata;
+
+            public Template(Typewriter.Metadata.Settings settings)
+            {
+                settings.OutputFilenameFactory = file => file.Name + ".ts";
+            }
+            }
+            """;
+
+        var extensions = new List<Type>();
+        using var compiler = new Compiler(new InvocationCache());
+
+        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions, compiler);
+
+        Assert.NotNull(result);
+        Assert.NotEmpty(extensions);
+    }
+
+    /// <summary>
+    /// Verifies metadata-typed constructor settings can configure output filename factory
+    /// and the runtime settings instance surfaces that delegate.
+    /// </summary>
+    [Fact]
+    public void LegacyCompatibility_TemplateConstructorWithMetadataSettings_ConfiguresOutputFilenameFactory()
+    {
+        var templatePath = Path.Combine(_tempDir, "legacy-metadata-ctor.tst");
+        const string templateContent = """
+            ${
+            public Template(Typewriter.Metadata.Settings settings)
+            {
+                settings.OutputFilenameFactory = file => file.Name + ".meta";
+            }
+            }
+            """;
+        File.WriteAllText(templatePath, templateContent);
+
+        using var compiler = new Compiler(new InvocationCache());
+        var writer = Substitute.For<IOutputWriter>();
+        var template = new Template(
+            templatePath,
+            solutionFullName: string.Empty,
+            outputPathPolicy: new OutputPathPolicy(),
+            outputWriter: writer,
+            compiler: compiler);
+
+        var settings = template.Settings;
+        var metadataSettings = (Typewriter.Metadata.Settings)settings;
+
+        Assert.NotNull(metadataSettings.OutputFilenameFactory);
+        Assert.NotNull(settings.OutputFilenameFactory);
+    }
+
+    /// <summary>
     /// Verifies that template constructors taking Typewriter.Configuration.Settings
     /// are instantiated and can configure settings in CLI mode.
     /// </summary>

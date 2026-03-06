@@ -13,10 +13,38 @@ namespace Typewriter.Configuration;
 /// </remarks>
 public abstract class Settings : Typewriter.Metadata.Settings
 {
+    private Func<File, string>? _outputFilenameFactory;
+
     /// <summary>
     /// Gets or sets a filename factory used to compute output file names.
+    /// Keeps upstream typing for templates compiled against
+    /// <c>Typewriter.Configuration.Settings</c> while syncing to the shared
+    /// metadata contract.
     /// </summary>
-    public virtual Func<File, string>? OutputFilenameFactory { get; set; }
+    public new virtual Func<File, string>? OutputFilenameFactory
+    {
+        get
+        {
+            if (_outputFilenameFactory != null)
+            {
+                return _outputFilenameFactory;
+            }
+
+            if (base.OutputFilenameFactory == null)
+            {
+                return null;
+            }
+
+            return file => base.OutputFilenameFactory(file);
+        }
+        set
+        {
+            _outputFilenameFactory = value;
+            base.OutputFilenameFactory = value == null
+                ? null
+                : file => value((File)file);
+        }
+    }
 
     /// <summary>
     /// Gets a logger compatible with upstream template expectations.

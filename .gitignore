@@ -25,3 +25,7 @@ Thumbs.db
 
 # dotnet tool manifest (generated per-machine)
 dotnet-tools.json
+
+*.log
+.dotnet/
+.nuget/

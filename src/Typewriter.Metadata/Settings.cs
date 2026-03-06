@@ -1,3 +1,4 @@
+using System;
 using Typewriter.Configuration;
 
 namespace Typewriter.Metadata;
@@ -28,6 +29,12 @@ public abstract class Settings
     /// Gets or sets the output directory to which generated files are saved.
     /// </summary>
     public string? OutputDirectory { get; set; }
+
+    /// <summary>
+    /// Gets or sets a filename factory used to compute output file names.
+    /// Kept on the shared metadata contract for legacy template compatibility.
+    /// </summary>
+    public virtual Func<dynamic, string>? OutputFilenameFactory { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether generated files should not be added to the project.

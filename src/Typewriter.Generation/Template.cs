@@ -32,6 +32,8 @@ public class Template
     private readonly IOutputWriter _outputWriter;
     private readonly Compiler _compiler;
     private readonly Action<string>? _errorReporter;
+    private readonly ProjectInclusionContext? _projectInclusionContext;
+    private readonly Action<ProjectInclusionDiagnostic>? _projectInclusionDiagnosticReporter;
     private Lazy<string?> _template;
     private Lazy<SettingsImpl> _configuration;
     private bool _templateCompileException;
@@ -70,7 +72,9 @@ public class Template
         IOutputPathPolicy outputPathPolicy,
         IOutputWriter outputWriter,
         Compiler compiler,
-        Action<string>? errorReporter = null)
+        Action<string>? errorReporter = null,
+        ProjectInclusionContext? projectInclusionContext = null,
+        Action<ProjectInclusionDiagnostic>? projectInclusionDiagnosticReporter = null)
     {
         _templatePath = templatePath;
         _solutionFullName = solutionFullName;
@@ -78,6 +82,8 @@ public class Template
         _outputWriter = outputWriter;
         _compiler = compiler;
         _errorReporter = errorReporter;
+        _projectInclusionContext = projectInclusionContext;
+        _projectInclusionDiagnosticReporter = projectInclusionDiagnosticReporter;
         _template = LazyTemplate();
         _configuration = LazyConfiguration();
     }
@@ -251,7 +257,11 @@ public class Template
     {
         return new Lazy<SettingsImpl>(() =>
         {
-            var settings = new SettingsImpl(Path.GetFullPath(_templatePath), _solutionFullName);
+            var settings = new SettingsImpl(
+                Path.GetFullPath(_templatePath),
+                _solutionFullName,
+                projectInclusionContext: _projectInclusionContext,
+                projectInclusionDiagnosticReporter: _projectInclusionDiagnosticReporter);
 
             if (!_template.IsValueCreated)
             {
@@ -322,7 +332,7 @@ public class Template
     /// source files produce identically-named outputs.
     /// </summary>
     /// <remarks>
-    /// When settings provide a custom <see cref="SettingsImpl.OutputFilenameFactory"/> or
+    /// When settings provide a custom <see cref="Settings.OutputFilenameFactory"/> or
     /// <see cref="Settings.OutputDirectory"/>, the path is computed from those settings with
     /// inline collision suffixing. Otherwise the resolution is delegated entirely to
     /// <see cref="IOutputPathPolicy"/>.
@@ -330,8 +340,9 @@ public class Template
     private string GetOutputPath(File file)
     {
         var sourcePath = file.FullName;
+        var outputFilenameFactory = GetOutputFilenameFactory();
         var hasCustomPath = !string.IsNullOrEmpty(_configuration.Value.OutputDirectory)
-                            || _configuration.Value.OutputFilenameFactory != null;
+                            || outputFilenameFactory != null;
 
         for (var collisionIndex = 0; collisionIndex < 1000; collisionIndex++)
         {
@@ -427,9 +438,10 @@ public class Template
 
         try
         {
-            if (_configuration.Value.OutputFilenameFactory != null)
+            var outputFilenameFactory = GetOutputFilenameFactory();
+            if (outputFilenameFactory != null)
             {
-                var filename = _configuration.Value.OutputFilenameFactory(file);
+                var filename = outputFilenameFactory(file);
 
                 filename = filename
                     .Replace("<", "-")
@@ -454,6 +466,11 @@ public class Template
         }
 
         return sourceFilename + extension;
+    }
+
+    private Func<dynamic, string>? GetOutputFilenameFactory()
+    {
+        return ((Settings)_configuration.Value).OutputFilenameFactory;
     }
 
     private string GetOutputExtension()

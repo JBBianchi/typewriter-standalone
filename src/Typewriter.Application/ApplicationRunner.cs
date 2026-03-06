@@ -194,7 +194,8 @@ public sealed class ApplicationRunner
         }
 
         var metadataProvider = new RoslynMetadataProvider(workspaceResult);
-        var solutionFullName = resolvedInput.SolutionDirectory ?? resolvedInput.ProjectPath;
+        var solutionFullName = resolvedInput.ProjectPath;
+        var projectInclusionContext = CreateProjectInclusionContext(workspaceResult, resolvedInput.ProjectPath);
         var compiler = new Compiler(_cache);
         var hasGenerationErrors = false;
 
@@ -204,15 +205,6 @@ public sealed class ApplicationRunner
             {
                 try
                 {
-                    // Pre-check: enumerate source files with a lightweight settings instance.
-                    // GetFiles yields all .cs documents regardless of Settings, so this is safe.
-                    // Avoids triggering template compilation when the workspace has no source files.
-                    var probeSettings = new SettingsImpl(templatePath, solutionFullName);
-                    var sourceFiles = metadataProvider.GetFiles(probeSettings, null).ToList();
-
-                    if (sourceFiles.Count == 0)
-                        continue;
-
                     var template = new Template(
                         templatePath,
                         solutionFullName,
@@ -226,7 +218,22 @@ public sealed class ApplicationRunner
                                 DiagnosticCode.TW3001,
                                 error));
                             hasGenerationErrors = true;
+                        },
+                        projectInclusionContext,
+                        diagnostic =>
+                        {
+                            reporter.Report(new DiagnosticMessage(
+                                DiagnosticSeverity.Error,
+                                diagnostic.Code,
+                                diagnostic.Message,
+                                File: templatePath));
+                            hasGenerationErrors = true;
                         });
+
+                    var sourceFiles = metadataProvider.GetFiles(template.Settings, null).ToList();
+
+                    if (sourceFiles.Count == 0)
+                        continue;
 
                     if (template.Settings.IsSingleFileMode)
                     {
@@ -521,5 +528,65 @@ public sealed class ApplicationRunner
             options |= RegexOptions.IgnoreCase;
 
         return Regex.IsMatch(value, regexPattern, options);
+    }
+
+    private static ProjectInclusionContext CreateProjectInclusionContext(
+        WorkspaceLoadResult workspaceResult,
+        string entryPath)
+    {
+        var projectsById = workspaceResult.Entries
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Project.FilePath))
+            .ToDictionary(
+                entry => entry.Project.Id,
+                entry => Path.GetFullPath(entry.Project.FilePath!));
+
+        var targets = workspaceResult.Entries
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Project.FilePath))
+            .Select(entry => new ProjectInclusionTarget(
+                Path.GetFullPath(entry.Project.FilePath!),
+                entry.Project.Name,
+                entry.Project.ProjectReferences
+                    .Select(reference => projectsById.TryGetValue(reference.ProjectId, out var referencedPath)
+                        ? referencedPath
+                        : null)
+                    .Where(path => path != null)
+                    .Cast<string>()
+                    .Distinct(PathComparer)
+                    .ToArray())
+            {
+                NameAliases = BuildProjectNameAliases(
+                    entry.Project.Name,
+                    entry.Project.AssemblyName,
+                    entry.Project.FilePath!)
+            })
+            .ToArray();
+
+        return new ProjectInclusionContext(Path.GetFullPath(entryPath), targets);
+    }
+
+    private static IReadOnlyList<string> BuildProjectNameAliases(
+        string projectName,
+        string? assemblyName,
+        string projectFilePath)
+    {
+        var aliases = new HashSet<string>(PathComparer);
+
+        if (!string.IsNullOrWhiteSpace(projectName))
+        {
+            aliases.Add(projectName);
+        }
+
+        if (!string.IsNullOrWhiteSpace(assemblyName))
+        {
+            aliases.Add(assemblyName);
+        }
+
+        var fileStem = Path.GetFileNameWithoutExtension(projectFilePath);
+        if (!string.IsNullOrWhiteSpace(fileStem))
+        {
+            aliases.Add(fileStem);
+        }
+
+        return aliases.ToArray();
     }
 }

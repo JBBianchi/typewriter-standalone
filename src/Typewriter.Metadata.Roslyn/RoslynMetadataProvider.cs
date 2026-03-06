@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Typewriter.CodeModel.Configuration;
 using Typewriter.Configuration;
 using Typewriter.Metadata;
 
@@ -44,6 +45,11 @@ namespace Typewriter.Metadata.Roslyn
         {
             foreach (var (project, _) in _workspaceLoadResult.Entries)
             {
+                if (!IsProjectIncluded(project, settings))
+                {
+                    continue;
+                }
+
                 var document = project.Documents
                     .FirstOrDefault(d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
                 if (document != null)
@@ -71,6 +77,11 @@ namespace Typewriter.Metadata.Roslyn
         {
             foreach (var (project, _) in _workspaceLoadResult.Entries)
             {
+                if (!IsProjectIncluded(project, settings))
+                {
+                    continue;
+                }
+
                 foreach (var document in project.Documents
                     .Where(d => d.FilePath != null &&
                                 d.FilePath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)))
@@ -179,5 +190,25 @@ namespace Typewriter.Metadata.Roslyn
 
             return paths;
         }
+
+        private static bool IsProjectIncluded(Project project, Settings settings)
+        {
+            if (settings is not SettingsImpl runtimeSettings || !runtimeSettings.HasExplicitProjectSelection)
+            {
+                return true;
+            }
+
+            if (string.IsNullOrWhiteSpace(project.FilePath))
+            {
+                return false;
+            }
+
+            return runtimeSettings.IncludedProjects.Contains(project.FilePath, GetPathComparer());
+        }
+
+        private static StringComparer GetPathComparer() =>
+            OperatingSystem.IsWindows()
+                ? StringComparer.OrdinalIgnoreCase
+                : StringComparer.Ordinal;
     }
 }

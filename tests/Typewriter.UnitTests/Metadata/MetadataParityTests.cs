@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.Text;
 using Typewriter.CodeModel.Configuration;
+using Typewriter.CodeModel.Implementation;
 using Typewriter.Configuration;
 using Typewriter.Metadata;
 using Typewriter.Metadata.Roslyn;
@@ -56,6 +57,7 @@ public class MetadataParityTests
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(System.Threading.Tasks.Task).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(System.ValueTuple<,>).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.ComponentModel.DataAnnotations.AllowedValuesAttribute).Assembly.Location),
             });
 
         workspace.AddProject(projectInfo);
@@ -369,5 +371,52 @@ public class MetadataParityTests
             .FirstOrDefault();
         Assert.NotNull(generatorNameMember);
         Assert.Equal("HelloWorldGenerator", generatorNameMember!.ConstantValue);
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. AllowedValuesAttribute_ParamsArray_DoesNotCrash
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Verifies params-array attributes such as <c>AllowedValues(null, ...)</c> do not
+    /// throw during CodeModel attribute materialization and remain visible to templates.
+    /// </summary>
+    [Fact]
+    public void AllowedValuesAttribute_ParamsArray_DoesNotCrash()
+    {
+        const string source = """
+            using System.ComponentModel.DataAnnotations;
+
+            namespace TestFixture
+            {
+                public static class TestPseudoEnum
+                {
+                    public const string Value1 = "value1";
+                    public const string Value2 = "value2";
+                }
+
+                public sealed class TestModel
+                {
+                    [AllowedValues(null, TestPseudoEnum.Value1, TestPseudoEnum.Value2)]
+                    public string? PseudoEnum { get; init; }
+                }
+            }
+            """;
+
+        var (loadResult, workspace) = CreateWorkspaceFromSources(("TestModel.cs", source));
+        using (workspace)
+        {
+            var settings = CreateSettings();
+            var provider = new RoslynMetadataProvider(loadResult);
+            var fileMetadata = provider.GetFiles(settings, null).Single();
+            var file = new FileImpl(fileMetadata, settings);
+
+            var property = file.Classes.Single().Properties.Single();
+            var attribute = property.Attributes.Single(a => a.Name == "AllowedValues");
+
+            Assert.Equal("AllowedValues", attribute.Name);
+            Assert.NotNull(attribute.Value);
+            Assert.NotEmpty(attribute.Arguments);
+        }
     }
 }

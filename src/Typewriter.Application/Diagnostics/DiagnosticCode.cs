@@ -8,6 +8,12 @@ public static class DiagnosticCode
     /// <summary>Missing solution or project.</summary>
     public const string TW1002 = "TW1002";
 
+    /// <summary>Template project selector could not be resolved.</summary>
+    public const string TW1201 = "TW1201";
+
+    /// <summary>Template project selector is ambiguous and requires a path-qualified selector.</summary>
+    public const string TW1202 = "TW1202";
+
     /// <summary>Restore failed.</summary>
     public const string TW2001 = "TW2001";
 

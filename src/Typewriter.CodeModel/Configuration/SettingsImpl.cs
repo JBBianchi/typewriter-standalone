@@ -15,10 +15,13 @@ namespace Typewriter.CodeModel.Configuration;
 public class SettingsImpl : Settings
 {
     private readonly string _solutionFullName;
+    private readonly ProjectInclusionContext? _projectInclusionContext;
+    private readonly Action<ProjectInclusionDiagnostic>? _projectInclusionDiagnosticReporter;
     private bool _isSingleFileMode;
     private string? _singleFileName;
     private char _stringLiteralCharacter = '"';
     private List<string>? _includedProjects;
+    private bool _hasExplicitProjectSelection;
     private bool _strictNullGeneration = true;
     private bool _utf8BomGeneration = true;
     private readonly string _templatePath;
@@ -38,17 +41,28 @@ public class SettingsImpl : Settings
     ///   via <see cref="IncludeCurrentProject"/> and <see cref="IncludeReferencedProjects"/>
     ///   (mirrors upstream behaviour).
     /// </param>
+    /// <param name="projectInclusionContext">
+    ///   Optional loaded-project catalog used to resolve <c>Include*</c> settings in CLI mode.
+    /// </param>
+    /// <param name="projectInclusionDiagnosticReporter">
+    ///   Optional callback for deterministic project-selection diagnostics.
+    /// </param>
     public SettingsImpl(
         string templatePath,
         string solutionFullName = "",
-        IEnumerable<string>? includedProjectPaths = null)
+        IEnumerable<string>? includedProjectPaths = null,
+        ProjectInclusionContext? projectInclusionContext = null,
+        Action<ProjectInclusionDiagnostic>? projectInclusionDiagnosticReporter = null)
     {
         _templatePath = templatePath;
         _solutionFullName = solutionFullName;
+        _projectInclusionContext = projectInclusionContext;
+        _projectInclusionDiagnosticReporter = projectInclusionDiagnosticReporter;
 
         if (includedProjectPaths != null)
         {
             _includedProjects = new List<string>(includedProjectPaths);
+            _hasExplicitProjectSelection = true;
         }
     }
 
@@ -56,13 +70,6 @@ public class SettingsImpl : Settings
     // Concrete members not present on the abstract base (require CodeModel types
     // or would cause circular project-reference dependencies if placed there).
     // -------------------------------------------------------------------------
-
-    /// <summary>
-    /// Gets or sets a factory that maps a rendered <see cref="File"/> to its output
-    /// filename (including extension). When <see langword="null"/>, the output filename
-    /// is derived from the input source file and <see cref="Settings.OutputExtension"/>.
-    /// </summary>
-    public override Func<File, string>? OutputFilenameFactory { get; set; }
 
     /// <inheritdoc/>
     public override ILog Log => NoOpLog;
@@ -85,6 +92,12 @@ public class SettingsImpl : Settings
             return _includedProjects!;
         }
     }
+
+    /// <summary>
+    /// Gets a value indicating whether explicit project-selection APIs were invoked for this template.
+    /// When <see langword="false"/>, the CLI preserves the current whole-workspace default.
+    /// </summary>
+    public bool HasExplicitProjectSelection => _hasExplicitProjectSelection;
 
     // -------------------------------------------------------------------------
     // Abstract Settings implementation
@@ -114,8 +127,14 @@ public class SettingsImpl : Settings
     /// <inheritdoc/>
     public override Settings IncludeProject(string projectName)
     {
+        _hasExplicitProjectSelection = true;
         _includedProjects ??= new List<string>();
-        ProjectHelpers.AddProject(_includedProjects, projectName, _solutionFullName);
+        ProjectHelpers.AddProject(
+            _includedProjects,
+            projectName,
+            _solutionFullName,
+            _projectInclusionContext,
+            _projectInclusionDiagnosticReporter);
         return this;
     }
 
@@ -130,24 +149,41 @@ public class SettingsImpl : Settings
     /// <inheritdoc/>
     public override Settings IncludeReferencedProjects()
     {
+        _hasExplicitProjectSelection = true;
         _includedProjects ??= new List<string>();
-        ProjectHelpers.AddReferencedProjects(_includedProjects, _solutionFullName);
+        ProjectHelpers.AddReferencedProjects(
+            _includedProjects,
+            _solutionFullName,
+            _templatePath,
+            _projectInclusionContext,
+            _projectInclusionDiagnosticReporter);
         return this;
     }
 
     /// <inheritdoc/>
     public override Settings IncludeCurrentProject()
     {
+        _hasExplicitProjectSelection = true;
         _includedProjects ??= new List<string>();
-        ProjectHelpers.AddCurrentProject(_includedProjects, _solutionFullName);
+        ProjectHelpers.AddCurrentProject(
+            _includedProjects,
+            _solutionFullName,
+            _templatePath,
+            _projectInclusionContext,
+            _projectInclusionDiagnosticReporter);
         return this;
     }
 
     /// <inheritdoc/>
     public override Settings IncludeAllProjects()
     {
+        _hasExplicitProjectSelection = true;
         _includedProjects ??= new List<string>();
-        ProjectHelpers.AddAllProjects(_solutionFullName, _includedProjects);
+        ProjectHelpers.AddAllProjects(
+            _solutionFullName,
+            _includedProjects,
+            _projectInclusionContext,
+            _projectInclusionDiagnosticReporter);
         return this;
     }
 
