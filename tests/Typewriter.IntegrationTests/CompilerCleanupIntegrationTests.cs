@@ -40,8 +40,7 @@ public class CompilerCleanupIntegrationTests
     /// Verifies that after <see cref="ApplicationRunner.RunAsync"/> completes, very few new
     /// per-invocation subdirectories remain in the Typewriter temp directory.
     /// This confirms that the Compiler is properly disposed in the finally block.
-    /// A small tolerance is allowed because assembly load contexts may keep files locked
-    /// and parallel test assemblies may create transient Compiler instances.
+    /// A small tolerance is allowed because assembly load contexts may keep files locked.
     /// </summary>
     [Fact]
     public async Task RunAsync_CleansUpTempSubdirectory_AfterCompletion()
@@ -49,79 +48,99 @@ public class CompilerCleanupIntegrationTests
         // Arrange
         var projectPath = FixturePath("simple/SimpleProject/SimpleProject.csproj");
         var templatePath = FixturePath("simple/SimpleProject/Interfaces.tst");
+        var isolatedTempRoot = Path.Combine(Path.GetTempPath(), "TypewriterIntegrationTests", Guid.NewGuid().ToString("N"));
+        var previousTempOverride = Environment.GetEnvironmentVariable("TYPEWRITER_TEMP_DIRECTORY");
 
-        var reporter = new CapturingReporter();
-        var cache = new InvocationCache();
-        var locator = new MsBuildLocatorService();
-        var inputResolver = new InputResolver();
-        var restoreService = new RestoreService();
-        var solutionFallbackService = new SolutionFallbackService();
-        var projectGraphService = new ProjectGraphService(locator, solutionFallbackService);
-        var roslynWorkspaceService = new RoslynWorkspaceService(cache);
-        var outputWriter = new OutputWriter();
-        var outputPathPolicy = new OutputPathPolicy();
+        Environment.SetEnvironmentVariable("TYPEWRITER_TEMP_DIRECTORY", isolatedTempRoot);
+        Directory.CreateDirectory(isolatedTempRoot);
 
-        locator.EnsureRegistered(reporter);
-
-        if (!await restoreService.CheckAssetsAsync(projectPath))
+        try
         {
-            var restored = await restoreService.RestoreAsync(projectPath, reporter);
-            Assert.True(restored, "dotnet restore failed for SimpleProject fixture");
+            var reporter = new CapturingReporter();
+            var cache = new InvocationCache();
+            var locator = new MsBuildLocatorService();
+            var inputResolver = new InputResolver();
+            var restoreService = new RestoreService();
+            var solutionFallbackService = new SolutionFallbackService();
+            var projectGraphService = new ProjectGraphService(locator, solutionFallbackService);
+            var roslynWorkspaceService = new RoslynWorkspaceService(cache);
+            var outputWriter = new OutputWriter();
+            var outputPathPolicy = new OutputPathPolicy();
+
+            locator.EnsureRegistered(reporter);
+
+            if (!await restoreService.CheckAssetsAsync(projectPath))
+            {
+                var restored = await restoreService.RestoreAsync(projectPath, reporter);
+                Assert.True(restored, "dotnet restore failed for SimpleProject fixture");
+            }
+
+            var runner = new ApplicationRunner(
+                inputResolver,
+                restoreService,
+                projectGraphService,
+                roslynWorkspaceService,
+                outputWriter,
+                outputPathPolicy,
+                cache);
+
+            var options = GenerateCommandOptions.Merge(
+                config: null,
+                templates: [templatePath],
+                solution: null,
+                project: projectPath,
+                framework: null,
+                configuration: null,
+                runtime: null,
+                restore: false,
+                output: null,
+                verbosity: null,
+                failOnWarnings: false,
+                dryRun: true);
+
+            // Snapshot existing subdirectories before the run.
+            var preExisting = Directory.Exists(isolatedTempRoot)
+                ? Directory.GetDirectories(isolatedTempRoot).ToHashSet(StringComparer.OrdinalIgnoreCase)
+                : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Act
+            var exitCode = await runner.RunAsync(options, reporter);
+
+            // Assert - pipeline completed successfully.
+            Assert.Equal(0, exitCode);
+
+            // Assert - Compiler.Dispose cleaned up; very few new subdirectories remain.
+            var postDirectories = Directory.Exists(isolatedTempRoot)
+                ? Directory.GetDirectories(isolatedTempRoot).ToHashSet(StringComparer.OrdinalIgnoreCase)
+                : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            postDirectories.ExceptWith(preExisting);
+
+            // Dispose was called; ideally zero new subdirectories remain.
+            // TemplateAssemblyLoadContext may keep files memory-mapped briefly,
+            // so Directory.Delete can fail transiently with IOException.
+            const int maxLeftover = 1;
+            Assert.True(postDirectories.Count <= maxLeftover,
+                $"Expected at most {maxLeftover} leftover temp subdirectories, but found {postDirectories.Count}: "
+                + string.Join(", ", postDirectories));
         }
+        finally
+        {
+            Environment.SetEnvironmentVariable("TYPEWRITER_TEMP_DIRECTORY", previousTempOverride);
 
-        var runner = new ApplicationRunner(
-            inputResolver,
-            restoreService,
-            projectGraphService,
-            roslynWorkspaceService,
-            outputWriter,
-            outputPathPolicy,
-            cache);
-
-        var options = GenerateCommandOptions.Merge(
-            config: null,
-            templates: [templatePath],
-            solution: null,
-            project: projectPath,
-            framework: null,
-            configuration: null,
-            runtime: null,
-            restore: false,
-            output: null,
-            verbosity: null,
-            failOnWarnings: false,
-            dryRun: true);
-
-        // Snapshot existing subdirectories before the run.
-        var tempDir = Path.Combine(Path.GetTempPath(), "Typewriter");
-        var preExisting = Directory.Exists(tempDir)
-            ? Directory.GetDirectories(tempDir).ToHashSet(StringComparer.OrdinalIgnoreCase)
-            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        // Act
-        var exitCode = await runner.RunAsync(options, reporter);
-
-        // Assert — pipeline completed successfully
-        Assert.Equal(0, exitCode);
-
-        // Assert — Compiler.Dispose cleaned up; very few new subdirectories remain.
-        var postDirectories = Directory.Exists(tempDir)
-            ? Directory.GetDirectories(tempDir).ToHashSet(StringComparer.OrdinalIgnoreCase)
-            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        postDirectories.ExceptWith(preExisting);
-
-        // Dispose was called; ideally zero new subdirectories remain.
-        // However, TemplateAssemblyLoadContext keeps assembly files memory-mapped on
-        // all platforms (not just Windows), so Directory.Delete may fail with
-        // IOException.  Additionally, unit tests in other test assemblies run in
-        // parallel and create their own Compiler instances in the same shared
-        // /tmp/Typewriter directory, so transient subdirectories may appear between
-        // the pre-snapshot and post-snapshot.  We tolerate a small count to keep the
-        // assertion meaningful while avoiding cross-assembly flakiness.
-        const int maxLeftover = 3;
-        Assert.True(postDirectories.Count <= maxLeftover,
-            $"Expected at most {maxLeftover} leftover temp subdirectories, but found {postDirectories.Count}: "
-            + string.Join(", ", postDirectories));
+            try
+            {
+                if (Directory.Exists(isolatedTempRoot))
+                    Directory.Delete(isolatedTempRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort cleanup.
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Best-effort cleanup.
+            }
+        }
     }
 }

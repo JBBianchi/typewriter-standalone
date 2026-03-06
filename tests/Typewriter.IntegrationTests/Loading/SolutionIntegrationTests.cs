@@ -102,6 +102,39 @@ public class SolutionIntegrationTests
     }
 
     [Fact]
+    public async Task Sln_MixedProjectTypes_SkipsNonCSharpTargets()
+    {
+        // Arrange
+        var slnPath = FixturePath("solution-mixed/SolutionMixed.sln");
+        var csprojPath = FixturePath("solution-mixed/ProjectA/ProjectA.csproj");
+
+        var locator = new MsBuildLocatorService();
+        var restoreService = new RestoreService();
+        var fallbackService = new SolutionFallbackService();
+        var graphService = new ProjectGraphService(locator, fallbackService);
+        var reporter = new CapturingReporter();
+
+        locator.EnsureRegistered(reporter);
+
+        if (!await restoreService.CheckAssetsAsync(csprojPath))
+            await restoreService.RestoreAsync(csprojPath, reporter);
+
+        // Act
+        var input = new ResolvedInput(slnPath, Path.GetDirectoryName(slnPath));
+        var plan = await graphService.BuildPlanAsync(input, null, null, null, reporter);
+
+        // Assert
+        Assert.NotNull(plan);
+        Assert.Single(plan.Targets);
+        Assert.Equal(csprojPath, plan.Targets[0].ProjectPath);
+        Assert.DoesNotContain(
+            reporter.Messages,
+            m => m.Code == DiagnosticCode.TW2003
+                && (m.Message.Contains(".dcproj", StringComparison.OrdinalIgnoreCase)
+                    || m.Message.Contains(".esproj", StringComparison.OrdinalIgnoreCase)));
+    }
+
+    [Fact]
     public async Task Sln_ProjectGraphFailure_EmitsTW2110_NoFallback()
     {
         // Arrange: use a non-existent .sln path to force ProjectGraph failure

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Typewriter.Metadata;
+using Typewriter.Configuration;
+using Typewriter.VisualStudio;
 
 namespace Typewriter.CodeModel.Configuration;
 
@@ -21,6 +22,7 @@ public class SettingsImpl : Settings
     private bool _strictNullGeneration = true;
     private bool _utf8BomGeneration = true;
     private readonly string _templatePath;
+    private static readonly ILog NoOpLog = Typewriter.VisualStudio.Log.Instance;
 
     /// <summary>
     /// Initializes a new instance of <see cref="SettingsImpl"/>.
@@ -60,7 +62,10 @@ public class SettingsImpl : Settings
     /// filename (including extension). When <see langword="null"/>, the output filename
     /// is derived from the input source file and <see cref="Settings.OutputExtension"/>.
     /// </summary>
-    public Func<File, string>? OutputFilenameFactory { get; set; }
+    public override Func<File, string>? OutputFilenameFactory { get; set; }
+
+    /// <inheritdoc/>
+    public override ILog Log => NoOpLog;
 
     /// <summary>
     /// Gets the resolved set of project-file paths to include when rendering this template.

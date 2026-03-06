@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Typewriter.Application.Diagnostics;
 using Typewriter.Application.Loading;
 using Typewriter.Application.Performance;
@@ -15,6 +16,10 @@ namespace Typewriter.Application;
 /// </summary>
 public sealed class ApplicationRunner
 {
+    private static readonly StringComparer PathComparer = OperatingSystem.IsWindows()
+        ? StringComparer.OrdinalIgnoreCase
+        : StringComparer.Ordinal;
+
     private readonly IInputResolver _inputResolver;
     private readonly IRestoreService _restoreService;
     private readonly IProjectGraphService _projectGraphService;
@@ -163,18 +168,10 @@ public sealed class ApplicationRunner
         // --- Stage: render (template validation + compilation) ---
         timer.StartStage("render");
 
-        // 7. Validate that all template files exist before execution.
-        foreach (var templatePath in options.Templates)
-        {
-            if (!File.Exists(templatePath))
-            {
-                reporter.Report(new DiagnosticMessage(
-                    DiagnosticSeverity.Error,
-                    DiagnosticCode.TW3001,
-                    $"Template file not found: '{templatePath}'."));
-                return 1;
-            }
-        }
+        // 7. Resolve template arguments (literal files and glob patterns) to concrete paths.
+        var resolvedTemplatePaths = ResolveTemplatePaths(options.Templates, reporter);
+        if (resolvedTemplatePaths is null)
+            return 1;
 
         // --- Stage: write (template execution + output writing) ---
         timer.StartStage("write");
@@ -203,7 +200,7 @@ public sealed class ApplicationRunner
 
         try
         {
-            foreach (var templatePath in options.Templates)
+            foreach (var templatePath in resolvedTemplatePaths)
             {
                 try
                 {
@@ -295,5 +292,234 @@ public sealed class ApplicationRunner
             return 1;
 
         return 0;
+    }
+
+    private static IReadOnlyList<string>? ResolveTemplatePaths(
+        IReadOnlyList<string> templates,
+        IDiagnosticReporter reporter)
+    {
+        var resolved = new List<string>();
+        var seen = new HashSet<string>(PathComparer);
+
+        foreach (var templateArg in templates)
+        {
+            if (string.IsNullOrWhiteSpace(templateArg))
+            {
+                reporter.Report(new DiagnosticMessage(
+                    DiagnosticSeverity.Error,
+                    DiagnosticCode.TW1001,
+                    "Invalid template pattern: value cannot be empty."));
+                return null;
+            }
+
+            if (ContainsGlobPattern(templateArg))
+            {
+                IReadOnlyList<string> matches;
+                try
+                {
+                    matches = ExpandTemplateGlob(templateArg);
+                }
+                catch (Exception ex)
+                {
+                    reporter.Report(new DiagnosticMessage(
+                        DiagnosticSeverity.Error,
+                        DiagnosticCode.TW1001,
+                        $"Invalid template pattern: '{templateArg}'. {ex.Message}"));
+                    return null;
+                }
+
+                if (matches.Count == 0)
+                {
+                    reporter.Report(new DiagnosticMessage(
+                        DiagnosticSeverity.Error,
+                        DiagnosticCode.TW3001,
+                        $"Template file not found: '{templateArg}'."));
+                    return null;
+                }
+
+                foreach (var match in matches)
+                {
+                    if (seen.Add(match))
+                        resolved.Add(match);
+                }
+            }
+            else
+            {
+                string fullPath;
+                try
+                {
+                    fullPath = Path.GetFullPath(templateArg);
+                }
+                catch (Exception ex)
+                {
+                    reporter.Report(new DiagnosticMessage(
+                        DiagnosticSeverity.Error,
+                        DiagnosticCode.TW1001,
+                        $"Invalid template pattern: '{templateArg}'. {ex.Message}"));
+                    return null;
+                }
+
+                if (!File.Exists(fullPath))
+                {
+                    reporter.Report(new DiagnosticMessage(
+                        DiagnosticSeverity.Error,
+                        DiagnosticCode.TW3001,
+                        $"Template file not found: '{templateArg}'."));
+                    return null;
+                }
+
+                if (seen.Add(fullPath))
+                    resolved.Add(fullPath);
+            }
+        }
+
+        return resolved;
+    }
+
+    private static bool ContainsGlobPattern(string path)
+        => path.IndexOfAny(['*', '?']) >= 0;
+
+    private static IReadOnlyList<string> ExpandTemplateGlob(string pattern)
+    {
+        var searchRoot = GetGlobSearchRoot(pattern, out var segments);
+        if (!Directory.Exists(searchRoot))
+            return [];
+
+        var matches = new List<string>();
+        CollectGlobMatches(searchRoot, segments, 0, matches);
+
+        return matches
+            .Distinct(PathComparer)
+            .OrderBy(static path => path, PathComparer)
+            .ToList();
+    }
+
+    private static string GetGlobSearchRoot(string pattern, out string[] remainingSegments)
+    {
+        var isRooted = Path.IsPathRooted(pattern);
+        var basePath = isRooted
+            ? Path.GetPathRoot(pattern) ?? throw new ArgumentException("Unable to determine root path.")
+            : Environment.CurrentDirectory;
+
+        var relativePattern = isRooted
+            ? pattern[(Path.GetPathRoot(pattern)?.Length ?? 0)..]
+            : pattern;
+
+        var allSegments = relativePattern
+            .Split(['\\', '/'], StringSplitOptions.RemoveEmptyEntries);
+
+        var literalPrefixCount = 0;
+        while (literalPrefixCount < allSegments.Length && !ContainsGlobPattern(allSegments[literalPrefixCount]))
+        {
+            literalPrefixCount++;
+        }
+
+        var root = basePath;
+        for (var i = 0; i < literalPrefixCount; i++)
+        {
+            root = Path.Combine(root, allSegments[i]);
+        }
+
+        remainingSegments = allSegments[literalPrefixCount..];
+        return Path.GetFullPath(root);
+    }
+
+    private static void CollectGlobMatches(
+        string currentDirectory,
+        string[] segments,
+        int index,
+        List<string> matches)
+    {
+        if (index >= segments.Length)
+            return;
+
+        var segment = segments[index];
+        var isLast = index == segments.Length - 1;
+
+        if (segment == "**")
+        {
+            if (isLast)
+            {
+                foreach (var file in EnumerateFilesDeterministic(currentDirectory, SearchOption.AllDirectories))
+                {
+                    matches.Add(Path.GetFullPath(file));
+                }
+
+                return;
+            }
+
+            // "**" can match zero or more directory segments.
+            CollectGlobMatches(currentDirectory, segments, index + 1, matches);
+            foreach (var subDirectory in EnumerateDirectoriesDeterministic(currentDirectory))
+            {
+                CollectGlobMatches(subDirectory, segments, index, matches);
+            }
+
+            return;
+        }
+
+        if (isLast)
+        {
+            foreach (var file in EnumerateFilesDeterministic(currentDirectory, SearchOption.TopDirectoryOnly))
+            {
+                if (IsSegmentMatch(Path.GetFileName(file), segment))
+                {
+                    matches.Add(Path.GetFullPath(file));
+                }
+            }
+
+            return;
+        }
+
+        foreach (var subDirectory in EnumerateDirectoriesDeterministic(currentDirectory))
+        {
+            if (IsSegmentMatch(Path.GetFileName(subDirectory), segment))
+            {
+                CollectGlobMatches(subDirectory, segments, index + 1, matches);
+            }
+        }
+    }
+
+    private static IEnumerable<string> EnumerateDirectoriesDeterministic(string directory)
+    {
+        try
+        {
+            return Directory
+                .EnumerateDirectories(directory)
+                .OrderBy(static path => path, PathComparer)
+                .ToArray();
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    private static IEnumerable<string> EnumerateFilesDeterministic(string directory, SearchOption option)
+    {
+        try
+        {
+            return Directory
+                .EnumerateFiles(directory, "*", option)
+                .OrderBy(static path => path, PathComparer)
+                .ToArray();
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    private static bool IsSegmentMatch(string value, string wildcardPattern)
+    {
+        var regexPattern = "^" + Regex.Escape(wildcardPattern)
+            .Replace(@"\*", ".*")
+            .Replace(@"\?", ".") + "$";
+        var options = RegexOptions.CultureInvariant;
+
+        if (OperatingSystem.IsWindows())
+            options |= RegexOptions.IgnoreCase;
+
+        return Regex.IsMatch(value, regexPattern, options);
     }
 }

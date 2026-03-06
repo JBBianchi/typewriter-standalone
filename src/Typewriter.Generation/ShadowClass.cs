@@ -27,8 +27,11 @@ public class ShadowClass
             using System;
             using System.Linq;
             using System.Collections.Generic;
+            using System.Dynamic;
+            using System.Text.RegularExpressions;
             using Typewriter.CodeModel;
             using Typewriter.Configuration;
+            using Settings = Typewriter.Configuration.Settings;
             using Attribute = Typewriter.CodeModel.Attribute;
             using Enum = Typewriter.CodeModel.Enum;
             using Type = Typewriter.CodeModel.Type;
@@ -199,6 +202,10 @@ public class ShadowClass
         AddTrustedPlatformAssembly(metadataReferences, "System.Runtime.dll");
         AddTrustedPlatformAssembly(metadataReferences, "System.Collections.dll");
         AddTrustedPlatformAssembly(metadataReferences, "netstandard.dll");
+        AddTrustedPlatformAssembly(metadataReferences, "System.Linq.Expressions.dll");
+        AddTrustedPlatformAssembly(metadataReferences, "System.Dynamic.Runtime.dll");
+        AddTrustedPlatformAssembly(metadataReferences, "System.Text.RegularExpressions.dll");
+        AddTrustedPlatformAssembly(metadataReferences, "Microsoft.CSharp.dll");
 
         var compilation = CSharpCompilation.Create(
             assemblyName: Path.GetFileNameWithoutExtension(outputPath),

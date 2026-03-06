@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <IsPublishable>true</IsPublishable>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>typewriter-cli</ToolCommandName>
   </PropertyGroup>

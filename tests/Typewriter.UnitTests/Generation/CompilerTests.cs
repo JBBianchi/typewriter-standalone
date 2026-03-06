@@ -90,4 +90,42 @@ public class CompilerTests
         compiler1.Dispose();
         compiler2.Dispose();
     }
+
+    /// <summary>
+    /// Verifies that constructor honors TYPEWRITER_TEMP_DIRECTORY override.
+    /// </summary>
+    [Fact]
+    public void Constructor_UsesOverrideTempDirectory_WhenEnvironmentVariableSet()
+    {
+        const string envVar = "TYPEWRITER_TEMP_DIRECTORY";
+        var previous = Environment.GetEnvironmentVariable(envVar);
+        var overrideRoot = Path.Combine(Path.GetTempPath(), "tw-compiler-tests", Guid.NewGuid().ToString("N"));
+
+        try
+        {
+            Environment.SetEnvironmentVariable(envVar, overrideRoot);
+            var compiler = new Compiler(new InvocationCache());
+
+            var subDirField = typeof(Compiler).GetField("_subDirectory",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            var subDir = (string)subDirField.GetValue(compiler)!;
+
+            Assert.StartsWith(Path.GetFullPath(overrideRoot), subDir, StringComparison.OrdinalIgnoreCase);
+
+            compiler.Dispose();
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(envVar, previous);
+            try
+            {
+                if (Directory.Exists(overrideRoot))
+                    Directory.Delete(overrideRoot, recursive: true);
+            }
+            catch
+            {
+                // Best-effort cleanup.
+            }
+        }
+    }
 }

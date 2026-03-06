@@ -133,7 +133,7 @@ public sealed class RoslynWorkspaceService : IRoslynWorkspaceService
                 continue;
             }
 
-            if (compilation.GetDiagnostics(ct).Any(d => d.Severity == RoslynDiagnosticSeverity.Error))
+            if (HasActionableCompilationErrors(compilation, ct))
             {
                 reporter.Report(new DiagnosticMessage(
                     TwDiagnosticSeverity.Error,
@@ -146,5 +146,57 @@ public sealed class RoslynWorkspaceService : IRoslynWorkspaceService
         }
 
         return new WorkspaceLoadResult(entries);
+    }
+
+    internal static bool HasActionableCompilationErrors(Compilation compilation, CancellationToken ct)
+    {
+        foreach (var diagnostic in compilation.GetDiagnostics(ct))
+        {
+            if (IsActionableCompilationError(diagnostic))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    internal static bool IsActionableCompilationError(Diagnostic diagnostic)
+    {
+        if (diagnostic.Severity != RoslynDiagnosticSeverity.Error || diagnostic.IsSuppressed)
+        {
+            return false;
+        }
+
+        if (!diagnostic.Location.IsInSource)
+        {
+            // Skip non-source diagnostics (for example unresolved reference messages that
+            // can appear in design-time workspace loads but do not fail command-line builds).
+            return false;
+        }
+
+        var path = diagnostic.Location.SourceTree?.FilePath;
+        return !IsGeneratedSourcePath(path);
+    }
+
+    internal static bool IsGeneratedSourcePath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        var normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        if (normalized.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var fileName = Path.GetFileName(normalized);
+        return fileName.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase)
+            || fileName.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase)
+            || fileName.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase)
+            || fileName.EndsWith(".AssemblyInfo.cs", StringComparison.OrdinalIgnoreCase)
+            || fileName.EndsWith(".GlobalUsings.g.cs", StringComparison.OrdinalIgnoreCase);
     }
 }

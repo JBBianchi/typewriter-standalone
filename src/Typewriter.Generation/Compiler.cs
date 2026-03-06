@@ -20,7 +20,8 @@ namespace Typewriter.Generation;
 /// </summary>
 public sealed class Compiler : IDisposable
 {
-    private static readonly string TempDirectory = Path.Combine(Path.GetTempPath(), "Typewriter");
+    private const string TempDirectoryName = "Typewriter";
+    internal const string TempDirectoryOverrideEnvironmentVariable = "TYPEWRITER_TEMP_DIRECTORY";
 
     /// <summary>
     /// Subdirectories older than this threshold are considered stale and eligible for cleanup.
@@ -40,8 +41,20 @@ public sealed class Compiler : IDisposable
     public Compiler(InvocationCache cache)
     {
         _cache = cache;
-        _subDirectory = Path.Combine(TempDirectory, Guid.NewGuid().ToString("N"));
-        CleanupStaleDirectories(TempDirectory, StaleThreshold);
+        var tempDirectory = ResolveTempDirectory();
+        _subDirectory = Path.Combine(tempDirectory, Guid.NewGuid().ToString("N"));
+        CleanupStaleDirectories(tempDirectory, StaleThreshold);
+    }
+
+    private static string ResolveTempDirectory()
+    {
+        var overrideDirectory = Environment.GetEnvironmentVariable(TempDirectoryOverrideEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(overrideDirectory))
+        {
+            return Path.GetFullPath(overrideDirectory);
+        }
+
+        return Path.Combine(Path.GetTempPath(), TempDirectoryName);
     }
 
     /// <summary>

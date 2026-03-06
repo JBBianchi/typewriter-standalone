@@ -18,6 +18,7 @@ namespace Typewriter.UnitTests.Cli;
 public class CliContractTests : IDisposable
 {
     private readonly List<string> _tempFiles = new();
+    private readonly List<string> _tempDirectories = new();
 
     /// <summary>Creates a minimal temporary <c>.tst</c> file and returns its absolute path.</summary>
     private string CreateTempTemplate(string content = "$Classes[$Name]")
@@ -28,11 +29,25 @@ public class CliContractTests : IDisposable
         return path;
     }
 
+    /// <summary>Creates a unique temporary directory path and tracks it for cleanup.</summary>
+    private string CreateTempDirectory()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"tw_test_dir_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(path);
+        _tempDirectories.Add(path);
+        return path;
+    }
+
     public void Dispose()
     {
         foreach (var f in _tempFiles)
         {
             try { File.Delete(f); } catch { /* best-effort cleanup */ }
+        }
+
+        foreach (var d in _tempDirectories)
+        {
+            try { Directory.Delete(d, recursive: true); } catch { /* best-effort cleanup */ }
         }
     }
 
@@ -232,6 +247,73 @@ public class CliContractTests : IDisposable
         var options = GenerateCommandOptions.Merge(
             config:        null,
             templates:     ["/nonexistent/path/template.tst"],
+            solution:      "my.sln",
+            project:       null,
+            framework:     null,
+            configuration: null,
+            runtime:       null,
+            restore:       false,
+            output:        null,
+            verbosity:     null,
+            failOnWarnings: false,
+            dryRun:        false);
+
+        var exitCode = await runner.RunAsync(options, reporter);
+
+        Assert.Equal(1, exitCode);
+        Assert.Contains(messages, m => m.Code == DiagnosticCode.TW3001);
+    }
+
+    [Fact]
+    public async Task Generate_GlobPattern_ResolvesTemplatesAndReturns0()
+    {
+        var runner = CreateRunner();
+        var messages = new List<DiagnosticMessage>();
+        var reporter = new CapturingDiagnosticReporter(messages);
+
+        var root = CreateTempDirectory();
+        var nested = Path.Combine(root, "nested", "templates");
+        Directory.CreateDirectory(nested);
+
+        File.WriteAllText(Path.Combine(root, "root.tst"), "$Classes[$Name]");
+        File.WriteAllText(Path.Combine(nested, "child.tst"), "$Classes[$Name]");
+        File.WriteAllText(Path.Combine(nested, "ignore.txt"), "x");
+
+        var globPattern = Path.Combine(root, "**", "*.tst");
+
+        var options = GenerateCommandOptions.Merge(
+            config:        null,
+            templates:     [globPattern],
+            solution:      "my.sln",
+            project:       null,
+            framework:     null,
+            configuration: null,
+            runtime:       null,
+            restore:       false,
+            output:        null,
+            verbosity:     null,
+            failOnWarnings: false,
+            dryRun:        false);
+
+        var exitCode = await runner.RunAsync(options, reporter);
+
+        Assert.Equal(0, exitCode);
+        Assert.DoesNotContain(messages, m => m.Code == DiagnosticCode.TW3001);
+    }
+
+    [Fact]
+    public async Task Generate_GlobPattern_NoMatches_Returns1WithTW3001()
+    {
+        var runner = CreateRunner();
+        var messages = new List<DiagnosticMessage>();
+        var reporter = new CapturingDiagnosticReporter(messages);
+
+        var root = CreateTempDirectory();
+        var globPattern = Path.Combine(root, "**", "*.tst");
+
+        var options = GenerateCommandOptions.Merge(
+            config:        null,
+            templates:     [globPattern],
             solution:      "my.sln",
             project:       null,
             framework:     null,

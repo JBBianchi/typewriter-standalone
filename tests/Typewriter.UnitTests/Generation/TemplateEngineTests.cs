@@ -5,6 +5,7 @@ using NSubstitute;
 using Typewriter.CodeModel.Configuration;
 using Typewriter.CodeModel.Implementation;
 using Typewriter.Generation;
+using Typewriter.Generation.Output;
 using Typewriter.Generation.Performance;
 using Typewriter.Metadata;
 using Xunit;
@@ -75,7 +76,7 @@ public class TemplateEngineTests : IDisposable
         var templateContent = $"#reference {metadataDllName}\n#reference {generationDllName}\n";
 
         var extensions = new List<Type>();
-        var compiler = new Compiler(new InvocationCache());
+        using var compiler = new Compiler(new InvocationCache());
 
         // Act
         var result = TemplateCodeParser.Parse(templateFilePath, templateContent, extensions, compiler);
@@ -203,7 +204,7 @@ public class TemplateEngineTests : IDisposable
             "tests", "fixtures", "simple", "SimpleProject", "Interfaces.tst"));
         var templateContent = File.ReadAllText(templatePath);
         var extensions = new List<Type>();
-        var compiler = new Compiler(new InvocationCache());
+        using var compiler = new Compiler(new InvocationCache());
 
         var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions, compiler);
 
@@ -223,12 +224,87 @@ public class TemplateEngineTests : IDisposable
             "tests", "fixtures", "simple", "SimpleProject", "Enums.tst"));
         var templateContent = File.ReadAllText(templatePath);
         var extensions = new List<Type>();
-        var compiler = new Compiler(new InvocationCache());
+        using var compiler = new Compiler(new InvocationCache());
 
         var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions, compiler);
 
         Assert.NotNull(result);
         Assert.NotEmpty(extensions);
+    }
+
+    /// <summary>
+    /// Verifies legacy template compatibility for upstream Settings/ILog/WebApi usage
+    /// plus dynamic and Regex APIs that rely on framework references.
+    /// </summary>
+    [Fact]
+    public void LegacyCompatibility_TemplateCompilesWithSettingsLogWebApiAndDynamic()
+    {
+        var templatePath = Path.Combine(_tempDir, "legacy-compat.tst");
+        const string templateContent = """
+            ${
+            using Typewriter.Metadata;
+            using Typewriter.VisualStudio;
+            using Typewriter.Extensions.WebApi;
+
+            public Template(Settings settings)
+            {
+                ILog log = settings.Log;
+                Log.Debug("template initialized");
+                settings.OutputFilenameFactory = file => file.Name + settings.OutputExtension;
+            }
+
+            public bool IsCompatible(Method method)
+            {
+                dynamic model = new ExpandoObject();
+                model.value = Regex.Replace("abc", "a", "z", RegexOptions.None);
+                var route = method.Url();
+                return route != null;
+            }
+            }
+            """;
+
+        var extensions = new List<Type>();
+        using var compiler = new Compiler(new InvocationCache());
+
+        var result = TemplateCodeParser.Parse(templatePath, templateContent, extensions, compiler);
+
+        Assert.NotNull(result);
+        Assert.NotEmpty(extensions);
+    }
+
+    /// <summary>
+    /// Verifies that template constructors taking Typewriter.Configuration.Settings
+    /// are instantiated and can configure settings in CLI mode.
+    /// </summary>
+    [Fact]
+    public void LegacyCompatibility_TemplateConstructorWithConfigurationSettings_IsInvoked()
+    {
+        var templatePath = Path.Combine(_tempDir, "legacy-ctor.tst");
+        const string templateContent = """
+            ${
+            using Typewriter.VisualStudio;
+
+            public Template(Settings settings)
+            {
+                ILog log = settings.Log;
+                settings.OutputExtension = ".legacy";
+            }
+            }
+            """;
+        File.WriteAllText(templatePath, templateContent);
+
+        using var compiler = new Compiler(new InvocationCache());
+        var writer = Substitute.For<IOutputWriter>();
+        var template = new Template(
+            templatePath,
+            solutionFullName: string.Empty,
+            outputPathPolicy: new OutputPathPolicy(),
+            outputWriter: writer,
+            compiler: compiler);
+
+        var settings = template.Settings;
+
+        Assert.Equal(".legacy", settings.OutputExtension);
     }
 
     /// <summary>

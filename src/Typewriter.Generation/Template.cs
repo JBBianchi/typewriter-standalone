@@ -260,9 +260,17 @@ public class Template
             }
 
             var templateClass = _customExtensions.FirstOrDefault();
-            if (templateClass?.GetConstructor([typeof(Settings)]) != null)
+            var settingsCtor = templateClass?
+                .GetConstructors()
+                .FirstOrDefault(c =>
+                {
+                    var parameters = c.GetParameters();
+                    return parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(settings.GetType());
+                });
+
+            if (settingsCtor != null)
             {
-                Activator.CreateInstance(templateClass, settings);
+                settingsCtor.Invoke([settings]);
             }
 
             return settings;

@@ -101,11 +101,18 @@ public sealed class ProjectGraphService : IProjectGraphService
         var sortedNodes = TopologicalSort(graph);
         var targets = new List<LoadTarget>(sortedNodes.Count);
         var hasError = false;
+        var loadOrder = 0;
 
         for (int i = 0; i < sortedNodes.Count; i++)
         {
             var node = sortedNodes[i];
             var projectPath = node.ProjectInstance.FullPath;
+
+            // Typewriter metadata/rendering is C#-only; skip non-C# project types
+            // that may appear in mixed solutions (for example .dcproj/.esproj).
+            if (!projectPath.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             var projectName = Path.GetFileNameWithoutExtension(projectPath);
             var tfms = GetTargetFrameworks(node);
 
@@ -146,7 +153,8 @@ public sealed class ProjectGraphService : IProjectGraphService
                 hasError = true;
             }
 
-            targets.Add(new LoadTarget(projectPath, projectName, selectedTfm, configuration, runtime, i));
+            targets.Add(new LoadTarget(projectPath, projectName, selectedTfm, configuration, runtime, loadOrder));
+            loadOrder++;
         }
 
         if (hasError)
