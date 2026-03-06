@@ -27,5 +27,5 @@ Thumbs.db
 dotnet-tools.json
 
 *.log
-.dotnet/
+.dotnet*/
 .nuget/

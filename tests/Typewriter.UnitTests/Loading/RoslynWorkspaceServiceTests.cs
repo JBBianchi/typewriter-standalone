@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Typewriter.Loading.MSBuild;
 using Xunit;
@@ -74,10 +75,8 @@ public class RoslynWorkspaceServiceTests
             defaultSeverity: severity,
             isEnabledByDefault: true);
 
-        var location = Location.Create(
-            filePath: path,
-            textSpan: new TextSpan(0, 1),
-            lineSpan: new LinePositionSpan(new LinePosition(0, 0), new LinePosition(0, 1)));
+        var tree = CSharpSyntaxTree.ParseText("class C { }", path: path);
+        var location = Location.Create(tree, new TextSpan(0, 1));
 
         return Diagnostic.Create(descriptor, location);
     }

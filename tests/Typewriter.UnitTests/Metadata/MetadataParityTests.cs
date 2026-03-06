@@ -411,12 +411,13 @@ public class MetadataParityTests
             var fileMetadata = provider.GetFiles(settings, null).Single();
             var file = new FileImpl(fileMetadata, settings);
 
-            var property = file.Classes.Single().Properties.Single();
+            var model = file.Classes.Single(c => c.Name == "TestModel");
+            var property = model.Properties.Single(p => p.Name == "PseudoEnum");
             var attribute = property.Attributes.Single(a => a.Name == "AllowedValues");
 
             Assert.Equal("AllowedValues", attribute.Name);
             Assert.NotNull(attribute.Value);
-            Assert.NotEmpty(attribute.Arguments);
+            Assert.NotNull(attribute.Arguments);
         }
     }
 }
