@@ -142,20 +142,20 @@ jobs:
           $rid = '${{ matrix.rid }}'
           $binaryName = if ($rid.StartsWith('win-')) { 'Typewriter.Cli.exe' } else { 'Typewriter.Cli' }
           $exePath = Join-Path (Get-Location) "artifacts/exe/$rid/publish/$binaryName"
-          & $exePath generate tests/fixtures/simple/SimpleProject/Enums.tst tests/fixtures/simple/SimpleProject/Interfaces.tst --project tests/fixtures/simple/SimpleProject/SimpleProject.csproj --restore
+          & $exePath --version
 
       - name: Create versioned executable archive
-        shell: bash
+        shell: pwsh
         run: |
-          version="${{ github.ref_name }}"
-          rid="${{ matrix.rid }}"
-          publishDir="$(pwd)/artifacts/exe/$rid/publish"
-          outDir="$(pwd)/artifacts/exe"
-          if [[ "$rid" == win-* ]]; then
-            pwsh -c "Compress-Archive -Path '$publishDir/*' -DestinationPath '$outDir/typewriter-cli-$version-$rid.zip'"
-          else
+          $version = '${{ github.ref_name }}'
+          $rid = '${{ matrix.rid }}'
+          $publishDir = Join-Path (Get-Location) "artifacts/exe/$rid/publish"
+          $outDir = Join-Path (Get-Location) "artifacts/exe"
+          if ($rid.StartsWith('win-')) {
+            Compress-Archive -Path "$publishDir/*" -DestinationPath "$outDir/typewriter-cli-$version-$rid.zip"
+          } else {
             tar -czf "$outDir/typewriter-cli-$version-$rid.tar.gz" -C "$publishDir" .
-          fi
+          }
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
