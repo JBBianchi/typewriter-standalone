@@ -116,14 +116,14 @@ The release workflow runs:
 
 Tag releases now produce two distribution channels:
 
-1. **NuGet tool package** (`Typewriter.Cli.<version>.nupkg`)
+1. **NuGet tool package** (`TypewriterCli.<version>.nupkg`)
 2. **GitHub release executable archives** (`typewriter-cli-v<version>-<rid>.zip`)
 
 Install/use examples:
 
 ```bash
 # NuGet tool (global or local tool flow)
-dotnet tool install --global Typewriter.Cli --version <version>
+dotnet tool install --global TypewriterCli --version <version>
 typewriter-cli generate <templates> --project <path-to-csproj>
 ```
 

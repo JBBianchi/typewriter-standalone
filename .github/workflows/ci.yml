@@ -44,5 +44,5 @@ jobs:
         shell: bash
         run: |
           set -e
-          dotnet tool install --local --add-source ./artifacts/nupkg Typewriter.Cli --prerelease --create-manifest-if-needed
+          dotnet tool install --local --add-source ./artifacts/nupkg TypewriterCli --prerelease --create-manifest-if-needed
           dotnet typewriter-cli generate tests/fixtures/simple/SimpleProject/Enums.tst tests/fixtures/simple/SimpleProject/Interfaces.tst --project tests/fixtures/simple/SimpleProject/SimpleProject.csproj

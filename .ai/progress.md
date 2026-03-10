@@ -1,13 +1,13 @@
 # Progress Tracker
 
-> Last touched: 2026-03-10 by Codex (Executor, T319)
+> Last touched: 2026-03-10 by Codex (Executor, T320)
 
 ## Current State
 
 - **Active milestone**: Complete
-- **Status**: Post-milestone task T319 completed: fixed release-pipeline RID restore and SDK setup normalization (`global-json-file` in setup-dotnet, RID-specific restore before publish, `publish-exe` fail-fast disabled for diagnosability).
+- **Status**: Post-milestone task T320 completed: added NuGet package license/readme metadata and packaged root `LICENSE`/`README.md` assets for `TypewriterCli`.
 - **Blocker**: Sandbox MSBuild restore/build/test/pack path still fails with non-actionable `Build FAILED` and `0 Error(s)` while evaluating `Typewriter.Cli.slnx`.
-- **Next step**: Re-run required verification and release tag dry-run in stable CI/local environment to confirm no `NETSDK1047` and no `setup-dotnet` unsupported-input warnings.
+- **Next step**: Re-run required verification in stable CI/local environment and validate a NuGet publish dry-run confirms license/readme warnings are gone.
 
 ## Milestone Map
 
@@ -28,6 +28,7 @@
 
 | Task | Milestone | Agent | Status | Detail |
 |------|-----------|-------|--------|--------|
+| T320 Add NuGet package license/readme metadata + Apache 2.0 LICENSE file | Post | Codex (Executor) | Done | [T320-nuget-license-readme-metadata.md](.ai/tasks/T320-nuget-license-readme-metadata.md) - added `PackageLicenseFile`/`PackageReadmeFile`, packed root `LICENSE`/`README.md`, and ran required verification commands (blocked in sandbox by non-actionable MSBuild `Build FAILED`/`0 Error(s)`). |
 | T319 Fix release pipeline (`setup-dotnet` + RID restore for publish-exe) | Post | Codex (Executor) | Done | [T319-fix-release-pipeline-rid-restore.md](.ai/tasks/T319-fix-release-pipeline-rid-restore.md) - replaced unsupported `include-prerelease` with `global-json-file: global.json` in CI/release workflows, changed `publish-exe` restore to RID-specific `dotnet restore ... -r ${{ matrix.rid }}` before `publish --no-restore`, and set `publish-exe` matrix `fail-fast: false`. |
 | T318 Implement dual release artifacts (`dotnet tool` + `exe`) | Post | Codex (Executor) | Done | [T318-dual-release-artifacts.md](.ai/tasks/T318-dual-release-artifacts.md) - added `publish-exe` RID matrix (`win/linux/osx` x64+arm64), per-RID publish verification + x64 executable smoke tests, versioned zip artifact upload, GitHub release attachment of `*.nupkg` and `*.zip`, and README release docs update; required restore/build/test/pack commands attempted but blocked in sandbox by non-actionable `Build FAILED`/`0 Error(s)` MSBuild behavior on `Typewriter.Cli.slnx`. |
 | T317 Fix failing unit tests (`RoslynWorkspaceServiceTests`, `MetadataParityTests`) | Post | Codex (Executor) | Done | [T317-fix-failing-unit-tests.md](.ai/tasks/T317-fix-failing-unit-tests.md) - made actionable-error test diagnostics source-backed, updated AllowedValues parity test to target `TestModel.PseudoEnum`, and relaxed the assertion to non-null arguments; full `restore/build/test -c Release` passes. |
@@ -165,6 +166,7 @@
 | D-0018 | Preserve `IncludeProject(name)` compatibility by matching aliases from workspace project metadata | 2026-03-06 | `ProjectInclusionTarget` now carries `NameAliases`, and `ApplicationRunner` populates aliases from Roslyn `Project.Name`, `Project.AssemblyName`, and project-file stem; `ProjectHelpers.AddProject` resolves selectors against these aliases before emitting TW1201/TW1202. See T316. |
 | D-0019 | Release publishes dual channels: NuGet tool package plus GitHub executable archives | 2026-03-10 | `release.yml` now retains `dotnet tool` packaging/publish and adds framework-dependent single-file `dotnet publish` archives per RID (`win/linux/osx` x64+arm64), with `github-release` attaching both `*.nupkg` and `*.zip` assets. See T318. |
 | D-0020 | Workflow SDK resolution follows `global.json`; RID executables restore per-RID before publish | 2026-03-10 | CI/release `setup-dotnet@v4` now uses `global-json-file: global.json` (removing unsupported `include-prerelease`), and `publish-exe` performs `dotnet restore src/Typewriter.Cli/Typewriter.Cli.csproj -r <rid>` before `publish --no-restore` to ensure RID targets exist in assets files (`NETSDK1047` mitigation). See T319. |
+| D-0021 | NuGet package metadata uses packaged root files for license/readme compliance | 2026-03-10 | `Typewriter.Cli.csproj` now sets `PackageLicenseFile=LICENSE` and `PackageReadmeFile=README.md`, and packs repo-root `LICENSE`/`README.md` via linked `None` items into package root for publish-time metadata validation parity. See T320. |
 ## Open Questions
 
 | ID | Question | Raised | Status | Target |
@@ -186,6 +188,7 @@ Note: Q1 (`IncludeProject(name)` ambiguity) was resolved â€” see `_archive/
 | 2026-03-06 | Full `dotnet test -c Release` for T316 failed on two unrelated pre-existing unit tests (`RoslynWorkspaceServiceTests.IsActionableCompilationError_ReturnsTrue_ForRegularSourceError`, `MetadataParityTests.AllowedValuesAttribute_ParamsArray_DoesNotCrash`) | Resolved in T317: aligned the diagnostics unit test to create source-backed locations and updated the AllowedValues parity test selector/assertion; reran full verification (`dotnet restore`, `dotnet build -c Release`, `dotnet test -c Release`) with all tests passing. | Post |
 | 2026-03-10 | Required verification for T318 (`dotnet restore`, `dotnet build -c Release`, `dotnet test -c Release`, `dotnet pack -c Release`) failed in sandbox with non-actionable MSBuild behavior (`Build FAILED` and `0 Error(s)`; restore diagnostic shows `_FilterRestoreGraphProjectInputItems` failure on `Typewriter.Cli.slnx`) | Completed workflow/doc changes and recorded verification attempts; defer full command validation to a stable local/CI environment where solution restore/build operates correctly. | Post |
 | 2026-03-10 | Required verification for T319 (`dotnet restore`, `dotnet build -c Release`, `dotnet test -c Release`, `dotnet pack -c Release`) again failed in sandbox with non-actionable MSBuild behavior (`Build FAILED`, `0 Error(s)`; restore diagnostic still shows `_FilterRestoreGraphProjectInputItems` failure on `Typewriter.Cli.slnx`) | Kept workflow fixes and recorded command outcomes; defer full verification to stable CI/local environment while using this change to validate the original pipeline regressions (`NETSDK1047`/unsupported setup-dotnet input) in hosted runners. | Post |
+| 2026-03-10 | Required verification for T320 (`dotnet restore`, `dotnet build -c Release`, `dotnet test -c Release`, `dotnet pack -c Release`) failed in sandbox with the same non-actionable MSBuild behavior (`Build FAILED`, `0 Error(s)`; diagnostic restore still fails during project-walk targets) | Kept package metadata/license/readme changes and captured logs (`artifacts/t320-*.log`); defer full validation (including publish warning check) to stable local/CI environment. | Post |
 
 ## Patterns & Conventions
 
@@ -214,6 +217,7 @@ Note: Q1 (`IncludeProject(name)` ambiguity) was resolved â€” see `_archive/
 - **Source-diagnostic unit-test setup**: When testing source-only Roslyn diagnostic filters, create diagnostics from a `CSharpSyntaxTree` with the target file path (`Location.Create(tree, ...)`) instead of `Location.Create(filePath, ...)`, so `Location.IsInSource` behavior matches real compilation diagnostics. See T317.
 - **Dual release artifact convention**: Keep NuGet `dotnet tool` packaging as the canonical publish channel, and publish per-RID executable archives as GitHub release assets with deterministic names `typewriter-cli-<tag>-<rid>.zip`; update `github-release` to attach both artifact families (`*.nupkg`, `*.zip`). See T318, D-0019.
 - **RID publish restore convention**: When `dotnet publish` is executed with `-r <rid>` and `--no-restore`, perform a matching RID restore (`dotnet restore <project> -r <rid>`) in the same job first to avoid missing runtime-target assets (`NETSDK1047`). See T319, D-0020.
+- **NuGet license/readme packaging convention**: For the tool package project, set `PackageLicenseFile`/`PackageReadmeFile` and include repo-root files as packed linked `None` items at package root (`LICENSE`, `README.md`) to satisfy NuGet publish metadata warnings. See T320, D-0021.
 
 
 

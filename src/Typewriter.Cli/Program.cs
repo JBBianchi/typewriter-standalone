@@ -77,6 +77,10 @@ generateCommand.SetHandler(async (InvocationContext ctx) =>
 
 rootCommand.AddCommand(generateCommand);
 
+// Set a root handler so System.CommandLine middleware (--version, --help)
+// can short-circuit before "Required command was not provided" validation.
+rootCommand.SetHandler(() => { });
+
 // ---- parse and invoke ----
 // Build the parser with defaults (--help, --version, parse-error reporting).
 var parser = new CommandLineBuilder(rootCommand)
